@@ -29,7 +29,10 @@ Endpoints:
 GET    /recipes                     — list user's recipes, sorted by last_cooked_at DESC (nulls last, then by name)
 POST   /recipes                     — create recipe with name, description, and ingredients list
 GET    /recipes/{id}                — recipe detail with full ingredient list
-PATCH  /recipes/{id}                — update name, description, or full ingredients list replacement
+PATCH  /recipes/{id}                — update name/description; replace the full ingredient
+                                      list (delete all existing RecipeIngredient rows for
+                                      this recipe, then reinsert from the submitted list);
+                                      client always sends the complete ingredient list
 DELETE /recipes/{id}                — delete recipe and its RecipeIngredient rows
 POST   /recipes/{id}/duplicate      — copy recipe (new name = "Copy of <name>"), return new recipe id
 ```
@@ -41,7 +44,7 @@ Access rule: a user may only read/modify their own recipes. Accessing another us
 - [ ] Alembic migrations for `recipes` and `recipe_ingredients` apply cleanly
 - [ ] `POST /recipes` creates a recipe with ingredients; `GET /recipes/{id}` returns the full ingredient list in display order
 - [ ] `GET /recipes` returns only the calling user's recipes, sorted by `last_cooked_at DESC` (never-cooked recipes at the end, sorted by name)
-- [ ] `PATCH /recipes/{id}` can update name/description and replace the full ingredient list
+- [ ] `PATCH /recipes/{id}` can update name/description and replace the full ingredient list (delete-all existing `RecipeIngredient` rows + reinsert from the submitted list)
 - [ ] `DELETE /recipes/{id}` removes the recipe and all its `RecipeIngredient` rows
 - [ ] `POST /recipes/{id}/duplicate` creates a new recipe with the same ingredients; original is unchanged
 - [ ] Requesting another user's recipe via any endpoint returns HTTP 404

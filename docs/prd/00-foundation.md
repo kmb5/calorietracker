@@ -83,7 +83,7 @@ id, name, unit (g | ml | tablespoon | piece),
 portion_size (float),           -- the "per X" baseline
 kcal (float),                   -- per portion_size
 protein (float), fat (float), carbohydrates (float),
-fiber (float), sodium (float),  -- all per portion_size
+fiber (float), sodium (float),  -- all per portion_size; NOTE: sodium is in **mg**, all other macros in g
 is_system (bool),               -- true = seeded/admin-managed
 owner_id (FK nullable),         -- null for system ingredients; user_id for custom
 is_promotion_pending (bool),    -- user has submitted for admin review
@@ -97,7 +97,8 @@ class Unit(Enum):
     G = "g"; ML = "ml"; TABLESPOON = "tablespoon"; PIECE = "piece"
 
 # Prototype nutrition fields (confirmed correct model):
-# kcal, fat, sodium, carbohydrates, protein, fiber — all per portion_size units
+# kcal, fat, carbohydrates, protein, fiber — all per portion_size in g
+# sodium — per portion_size in mg (milligrams, consistent with nutrition label conventions)
 ```
 
 ### Auth Flow
@@ -129,7 +130,18 @@ class Unit(Enum):
 
 ### Frontend Architecture
 - Single-page app with React Router (or TanStack Router) for client-side routing
-- Auth state in a React context, persisted to `localStorage` (access token) + `httpOnly` cookie (refresh token)
+- **Navigation: 5-tab bottom bar** (mobile-first, always visible):
+
+  | Tab | Label | Route | Notes |
+  |-----|-------|-------|-------|
+  | 1 | Log | `/` | Default home — today's daily log |
+  | 2 | Recipes | `/recipes` | Recipe list + cooking mode |
+  | 3 | Pantry | `/pantry` | Pantry list; carries expiring-soon badge |
+  | 4 | History | `/history` | Calendar + weekly strip (PRD 04) |
+  | 5 | Profile | `/profile` | Macro targets + account + logout |
+
+  All routes under `/admin/*` are outside the tab bar and only accessible to admin users.
+- Auth state in a React context: access token stored **in memory only** (never localStorage — XSS risk); refresh token stored in an `httpOnly` cookie via the API
 - shadcn/ui Combobox component as the ingredient search input — supports async search, keyboard navigation, mobile tap targets
 - All UI/component work to be implemented following the **frontend-design skill** for aesthetic direction and implementation quality
 

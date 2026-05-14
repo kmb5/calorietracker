@@ -11,7 +11,7 @@ Implement the daily log home screen in React, following the approved prototype f
 
 This slice covers:
 - **Default route** (`/`) shows today's log; fetches from `GET /logs?date=today` and `GET /logs/summary?date=today` and `GET /users/me/targets` on mount
-- **Macro summary panel** — sticky at the top; progress bars for kcal, protein, fat, carbohydrates; CSS transition animations as entries are added; overflow state (>110% of target) changes bar colour; if no targets set, show numbers-only without progress bars
+- **Macro summary panel** — sticky at the top; **4 progress bars**: kcal, protein, fat, carbohydrates; fiber shown as a compact numeric label below the bars (e.g. "Fiber: 18 / 30g") — five bars is too cramped on a 375px sticky panel; CSS transition animations as entries are added; overflow state (>110% of target) changes bar colour; if no targets set, show numbers-only without progress bars
 - **Meal type sections** — Breakfast / Lunch / Dinner / Snack; each section is collapsible; section header shows per-section kcal total; empty sections are visually de-emphasised (collapsed by default)
 - **Log entry cards** — name, amount (g), kcal; tapping opens the edit sheet (implemented in 02-10)
 - **Date navigation** — prev/next arrows update the date param; "Today" button appears when not on today; fetches new data on date change

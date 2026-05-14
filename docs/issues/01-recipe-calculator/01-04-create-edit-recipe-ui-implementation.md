@@ -19,7 +19,7 @@ This slice covers:
   - Cancel navigates back to the recipe list
 - **Edit recipe form** (`/recipes/{id}/edit`)
   - Pre-fills from `GET /recipes/{id}`
-  - Save calls `PATCH /recipes/{id}`
+  - Save calls `PATCH /recipes/{id}` with the **complete ingredient list** (all rows, not a delta); the backend deletes all existing recipe ingredients and reinserts from this list
   - "Delete recipe" danger button → confirmation → `DELETE /recipes/{id}` → navigate to list
   - "Duplicate" button → `POST /recipes/{id}/duplicate` → navigate to edit view of new recipe
 - **Validation**: name is required; at least one ingredient is required to save; amount must be > 0

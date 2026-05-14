@@ -44,6 +44,13 @@ GET /logs/calendar?year=YYYY&month=MM
     { date, total_kcal, total_protein_g, total_fat_g, total_carbs_g, entry_count }
   — days with no entries are omitted (client treats missing days as no-log)
 
+GET /logs/weekly-summary?end_date=YYYY-MM-DD
+  — returns an array of DaySummary for the 7 calendar days ending on end_date (inclusive)
+  — defaults to today when end_date is omitted
+  — days with no entries are omitted (same convention as /logs/calendar)
+  — used by the weekly strip bar chart; a separate endpoint avoids month-boundary gaps
+    when the current week spans two calendar months
+
 GET /logs/streak
   — returns { current_streak_days, longest_streak_days }
 ```

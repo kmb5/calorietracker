@@ -10,7 +10,7 @@
 Produce a plain HTML clickable prototype of the daily log home screen — the default screen users see when they open the app. This is the second most important screen after Cooking Mode. It must convey the day's nutrition status at a glance, be scannable in seconds, and stay usable on a phone while eating.
 
 Screens / states to cover:
-1. **Daily log — active day** — today's date in the header; sticky macro summary panel at the top (kcal, protein, fat, carbs as progress bars with target values); four meal type sections (Breakfast / Lunch / Dinner / Snack), each collapsible; section headers show per-section kcal total; log entry cards within each section (ingredient name, amount, kcal); "+" add button (links to add-to-log flow, static in prototype)
+1. **Daily log — active day** — today's date in the header; sticky macro summary panel at the top showing **4 progress bars** (kcal, protein, fat, carbs) with target values, plus a compact fiber numeric label (e.g. "Fiber: 18 / 30g") below the bars; four meal type sections (Breakfast / Lunch / Dinner / Snack), each collapsible; section headers show per-section kcal total; log entry cards within each section (ingredient name, amount, kcal); "+" add button (links to add-to-log flow, static in prototype)
 2. **Macro summary — target exceeded** — one or more progress bars at 110%+; show the overflow colour state (amber/red)
 3. **Macro summary — no targets set** — macro values shown without progress bars (just numbers)
 4. **Empty meal section** — a collapsed or visually muted empty section (e.g. Dinner with no entries)
@@ -27,7 +27,7 @@ Deliverable: HTML file(s) committed to `docs/prototypes/daily-log/`.
 ## Acceptance criteria
 
 - [ ] All 6 states above are represented and navigable
-- [ ] Macro summary panel contains progress bars for kcal, protein, fat, and carbs
+- [ ] Macro summary panel contains progress bars for kcal, protein, fat, and carbs, plus a fiber numeric label
 - [ ] Overflow state (>110% of target) shows visually distinct colour on the relevant bar
 - [ ] No-targets state shows numeric values without progress bars
 - [ ] Empty meal sections are visually de-emphasised (not four identical empty boxes)

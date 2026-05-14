@@ -30,7 +30,7 @@ MealLogEntry:
   fat_g (float),
   carbohydrates_g (float),
   fiber_g (float),
-  sodium_g (float)
+  sodium_mg (float)              -- milligrams (consistent with ingredient DB and MacroTarget.sodium_mg_target)
 ```
 
 For recipe portions, one `MealLogEntry` row is created **per recipe ingredient**, each holding its proportional nutrition snapshot.
@@ -45,7 +45,8 @@ GET  /logs/summary?date=YYYY-MM-DD — daily macro totals (sum of all entries)
 ## Acceptance criteria
 
 - [ ] Alembic migrations for `meal_logs` and `meal_log_entries` tables apply cleanly
-- [ ] `POST /logs` creates a `MealLog` with entries; nutrition values are snapshotted at write time
+- [ ] `POST /logs` accepts `logged_date` as a `YYYY-MM-DD` string from the client; the server stores it as-is and never derives the date from UTC `now()`
+- [ ] `POST /logs` creates a `MealLog` with entries; nutrition values are snapshotted at write time; server trusts client-provided nutrition values (no server-side recomputation)
 - [ ] For a recipe portion log, one `MealLogEntry` row is created per recipe ingredient
 - [ ] `GET /logs?date=` returns all logs and entries for that calendar date (user's own only)
 - [ ] `GET /logs?date=` for a date with no entries returns an empty list (not an error)

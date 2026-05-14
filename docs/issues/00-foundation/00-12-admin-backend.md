@@ -28,7 +28,7 @@ PATCH  /admin/users/{id}                              — activate or deactivate
 PATCH  /admin/users/{id}/role                         — set role to admin or user
 ```
 
-The rejection note on `reject` is stored on the Ingredient row (a nullable `promotion_rejection_note` field) or in a separate audit log — implementor's choice, but the note must be retrievable.
+The rejection note on `reject` is stored as a nullable `promotion_rejection_note` column on the `Ingredient` row itself. No separate audit table. The admin UI reads this field when displaying rejected promotions.
 
 ## Acceptance criteria
 

@@ -12,7 +12,7 @@ Implement the recipe list screen and the read-only recipe detail view in React, 
 This slice covers:
 - **Recipe list screen** (`/recipes`)
   - Fetches from `GET /recipes`
-  - Cards: recipe name, last cooked date ("Not cooked yet" if null), ingredient count, last per-100g kcal
+  - Cards: recipe name, last cooked date ("Never cooked" if null), ingredient count
   - Sort: most recently cooked first; never-cooked recipes alphabetically at the bottom
   - Search bar: client-side filter on loaded recipe names (no separate API call needed)
   - FAB → navigates to create form (01-04)
@@ -21,7 +21,8 @@ This slice covers:
 - **Recipe detail view** (`/recipes/{id}`)
   - Fetches from `GET /recipes/{id}`
   - Ingredient list in display order with amounts
-  - Last cooked date and last per-100g nutrition panel (shown only if `last_cooked_at` is set)
+  - Last cooked date and last cooked weight (shown only if `last_cooked_at` is set)
+  - No per-100g nutrition panel — per-100g is only available inside Cooking Mode
   - "Start Cooking" button → navigates to Cooking Mode (01-07, can be a placeholder link for now)
   - "Edit" button → navigates to edit form (01-04)
 
@@ -29,13 +30,13 @@ The frontend-design skill must be invoked for the visual implementation.
 
 ## Acceptance criteria
 
-- [ ] Recipe list loads from `GET /recipes` and renders cards with all four data points
+- [ ] Recipe list loads from `GET /recipes` and renders cards with name, last cooked date, and ingredient count
 - [ ] Search bar filters the visible recipe cards in real time
 - [ ] FAB is visible without scrolling on the list and navigates to the create route
 - [ ] Swipe-to-delete removes the card immediately (optimistic); undo toast appears for 5 seconds
 - [ ] Empty state renders when no recipes exist
-- [ ] Recipe detail view loads from `GET /recipes/{id}` and shows ingredient list in display order
-- [ ] Last per-100g nutrition panel is hidden when recipe has never been cooked
+- [ ] Recipe detail view loads from `GET /recipes/{id}` and shows ingredient list in display order with last cooked date and last cooked weight
+- [ ] No per-100g nutrition panel exists on the detail view (it belongs in Cooking Mode only)
 - [ ] "Start Cooking" button is present (links to Cooking Mode — placeholder is acceptable)
 - [ ] "Edit" button navigates to the edit form
 - [ ] Both screens are correct at 375px and 1280px

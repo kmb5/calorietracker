@@ -23,7 +23,7 @@ This is the **primary, hero feature** of the application. It must be exceptional
 6. As a user, I want to see a list of all my saved recipes, sorted by most recently used, so that my frequently-cooked meals are always at the top.
 7. As a user, I want to search my recipe list by name, so that I can find a specific recipe quickly even if I have many saved.
 8. As a user, I want to duplicate an existing recipe as a starting point for a variation, so that I don't have to rebuild ingredient lists from scratch.
-9. As a user, I want each recipe to show a "last cooked" timestamp and the last cooked weight I entered, so that I have a useful starting point for the next cook.
+9. As a user, I want each recipe to show a "last cooked" timestamp and the last cooked weight I entered, so that the cooked-weight field in Cooking Mode is pre-filled as a starting point next time.
 
 ### Cooking Mode — Real-time Calculator
 10. As a user, I want to tap a recipe and immediately enter Cooking Mode from my recipe list, so that the transition from "choosing what to cook" to "active cooking calculator" is one tap.
@@ -44,7 +44,7 @@ This is the **primary, hero feature** of the application. It must be exceptional
 25. As a user, I want to use Cooking Mode in an ad-hoc way (without a pre-saved recipe) by starting from a blank ingredient list, so that one-off dishes don't require creating a saved recipe first.
 
 ### Recipe Detail View
-26. As a user, I want to view a recipe's ingredient list and the last-used per-100g nutrition (from the most recent cook) in a read-only detail view, so that I can reference it without entering Cooking Mode.
+26. As a user, I want to view a recipe's ingredient list (ingredients + template amounts) in a read-only detail view, so that I can check the recipe blueprint without entering Cooking Mode. Per-100g nutrition is only available inside Cooking Mode after entering a cooked weight.
 27. As a user, I want the recipe detail view to show the recipe's creation date and last cooked date, so that I can see how active the recipe is.
 
 ## Implementation Decisions
@@ -124,7 +124,7 @@ The `/calculate` endpoint exists so the backend can validate and compute nutriti
 
 ### Recipe List UX
 - Default sort: last cooked (most recent first), with a secondary sort by name for never-cooked recipes
-- Recipe cards show: name, last cooked date, ingredient count, last per-100g kcal (if available)
+- Recipe cards show: name, last cooked date (or "Never cooked"), ingredient count
 - FAB (Floating Action Button) for "New Recipe" on mobile
 - Swipe-to-delete on recipe cards (mobile) with undo toast
 

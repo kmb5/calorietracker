@@ -45,12 +45,11 @@ A daily meal log where users can log meals under four fixed types (Breakfast, Lu
 ### Log Entry Management
 25. As a user, I want to edit a log entry after adding it (change the portion weight, change the meal type), so that I can correct mistakes made in a hurry.
 26. As a user, I want to delete a log entry, with an undo option, so that accidental entries don't permanently affect my daily totals.
-27. As a user, I want to copy a log entry from today to another meal slot (e.g. "I'm having the same lunch tomorrow"), so that repeated meals don't require re-entry.
-28. As a user, I want to see the time a log entry was created, so that I have a chronological record of my eating.
+27. As a user, I want to see the time a log entry was created, so that I have a chronological record of my eating.
 
 ### Log History Navigation
-29. As a user, I want to navigate to a previous day's log using prev/next date controls, so that I can review or correct past entries.
-30. As a user, I want the date navigation to default to today, and have a "Today" shortcut button when I've navigated away, so that I can return to the current day with one tap.
+28. As a user, I want to navigate to a previous day's log using prev/next date controls, so that I can review or correct past entries.
+29. As a user, I want the date navigation to default to today, and have a "Today" shortcut button when I've navigated away, so that I can return to the current day with one tap.
 
 ## Implementation Decisions
 
@@ -90,10 +89,10 @@ protein_g (float),
 fat_g (float),
 carbohydrates_g (float),
 fiber_g (float),
-sodium_g (float)
+sodium_mg (float)       -- milligrams (consistent with ingredient DB and target field)
 ```
 
-**Key design decision**: nutrition values are **snapshotted at log time** and stored as absolute values (not as a reference to per-100g data). This means editing an ingredient's nutrition values in the database does not retroactively change historical logs — which is correct behaviour for a food diary.
+**Key design decision**: nutrition values are **snapshotted at log time** and stored as absolute values (not as a reference to per-100g data). Snapshots are frozen against external ingredient changes — editing an ingredient's nutrition values in the database never retroactively alters existing log entries. However, a user may explicitly edit their own entry's `amount_g`, which proportionally recalculates the snapshot (`new_value = old_value × (new_amount / old_amount)`). Only external ingredient edits are blocked from affecting history; user-initiated amount corrections are expected and supported.
 
 A `MealLog` can have one or more `MealLogEntry` rows. A simple ad-hoc single-item log creates a `MealLog` with one `MealLogEntry`. A recipe portion creates a `MealLog` with as many `MealLogEntry` rows as the recipe has ingredients (or a single rolled-up entry — see notes).
 
@@ -108,7 +107,10 @@ Two approaches for recipe portion logging:
 
 ```
 GET    /logs?date=YYYY-MM-DD          — fetch all MealLogs + entries for a day
-POST   /logs                          — create a new MealLog with entries
+POST   /logs                          — create a new MealLog with entries;
+                                        `logged_date` is a YYYY-MM-DD string supplied
+                                        by the client (the user's local calendar date);
+                                        the server never derives this from UTC now()
 PATCH  /logs/{id}                     — update meal_type or notes
 DELETE /logs/{id}                     — delete a MealLog and its entries
 
@@ -121,7 +123,10 @@ GET    /users/me/targets              — get current user's macro targets
 PUT    /users/me/targets              — upsert macro targets
 ```
 
-### Daily Macro Summary Calculation
+### Nutrition Snapshot Trust Model
+`POST /logs` accepts client-provided nutrition values and stores them as-is. The server does **not** recompute or validate the nutrition math. This is a personal tracker — the user is the only one who benefits or suffers from inaccurate values. The integrity guarantee comes from the Cooking Mode flow, which goes through `POST /recipes/{id}/cook` (server-computed) before `POST /logs` is called. For the add-to-log sheet recipe tab, the client runs the same `calculateNutrition` TypeScript function and the server trusts the result.
+
+
 ```python
 # Computed server-side, also available as a pure frontend utility:
 def daily_summary(entries: list[MealLogEntry]) -> MacroSummary:
@@ -131,7 +136,7 @@ def daily_summary(entries: list[MealLogEntry]) -> MacroSummary:
         fat_g=sum(e.fat_g for e in entries),
         carbohydrates_g=sum(e.carbohydrates_g for e in entries),
         fiber_g=sum(e.fiber_g for e in entries),
-        sodium_g=sum(e.sodium_g for e in entries),
+        sodium_mg=sum(e.sodium_mg for e in entries),
     )
 ```
 
@@ -180,6 +185,7 @@ Test the daily summary aggregation, the nutrition snapshot logic, and API access
 - Water / hydration tracking
 - Micronutrients beyond the core 6 (kcal, protein, fat, carbs, fiber, sodium)
 - "Copy yesterday's log" functionality (v2)
+- Copying a log entry to a different day or meal slot (v2) — the add-to-log flow already covers re-logging the same meal with minimal friction
 
 ## Further Notes
 

@@ -47,7 +47,7 @@ Alembic migration included.
 - [ ] Access token encodes `user_id` and `role`; expiry is 15 minutes
 - [ ] Refresh token is stored as a bcrypt hash in the `refresh_tokens` table — plaintext is never persisted
 - [ ] Passwords are hashed with bcrypt cost ≥ 12
-- [ ] `PATCH /admin/users/{id}` can deactivate a user (admin only) — a deactivated user's login returns HTTP 403
+- [ ] A deactivated user's login attempt returns HTTP 403 (enforcement lives in the auth layer; the endpoint to set `is_active` is implemented in 00-12 admin backend)
 - [ ] Alembic migration for `users` and `refresh_tokens` tables applies cleanly
 - [ ] All tests run against a dedicated test PostgreSQL database (separate DB, seeded in fixtures)
 

@@ -16,7 +16,7 @@ This slice covers:
   - Selecting a recipe shows a portion weight input (grams)
   - If `last_cooked_weight_g` is null or the user wants to change it, a cooked weight field is shown
   - Meal type selector, pre-populated by `suggestMealType(hour)` from 01-08
-  - "Log" calls `POST /logs` with the nutrition snapshot for the entered portion weight (uses the TypeScript `calculateNutrition` from 01-05 to compute the snapshot client-side, validated server-side)
+  - "Log" calls `POST /logs` with the nutrition snapshot for the entered portion weight (computed client-side using the TypeScript `calculateNutrition` from 01-05; server trusts these values — no server-side recomputation)
 - **Ingredient tab**
   - Ingredient search combobox from 00-08
   - Amount input defaults to the ingredient's `portion_size`

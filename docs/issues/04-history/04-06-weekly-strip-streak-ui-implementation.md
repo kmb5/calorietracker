@@ -11,7 +11,7 @@ Implement the weekly summary strip and streak display in React, following the ap
 
 This slice covers:
 - **Weekly strip** — a 7-day rolling kcal bar chart built in **inline SVG** (no charting library)
-  - Data: the last 7 `DaySummary` entries from the already-loaded calendar data (no extra API call needed for the chart data itself)
+  - Data: fetches `GET /logs/weekly-summary` (no `end_date`, defaults to today) on mount — a dedicated call separate from the monthly calendar fetch, necessary because the 7-day window can span two calendar months
   - Bars: one per day; height proportional to `total_kcal`; bar colour changes when above the kcal target
   - Reference line: horizontal SVG `<line>` at the target kcal height (hidden when no target is set)
   - Labels: day abbreviation below each bar; kcal value above each bar (or as tooltip on tap)
