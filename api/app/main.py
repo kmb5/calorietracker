@@ -5,6 +5,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.auth.router import router as auth_router
 from app.config import get_settings
+from app.ingredients.router import router as ingredients_router
 from app.limiter import limiter
 
 # get_settings() is called here so that CORSMiddleware can be registered
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(ingredients_router)
 
 
 @app.get("/health")
