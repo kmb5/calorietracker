@@ -151,20 +151,27 @@ async def test_search_excludes_other_users_custom_ingredients(
 async def test_search_prefix_matches_before_substring(
     client: AsyncClient, db_session: AsyncSession
 ):
-    await _create_ingredient(db_session, name="Raw Chicken", is_system=True)
+    # Seed more than the default limit (20) of substring-only matches first so
+    # that a DB-level LIMIT applied before sorting would swallow the prefix match.
+    # "Chicken Fillet" (prefix match) is inserted LAST — a naive LIMIT 20 on the
+    # first 20 DB rows would exclude it entirely, proving the bug.
+    for i in range(22):
+        await _create_ingredient(
+            db_session, name=f"Grilled Raw Chicken Variant {i:02d}", is_system=True
+        )
     await _create_ingredient(db_session, name="Chicken Fillet", is_system=True)
 
     token = await register_and_login(client, "user_rank")
     resp = await client.get(
-        "/ingredients/search?q=chicken", headers=auth_headers(token)
+        "/ingredients/search?q=chicken&limit=20", headers=auth_headers(token)
     )
     assert resp.status_code == 200
     results = resp.json()
     names = [i["name"] for i in results]
-    assert "Chicken Fillet" in names
-    assert "Raw Chicken" in names
-    # Prefix match "Chicken Fillet" should come before substring "Raw Chicken"
-    assert names.index("Chicken Fillet") < names.index("Raw Chicken")
+    # Prefix match must be first regardless of insertion order
+    assert names[0] == "Chicken Fillet"
+    # Total returned must be capped at limit
+    assert len(results) == 20
 
 
 @pytest.mark.asyncio

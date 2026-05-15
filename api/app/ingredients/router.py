@@ -43,7 +43,10 @@ async def search_ingredients(
     if unit is not None:
         base_filters.append(Ingredient.unit == unit)
 
-    stmt = select(Ingredient).where(*base_filters).limit(limit)
+    # No DB-level limit: fetch all matches first, sort prefix-first in Python,
+    # then slice. Applying LIMIT before sorting would drop prefix matches that
+    # happen to fall outside the first N rows returned by the DB.
+    stmt = select(Ingredient).where(*base_filters)
 
     result = await session.execute(stmt)
     rows: list[Ingredient] = list(result.scalars().all())
@@ -52,7 +55,7 @@ async def search_ingredients(
     prefix_lower = q.lower()
     rows.sort(key=lambda i: 0 if i.name.lower().startswith(prefix_lower) else 1)
 
-    return rows
+    return rows[:limit]
 
 
 # ---------------------------------------------------------------------------
