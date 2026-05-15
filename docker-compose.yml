@@ -22,6 +22,8 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+      args:
+        INSTALL_DEV: "true"
     # Mount source for hot-reload; packages live in the image, not in the mount.
     # The anonymous volume on /app/.venv ensures the container-built venv
     # (Python 3.12) is never overwritten by the host bind-mount.
@@ -31,7 +33,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
-      ENVIRONMENT: development
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     ports:
       - "8000:8000"
     depends_on:
@@ -58,7 +60,7 @@ services:
 
   # ─── pgweb (dev-only DB inspector) ─────────────────────────────────────────
   pgweb:
-    image: sosedoff/pgweb:latest
+    image: sosedoff/pgweb:0.16.1
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
