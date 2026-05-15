@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Auth Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:       #FDF6ED;
+      --cream-dark:  #F5EADB;
+      --terra:       #C9562B;
+      --terra-dark:  #A8431F;
+      --terra-light: #F2E0D8;
+      --ink:         #1A1208;
+      --ink-mid:     #4A3728;
+      --ink-soft:    #7A6555;
+      --border:      #E2CEBA;
+      --white:       #FFFFFF;
+      --success:     #2B6B44;
+      --success-bg:  #D6EDE1;
+      --error:       #C9562B;
+      --error-bg:    #F9E8E3;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --radius:       14px;
+      --radius-sm:    8px;
+      --shadow:       0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:    0 2px 8px rgba(26,18,8,0.07);
+    }
+
+    html, body {
+      width: 375px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--cream);
+      font-family: var(--font-body);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Center on large screens while preserving 375 feel */
+    @media (min-width: 420px) {
+      body {
+        width: 375px;
+        box-shadow: 0 0 0 1px var(--border), 0 8px 48px rgba(26,18,8,0.12);
+      }
+    }
+
+    /* ── Animated background ─────────────────────────────────────── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      width: 375px;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 280px 220px at 90% 10%, rgba(201,86,43,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 300px at 10% 80%, rgba(201,86,43,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 320px 180px at 50% 50%, rgba(245,234,219,0.6) 0%, transparent 80%);
+      animation: breathe 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes breathe {
+      from { opacity: 0.7; transform: scale(1); }
+      to   { opacity: 1;   transform: scale(1.04); }
+    }
+
+    /* Grain texture overlay */
+    .bg-layer::after {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── Screens ─────────────────────────────────────────────────── */
+    .screen {
+      position: relative;
+      z-index: 1;
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .screen.active { display: flex; }
+
+    /* ── Brand header ────────────────────────────────────────────── */
+    .brand {
+      padding: 52px 28px 28px;
+      text-align: center;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: var(--terra);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(201,86,43,0.35);
+    }
+
+    .brand-mark svg {
+      width: 28px; height: 28px;
+      fill: white;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .brand-title span {
+      color: var(--terra);
+    }
+
+    .brand-subtitle {
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────── */
+    .card {
+      flex: 1;
+      background: var(--white);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 32px 24px 40px;
+      box-shadow: 0 -2px 20px rgba(26,18,8,0.06);
+      position: relative;
+    }
+
+    .card-handle {
+      width: 36px; height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 28px;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      font-weight: 400;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ── Form fields ─────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 50px;
+      padding: 0 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+
+    .field input::placeholder {
+      color: #C4B0A0;
+    }
+
+    .field input:focus {
+      border-color: var(--terra);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(201,86,43,0.12);
+    }
+
+    .field input.error-input {
+      border-color: var(--error);
+      background: var(--error-bg);
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--error);
+      font-weight: 500;
+      margin-top: 5px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .field-error.visible { display: flex; }
+
+    .field-error svg {
+      width: 13px; height: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ── Password wrapper ────────────────────────────────────────── */
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-right: 48px;
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-pw:hover { color: var(--terra); }
+
+    .toggle-pw svg { width: 18px; height: 18px; }
+
+    /* ── Password strength ───────────────────────────────────────── */
+    .pw-strength {
+      margin-top: 8px;
+      display: none;
+    }
+
+    .pw-strength.visible { display: block; }
+
+    .pw-strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .pw-strength-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    /* ── Alert banner ────────────────────────────────────────────── */
+    .alert {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 15px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.45;
+      animation: slideDown 0.25s ease;
+    }
+
+    .alert.visible { display: flex; }
+
+    .alert svg {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .alert-error {
+      background: var(--error-bg);
+      color: #8B2A10;
+      border: 1px solid rgba(201,86,43,0.2);
+    }
+
+    .alert-success {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(43,107,68,0.2);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Submit button ───────────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      height: 52px;
+      background: var(--terra);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+      box-shadow: 0 3px 12px rgba(201,86,43,0.30);
+      margin-top: 8px;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 6px rgba(201,86,43,0.25);
+    }
+
+    .btn-primary:hover {
+      background: var(--terra-dark);
+      box-shadow: 0 4px 16px rgba(201,86,43,0.38);
+    }
+
+    .btn-primary.loading {
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:active::after { opacity: 0.08; }
+
+    .btn-spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .btn-primary.loading .btn-text { opacity: 0; }
+    .btn-primary.loading .btn-spinner { display: block; }
+
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    /* ── Divider ─────────────────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider span {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    /* ── Footer link ─────────────────────────────────────────────── */
+    .auth-switch {
+      text-align: center;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      font-weight: 400;
+      padding-top: 4px;
+    }
+
+    .auth-switch a {
+      color: var(--terra);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* ── Forgot password ─────────────────────────────────────────── */
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -8px;
+      margin-bottom: 12px;
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .forgot-link:hover { color: var(--terra); }
+
+    /* ── Demo error toggle ───────────────────────────────────────── */
+    .demo-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cream-dark);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: all 0.15s;
+    }
+
+    .demo-badge:hover {
+      background: var(--terra-light);
+      border-color: var(--terra);
+      color: var(--terra-dark);
+    }
+
+    .demo-badge svg { width: 12px; height: 12px; }
+
+    .demo-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* ── Logged-in screen ────────────────────────────────────────── */
+    .loggedin-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+      text-align: center;
+      background: var(--white);
+    }
+
+    .success-icon {
+      width: 72px; height: 72px;
+      background: var(--success-bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .success-icon svg {
+      width: 36px; height: 36px;
+      color: var(--success);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .loggedin-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .loggedin-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      max-width: 280px;
+      margin: 0 auto 32px;
+    }
+
+    .token-preview {
+      width: 100%;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+
+    .token-preview-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+
+    .token-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .token-field:last-child { margin-bottom: 0; }
+
+    .token-key {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      min-width: 80px;
+    }
+
+    .token-val {
+      font-size: 11px;
+      color: var(--ink-soft);
+      font-family: monospace;
+      background: var(--cream-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      height: 48px;
+      background: transparent;
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--ink-mid);
+      background: var(--cream);
+    }
+
+    /* ── Prototype banner ────────────────────────────────────────── */
+    .proto-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      width: 375px;
+      margin: 0 auto;
+      background: rgba(26,18,8,0.88);
+      backdrop-filter: blur(8px);
+      color: rgba(255,255,255,0.7);
+      font-size: 10.5px;
+      font-weight: 500;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      letter-spacing: 0.4px;
+      z-index: 100;
+    }
+
+    .proto-banner span {
+      background: var(--terra);
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Background layer -->
+  <div class="bg-layer"></div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SCREEN 1 — LOGIN
+  ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen active" id="screen-login">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <!-- Spoon/bowl icon -->
+        <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/>
+          <circle cx="14" cy="12" r="3.5"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Calorie<span>Tracker</span></h1>
+      <p class="brand-subtitle">Cook smarter. Know what you eat.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-handle"></div>
+      <h2 class="card-title">Welcome back</h2>
+      <p class="card-desc">Sign in to your kitchen diary.</p>
+
+      <!-- Demo controls -->
+      <div>
+        <div class="demo-label">↓ prototype states</div>
+        <div class="demo-controls">
+          <button class="demo-badge" onclick="showLoginError('invalid')">
+            <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0Zm.75 8.25h-1.5v-1.5h1.5v1.5Zm0-3h-1.5v-3h1.5v3Z"/></svg>
+            Invalid credentials
+          </button>
+          <button class="demo-badge" onclick="showLoginError('deactivated')">
+            <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0Zm.75 8.25h-1.5v-1.5h1.5v1.5Zm0-3h-1.5v-3h1.5v3Z"/></svg>
+            Account deactivated
+          </button>
+          <button class="demo-badge" onclick="clearLoginError()">
+            ✕ Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Error alert -->
+      <div class="alert alert-error" id="login-alert">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="9" cy="9" r="8"/>
+          <path d="M9 5.5v4M9 12.5h.01" stroke-linecap="round"/>
+        </svg>
+        <span id="login-alert-text">Invalid credentials. Please check your username and password.</span>
+      </div>
+
+      <!-- Form — POST /auth/login: { username, password } -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)">
+        <div class="field">
+          <label for="login-username">Username</label>
+          <input
+            type="text"
+            id="login-username"
+            name="username"
+            placeholder="your_username"
+            autocomplete="username"
+            autocapitalize="off"
+          />
+          <div class="field-error" id="login-username-err">
+            <svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>
+            Username is required
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="login-password">Password</label>
+          <div class="password-wrap">
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            <button type="button" class="toggle-pw" onclick="togglePassword('login-password', this)" aria-label="Toggle password visibility">
+              <svg id="login-pw-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/>
+                <circle cx="9" cy="9" r="2.5"/>
+              </svg>
+            </button>
+          </div>
+          <div class="field-error" id="login-password-err">
+            <svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>
+            Password is required
+          </div>
+        </div>
+
+        <div class="forgot-row">
+          <a class="forgot-link" href="#">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <div class="btn-spinner"></div>
+        </button>
+      </form>
+
+      <div class="divider"><span>or</span></div>
+
+      <div class="auth-switch">
+        No account yet?
+        <a onclick="showScreen('screen-register')">Create one — it's free</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       SCREEN 2 — REGISTER
+  ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-register">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/>
+          <circle cx="14" cy="12" r="3.5"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Calorie<span>Tracker</span></h1>
+      <p class="brand-subtitle">Start your journey today.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-handle"></div>
+      <h2 class="card-title">Create account</h2>
+      <p class="card-desc">Join to start tracking your recipes and nutrition.</p>
+
+      <!-- Demo controls -->
+      <div>
+        <div class="demo-label">↓ prototype states</div>
+        <div class="demo-controls">
+          <button class="demo-badge" onclick="showRegisterError('username')">
+            <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0Zm.75 8.25h-1.5v-1.5h1.5v1.5Zm0-3h-1.5v-3h1.5v3Z"/></svg>
+            Username taken
+          </button>
+          <button class="demo-badge" onclick="showRegisterError('email')">
+            <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0Zm.75 8.25h-1.5v-1.5h1.5v1.5Zm0-3h-1.5v-3h1.5v3Z"/></svg>
+            Email taken
+          </button>
+          <button class="demo-badge" onclick="showRegisterError('validation')">
+            <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 1 0 0 12A6 6 0 0 0 6 0Zm.75 8.25h-1.5v-1.5h1.5v1.5Zm0-3h-1.5v-3h1.5v3Z"/></svg>
+            Inline validation
+          </button>
+          <button class="demo-badge" onclick="clearRegisterErrors()">
+            ✕ Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Error alert (server-level) -->
+      <div class="alert alert-error" id="register-alert">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="9" cy="9" r="8"/>
+          <path d="M9 5.5v4M9 12.5h.01" stroke-linecap="round"/>
+        </svg>
+        <span id="register-alert-text">Username already registered.</span>
+      </div>
+
+      <!-- Form — POST /auth/register: { username, email, password } -->
+      <form id="register-form" onsubmit="handleRegisterSubmit(event)">
+        <div class="field">
+          <label for="reg-username">Username</label>
+          <input
+            type="text"
+            id="reg-username"
+            name="username"
+            placeholder="chef_marco"
+            autocomplete="username"
+            autocapitalize="off"
+            minlength="3"
+            maxlength="64"
+            oninput="clearRegisterFieldError('reg-username-err', this)"
+          />
+          <div class="field-error" id="reg-username-err">
+            <svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>
+            <span id="reg-username-err-text">Username must be at least 3 characters</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="reg-email">Email address</label>
+          <input
+            type="email"
+            id="reg-email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            oninput="clearRegisterFieldError('reg-email-err', this)"
+          />
+          <div class="field-error" id="reg-email-err">
+            <svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>
+            <span id="reg-email-err-text">Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="reg-password">Password</label>
+          <div class="password-wrap">
+            <input
+              type="password"
+              id="reg-password"
+              name="password"
+              placeholder="Min. 8 characters"
+              autocomplete="new-password"
+              minlength="8"
+              oninput="onPasswordInput(this); clearRegisterFieldError('reg-password-err', this)"
+            />
+            <button type="button" class="toggle-pw" onclick="togglePassword('reg-password', this)" aria-label="Toggle password visibility">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/>
+                <circle cx="9" cy="9" r="2.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Live strength indicator -->
+          <div class="pw-strength" id="pw-strength-wrap">
+            <div class="pw-strength-bar">
+              <div class="pw-strength-fill" id="pw-strength-fill"></div>
+            </div>
+            <span class="pw-strength-label" id="pw-strength-label"></span>
+          </div>
+
+          <div class="field-error" id="reg-password-err">
+            <svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>
+            <span id="reg-password-err-text">Password must be at least 8 characters</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="register-btn" style="margin-top: 4px;">
+          <span class="btn-text">Create Account</span>
+          <div class="btn-spinner"></div>
+        </button>
+      </form>
+
+      <div class="divider"><span>or</span></div>
+
+      <div class="auth-switch">
+        Already have an account?
+        <a onclick="showScreen('screen-login')">Sign in instead</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       SCREEN 3 — LOGGED IN PLACEHOLDER
+  ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-loggedin">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/>
+          <circle cx="14" cy="12" r="3.5"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Calorie<span>Tracker</span></h1>
+    </div>
+
+    <div class="loggedin-body">
+      <div class="success-icon">
+        <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 18l8 8L29 10"/>
+        </svg>
+      </div>
+
+      <h2 class="loggedin-title">You're in!</h2>
+      <p class="loggedin-desc">
+        Auth flow complete. In the real app, you'd be redirected to the dashboard with your meal log and recipes.
+      </p>
+
+      <!-- Simulated token response (mirrors POST /auth/login response shape) -->
+      <div class="token-preview">
+        <div class="token-preview-label">API Response · token_type: bearer</div>
+        <div class="token-field">
+          <span class="token-key">access_token</span>
+          <span class="token-val">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…</span>
+        </div>
+        <div class="token-field">
+          <span class="token-key">refresh_token</span>
+          <span class="token-val">rt_a7b3c9d2e8f1…</span>
+        </div>
+      </div>
+
+      <button class="btn-secondary" onclick="showScreen('screen-login')">
+        ← Back to login
+      </button>
+    </div>
+  </section>
+
+
+  <!-- Prototype banner -->
+  <div class="proto-banner">
+    <span>Prototype</span>
+    No API calls · Static demo only
+  </div>
+
+
+  <script>
+    // ── Screen navigation ─────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    // ── Password visibility toggle ────────────────────────────────
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      const svg = btn.querySelector('svg');
+      if (isHidden) {
+        // Eye-off icon
+        svg.innerHTML = `
+          <path d="M13.5 6.5C12.3 7.7 10.7 8.5 9 8.5 5.9 8.5 3 6 3 6M3 6s-.7-.8-1-1.5M15 6s.7-.8 1-1.5M6 10.5 4.5 12M12 10.5l1.5 1.5M9 9v2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="2" y1="2" x2="16" y2="16" stroke-linecap="round"/>
+        `;
+      } else {
+        // Eye-on icon
+        svg.innerHTML = `
+          <path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/>
+          <circle cx="9" cy="9" r="2.5"/>
+        `;
+      }
+    }
+
+    // ── Password strength ─────────────────────────────────────────
+    function onPasswordInput(input) {
+      const val = input.value;
+      const wrap = document.getElementById('pw-strength-wrap');
+      const fill = document.getElementById('pw-strength-fill');
+      const label = document.getElementById('pw-strength-label');
+
+      if (!val) {
+        wrap.classList.remove('visible');
+        return;
+      }
+      wrap.classList.add('visible');
+
+      let score = 0;
+      if (val.length >= 8)  score++;
+      if (val.length >= 12) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const levels = [
+        { pct: '20%', color: '#E05C3A', text: 'Too short' },
+        { pct: '40%', color: '#E07C3A', text: 'Weak' },
+        { pct: '60%', color: '#C9962B', text: 'Fair' },
+        { pct: '80%', color: '#4A9B6B', text: 'Good' },
+        { pct: '100%', color: '#2B7A4C', text: 'Strong' },
+      ];
+
+      const lvl = levels[Math.min(score, 4)];
+      fill.style.width = lvl.pct;
+      fill.style.background = lvl.color;
+      label.textContent = lvl.text;
+      label.style.color = lvl.color;
+    }
+
+    // ── LOGIN error states ────────────────────────────────────────
+    function showLoginError(type) {
+      clearLoginError();
+      const alert = document.getElementById('login-alert');
+      const text = document.getElementById('login-alert-text');
+
+      if (type === 'invalid') {
+        text.textContent = 'Invalid credentials. Please check your username and password.';
+      } else if (type === 'deactivated') {
+        text.textContent = 'Your account has been deactivated. Please contact support.';
+      }
+
+      alert.classList.add('visible');
+      document.getElementById('login-username').classList.add('error-input');
+      document.getElementById('login-password').classList.add('error-input');
+    }
+
+    function clearLoginError() {
+      document.getElementById('login-alert').classList.remove('visible');
+      document.getElementById('login-username').classList.remove('error-input');
+      document.getElementById('login-password').classList.remove('error-input');
+    }
+
+    // ── REGISTER error states ─────────────────────────────────────
+    function showRegisterError(type) {
+      clearRegisterErrors();
+
+      if (type === 'username') {
+        const alert = document.getElementById('register-alert');
+        document.getElementById('register-alert-text').textContent = 'Username already registered. Please choose a different username.';
+        alert.classList.add('visible');
+        document.getElementById('reg-username').classList.add('error-input');
+
+      } else if (type === 'email') {
+        const alert = document.getElementById('register-alert');
+        document.getElementById('register-alert-text').textContent = 'Email already registered. Did you mean to sign in?';
+        alert.classList.add('visible');
+        document.getElementById('reg-email').classList.add('error-input');
+
+      } else if (type === 'validation') {
+        // Inline field errors
+        const usernameErr = document.getElementById('reg-username-err');
+        document.getElementById('reg-username-err-text').textContent = 'Username must be at least 3 characters';
+        document.getElementById('reg-username').classList.add('error-input');
+        usernameErr.classList.add('visible');
+
+        const emailErr = document.getElementById('reg-email-err');
+        document.getElementById('reg-email-err-text').textContent = 'Please enter a valid email address';
+        document.getElementById('reg-email').classList.add('error-input');
+        emailErr.classList.add('visible');
+
+        const pwErr = document.getElementById('reg-password-err');
+        document.getElementById('reg-password-err-text').textContent = 'Password must be at least 8 characters';
+        document.getElementById('reg-password').classList.add('error-input');
+        pwErr.classList.add('visible');
+      }
+    }
+
+    function clearRegisterErrors() {
+      document.getElementById('register-alert').classList.remove('visible');
+      ['reg-username', 'reg-email', 'reg-password'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('error-input');
+      });
+      ['reg-username-err', 'reg-email-err', 'reg-password-err'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('visible');
+      });
+    }
+
+    function clearRegisterFieldError(errId, input) {
+      input.classList.remove('error-input');
+      const err = document.getElementById(errId);
+      if (err) err.classList.remove('visible');
+      document.getElementById('register-alert').classList.remove('visible');
+    }
+
+    // ── Form submissions (simulated) ──────────────────────────────
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      let hasError = false;
+
+      clearLoginError();
+
+      if (!username) {
+        document.getElementById('login-username').classList.add('error-input');
+        document.getElementById('login-username-err').classList.add('visible');
+        hasError = true;
+      }
+      if (!password) {
+        document.getElementById('login-password').classList.add('error-input');
+        document.getElementById('login-password-err').classList.add('visible');
+        hasError = true;
+      }
+      if (hasError) return;
+
+      // Simulate API call with loading state
+      const btn = document.getElementById('login-btn');
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        showScreen('screen-loggedin');
+      }, 900);
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      let hasError = false;
+
+      clearRegisterErrors();
+
+      if (username.length < 3) {
+        document.getElementById('reg-username').classList.add('error-input');
+        document.getElementById('reg-username-err-text').textContent =
+          username ? 'Username must be at least 3 characters' : 'Username is required';
+        document.getElementById('reg-username-err').classList.add('visible');
+        hasError = true;
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('reg-email').classList.add('error-input');
+        document.getElementById('reg-email-err-text').textContent =
+          email ? 'Please enter a valid email address' : 'Email is required';
+        document.getElementById('reg-email-err').classList.add('visible');
+        hasError = true;
+      }
+      if (password.length < 8) {
+        document.getElementById('reg-password').classList.add('error-input');
+        document.getElementById('reg-password-err-text').textContent =
+          password ? 'Password must be at least 8 characters' : 'Password is required';
+        document.getElementById('reg-password-err').classList.add('visible');
+        hasError = true;
+      }
+      if (hasError) return;
+
+      const btn = document.getElementById('register-btn');
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        showScreen('screen-loggedin');
+      }, 900);
+    }
+  </script>
+</body>
+</html>
