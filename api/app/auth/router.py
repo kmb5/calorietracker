@@ -13,6 +13,7 @@ from app.auth.utils import (
     refresh_token_expiry,
     verify_password,
 )
+from app.config import Settings, get_settings
 from app.database import get_db
 from app.limiter import limiter
 from app.models import RefreshToken, User
@@ -42,9 +43,11 @@ async def _get_user_by_email(session: AsyncSession, email: str) -> User | None:
     return result.scalar_one_or_none()
 
 
-async def _issue_tokens(session: AsyncSession, user: User) -> TokenResponse:
+async def _issue_tokens(
+    session: AsyncSession, user: User, secret_key: str
+) -> TokenResponse:
     """Create and persist a new refresh token; return both tokens."""
-    access_token = create_access_token(user.id, user.role.value)
+    access_token = create_access_token(user.id, user.role.value, secret_key)
 
     raw_refresh = generate_refresh_token()
     token_hash = hash_password(raw_refresh)  # bcrypt hash stored in DB
@@ -71,6 +74,7 @@ async def _issue_tokens(session: AsyncSession, user: User) -> TokenResponse:
 async def register(
     body: RegisterRequest,
     session: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> TokenResponse:
     if await _get_user_by_username(session, body.username):
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -84,7 +88,7 @@ async def register(
     )
     session.add(user)
     await session.flush()  # assigns user.id without committing yet
-    return await _issue_tokens(session, user)
+    return await _issue_tokens(session, user, settings.SECRET_KEY)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -93,6 +97,7 @@ async def login(
     request: Request,  # required by slowapi
     body: LoginRequest,
     session: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> TokenResponse:
     user = await _get_user_by_username(session, body.username)
 
@@ -113,13 +118,14 @@ async def login(
             detail="Account is deactivated",
         )
 
-    return await _issue_tokens(session, user)
+    return await _issue_tokens(session, user, settings.SECRET_KEY)
 
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(
     body: RefreshRequest,
     session: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> TokenResponse:
     invalid_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -154,7 +160,7 @@ async def refresh(
     matched.revoked_at = datetime.now(UTC)
     await session.commit()
 
-    return await _issue_tokens(session, user)
+    return await _issue_tokens(session, user, settings.SECRET_KEY)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

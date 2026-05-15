@@ -1,12 +1,11 @@
 """Auth utilities: password hashing and JWT handling."""
 
+import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 
 import bcrypt
 from jose import JWTError, jwt
-
-from app.config import settings
 
 # ---------------------------------------------------------------------------
 # Password hashing  (bcrypt cost ≥ 12)
@@ -17,8 +16,6 @@ _BCRYPT_ROUNDS = 12
 
 def _prepare(plain: str) -> bytes:
     """SHA-256 prehash to stay within bcrypt's 72-byte limit."""
-    import hashlib
-
     return hashlib.sha256(plain.encode()).hexdigest().encode()
 
 
@@ -41,7 +38,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
-def create_access_token(user_id: int, role: str) -> str:
+def create_access_token(user_id: int, role: str, secret_key: str) -> str:
     now = datetime.now(UTC)
     expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
@@ -50,12 +47,12 @@ def create_access_token(user_id: int, role: str) -> str:
         "exp": expire,
         "iat": now,
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, secret_key, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str, secret_key: str) -> dict:
     """Raises JWTError if the token is invalid or expired."""
-    return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(token, secret_key, algorithms=[ALGORITHM])
 
 
 # ---------------------------------------------------------------------------
@@ -73,4 +70,4 @@ def refresh_token_expiry() -> datetime:
 
 
 # Re-export for convenience
-JWTError = JWTError  # noqa: F811  — re-export so callers import from here
+JWTError = JWTError  # noqa: F811

@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,9 +12,6 @@ class Settings(BaseSettings):
     SECRET_KEY: str
 
     ENVIRONMENT: str = "development"
-    TEST_DATABASE_URL: str = (
-        "postgresql+asyncpg://calorietracker:secret@localhost:5432/calorietracker_test"
-    )
 
     @model_validator(mode="after")
     def _check_production_secrets(self) -> "Settings":
@@ -26,4 +25,7 @@ class Settings(BaseSettings):
         return self
 
 
-settings = Settings()  # ty: ignore[missing-argument]  # fields resolved from env/.env by pydantic-settings
+@lru_cache
+def get_settings() -> Settings:
+    """Return the cached Settings instance.  Override via app.dependency_overrides in tests."""
+    return Settings()  # ty: ignore[missing-argument]  # fields resolved from env/.env by pydantic-settings

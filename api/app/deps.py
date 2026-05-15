@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.utils import decode_access_token
+from app.config import Settings, get_settings
 from app.database import get_db
 from app.models import User
 
@@ -16,10 +17,11 @@ bearer_scheme = HTTPBearer()
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     session: AsyncSession = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> User:
     token = credentials.credentials
     try:
-        payload = decode_access_token(token)
+        payload = decode_access_token(token, settings.SECRET_KEY)
         user_id: int = int(payload["sub"])
     except (JWTError, KeyError, ValueError):
         raise HTTPException(

@@ -2,6 +2,8 @@
 import pytest
 from httpx import AsyncClient
 
+from tests.conftest import _TEST_SETTINGS
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -192,13 +194,12 @@ async def test_logout_idempotent(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_access_token_encodes_user_id_and_role(client: AsyncClient):
     from jose import jwt
-    from app.config import settings
 
     await register(client, "jwt_user", "secret99")
     login_resp = await login(client, "jwt_user", "secret99")
     token = login_resp.json()["access_token"]
 
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    payload = jwt.decode(token, _TEST_SETTINGS.SECRET_KEY, algorithms=["HS256"])
     assert "sub" in payload
     assert "role" in payload
     assert payload["role"] == "user"
