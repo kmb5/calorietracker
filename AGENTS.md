@@ -52,6 +52,7 @@ CalorieTracker v3 is a personal, mobile-first web app for home cooks who want to
 cp .env.example .env            # defaults work out-of-the-box
 cd api && uv sync --frozen --all-extras && cd ..   # API venv (for local tooling)
 pnpm --prefix frontend install  # Frontend deps (for local tooling)
+pre-commit install               # REQUIRED — installs the git pre-commit hook
 
 # Start everything
 docker compose up

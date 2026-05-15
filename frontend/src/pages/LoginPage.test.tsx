@@ -86,7 +86,13 @@ describe("LoginPage — error handling", () => {
   it("shows a generic error message on 401", async () => {
     const err = new ApiError(
       { method: "POST", url: "/auth/login" },
-      { url: "/auth/login", ok: false, status: 401, statusText: "Unauthorized", body: {} },
+      {
+        url: "/auth/login",
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        body: {},
+      },
       "Unauthorized"
     );
     const auth = makeAuthMock({ login: jest.fn().mockRejectedValue(err) });
@@ -97,15 +103,19 @@ describe("LoginPage — error handling", () => {
     await userEvent.type(screen.getByLabelText("Password"), "wrong");
     fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
-    expect(
-      await screen.findByText(/invalid credentials/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
   });
 
   it("shows a fallback error on unexpected API errors", async () => {
     const err = new ApiError(
       { method: "POST", url: "/auth/login" },
-      { url: "/auth/login", ok: false, status: 500, statusText: "Server Error", body: {} },
+      {
+        url: "/auth/login",
+        ok: false,
+        status: 500,
+        statusText: "Server Error",
+        body: {},
+      },
       "Server Error"
     );
     const auth = makeAuthMock({ login: jest.fn().mockRejectedValue(err) });

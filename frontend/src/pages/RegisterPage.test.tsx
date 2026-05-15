@@ -63,9 +63,7 @@ describe("RegisterPage — validation", () => {
     renderRegisterPage();
     await fillForm("ab", "a@b.com", "password123");
     fireEvent.click(screen.getByRole("button", { name: /create account/i }));
-    expect(
-      await screen.findByText(/at least 3 characters/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/at least 3 characters/i)).toBeInTheDocument();
   });
 
   it("rejects a malformed email address", async () => {
@@ -79,9 +77,7 @@ describe("RegisterPage — validation", () => {
     renderRegisterPage();
     await fillForm("alice", "alice@example.com", "short");
     fireEvent.click(screen.getByRole("button", { name: /create account/i }));
-    expect(
-      await screen.findByText(/at least 8 characters/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/at least 8 characters/i)).toBeInTheDocument();
   });
 
   it("does not call register() when validation fails", async () => {
@@ -130,7 +126,9 @@ describe("RegisterPage — server errors", () => {
 
   it("shows username-taken error on duplicate username", async () => {
     const auth = makeAuthMock({
-      register: jest.fn().mockRejectedValue(makeApiError("username already registered")),
+      register: jest
+        .fn()
+        .mockRejectedValue(makeApiError("username already registered")),
     });
     mockUseAuth.mockReturnValue(auth);
     renderRegisterPage();
