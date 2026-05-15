@@ -11,6 +11,7 @@ class IngredientSearchResult(BaseModel):
     unit: UnitType
     portion_size: float
     kcal: float
+    is_system: bool
 
     model_config = {"from_attributes": True}
 

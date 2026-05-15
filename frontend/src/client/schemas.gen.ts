@@ -14,6 +14,112 @@ export const $HTTPValidationError = {
   title: "HTTPValidationError",
 } as const;
 
+export const $IngredientDetail = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    unit: {
+      $ref: "#/components/schemas/UnitType",
+    },
+    portion_size: {
+      type: "number",
+      title: "Portion Size",
+    },
+    kcal: {
+      type: "number",
+      title: "Kcal",
+    },
+    protein: {
+      type: "number",
+      title: "Protein",
+    },
+    fat: {
+      type: "number",
+      title: "Fat",
+    },
+    carbohydrates: {
+      type: "number",
+      title: "Carbohydrates",
+    },
+    fiber: {
+      type: "number",
+      title: "Fiber",
+    },
+    sodium: {
+      type: "number",
+      title: "Sodium",
+    },
+    is_system: {
+      type: "boolean",
+      title: "Is System",
+    },
+    owner_id: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Owner Id",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "name",
+    "unit",
+    "portion_size",
+    "kcal",
+    "protein",
+    "fat",
+    "carbohydrates",
+    "fiber",
+    "sodium",
+    "is_system",
+    "owner_id",
+  ],
+  title: "IngredientDetail",
+} as const;
+
+export const $IngredientSearchResult = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    unit: {
+      $ref: "#/components/schemas/UnitType",
+    },
+    portion_size: {
+      type: "number",
+      title: "Portion Size",
+    },
+    kcal: {
+      type: "number",
+      title: "Kcal",
+    },
+    is_system: {
+      type: "boolean",
+      title: "Is System",
+    },
+  },
+  type: "object",
+  required: ["id", "name", "unit", "portion_size", "kcal", "is_system"],
+  title: "IngredientSearchResult",
+} as const;
+
 export const $LoginRequest = {
   properties: {
     username: {
@@ -69,6 +175,12 @@ export const $TokenResponse = {
   type: "object",
   required: ["access_token"],
   title: "TokenResponse",
+} as const;
+
+export const $UnitType = {
+  type: "string",
+  enum: ["g", "ml", "tablespoon", "piece"],
+  title: "UnitType",
 } as const;
 
 export const $ValidationError = {

@@ -8,8 +8,14 @@ import type {
   RegisterAuthRegisterPostResponse,
   LoginAuthLoginPostData,
   LoginAuthLoginPostResponse,
+  RefreshAuthRefreshPostData,
   RefreshAuthRefreshPostResponse,
+  LogoutAuthLogoutPostData,
   LogoutAuthLogoutPostResponse,
+  SearchIngredientsIngredientsSearchGetData,
+  SearchIngredientsIngredientsSearchGetResponse,
+  GetIngredientIngredientsIngredientIdGetData,
+  GetIngredientIngredientsIngredientIdGetResponse,
   HealthHealthGetResponse,
 } from "./types.gen";
 
@@ -57,41 +63,103 @@ export const loginAuthLoginPost = (
 
 /**
  * Refresh
- * The refresh token is sent automatically as an HttpOnly cookie by the browser.
- * No explicit cookie injection is needed — credentials are included via
- * `WITH_CREDENTIALS: true` on the OpenAPI config.
+ * @param data The data for the request.
+ * @param data.refreshToken
  * @returns TokenResponse Successful Response
  * @throws ApiError
  */
-export const refreshAuthRefreshPost =
-  (): CancelablePromise<RefreshAuthRefreshPostResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/auth/refresh",
-      errors: {
-        422: "Validation Error",
-      },
-    });
-  };
+export const refreshAuthRefreshPost = (
+  data: RefreshAuthRefreshPostData = {}
+): CancelablePromise<RefreshAuthRefreshPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/auth/refresh",
+    cookies: {
+      refresh_token: data.refreshToken,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
 
 /**
  * Logout
- * The refresh token is sent automatically as an HttpOnly cookie by the browser.
- * No explicit cookie injection is needed — credentials are included via
- * `WITH_CREDENTIALS: true` on the OpenAPI config.
+ * @param data The data for the request.
+ * @param data.refreshToken
  * @returns void Successful Response
  * @throws ApiError
  */
-export const logoutAuthLogoutPost =
-  (): CancelablePromise<LogoutAuthLogoutPostResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/auth/logout",
-      errors: {
-        422: "Validation Error",
-      },
-    });
-  };
+export const logoutAuthLogoutPost = (
+  data: LogoutAuthLogoutPostData = {}
+): CancelablePromise<LogoutAuthLogoutPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/auth/logout",
+    cookies: {
+      refresh_token: data.refreshToken,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Search Ingredients
+ * Search ingredients by name.
+ *
+ * Returns system ingredients + the calling user's own custom ingredients.
+ * Results are ordered: prefix matches first, then substring matches.
+ * @param data The data for the request.
+ * @param data.q
+ * @param data.unit
+ * @param data.limit
+ * @returns IngredientSearchResult Successful Response
+ * @throws ApiError
+ */
+export const searchIngredientsIngredientsSearchGet = (
+  data: SearchIngredientsIngredientsSearchGetData
+): CancelablePromise<SearchIngredientsIngredientsSearchGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/ingredients/search",
+    query: {
+      q: data.q,
+      unit: data.unit,
+      limit: data.limit,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Ingredient
+ * Return full detail for a single ingredient.
+ *
+ * Returns 404 (not 403) if the ingredient belongs to another user,
+ * to avoid leaking the existence of private ingredients.
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const getIngredientIngredientsIngredientIdGet = (
+  data: GetIngredientIngredientsIngredientIdGetData
+): CancelablePromise<GetIngredientIngredientsIngredientIdGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/ingredients/{ingredient_id}",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
 
 /**
  * Health
