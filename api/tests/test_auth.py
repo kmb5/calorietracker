@@ -2,8 +2,6 @@
 import pytest
 from httpx import AsyncClient
 
-from tests.conftest import _TEST_SETTINGS
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -199,7 +197,8 @@ async def test_access_token_encodes_user_id_and_role(client: AsyncClient):
     login_resp = await login(client, "jwt_user", "secret99")
     token = login_resp.json()["access_token"]
 
-    payload = jwt.decode(token, _TEST_SETTINGS.SECRET_KEY, algorithms=["HS256"])
+    # Must decode with the same key conftest injects into the app
+    payload = jwt.decode(token, "test-secret-key-not-for-production", algorithms=["HS256"])
     assert "sub" in payload
     assert "role" in payload
     assert payload["role"] == "user"
