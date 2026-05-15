@@ -1,11 +1,10 @@
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import {
-  createContext,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { authApi, storage, type LoginRequest, type RegisterRequest } from "../services/auth";
+  authApi,
+  storage,
+  type LoginRequest,
+  type RegisterRequest,
+} from "../services/auth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -103,9 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [clearTokens]);
 
   return (
-    <AuthContext.Provider
-      value={{ ...state, login, register, refreshToken, logout }}
-    >
+    <AuthContext.Provider value={{ ...state, login, register, refreshToken, logout }}>
       {children}
     </AuthContext.Provider>
   );

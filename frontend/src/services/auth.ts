@@ -17,8 +17,7 @@ export const authApi = {
   register: (payload: RegisterRequest) =>
     registerAuthRegisterPost({ requestBody: payload }),
 
-  login: (payload: LoginRequest) =>
-    loginAuthLoginPost({ requestBody: payload }),
+  login: (payload: LoginRequest) => loginAuthLoginPost({ requestBody: payload }),
 
   refresh: (refreshToken: string) =>
     refreshAuthRefreshPost({ requestBody: { refresh_token: refreshToken } }),
@@ -32,7 +31,6 @@ const REFRESH_KEY = "ct_refresh_token";
 
 export const storage = {
   getRefreshToken: (): string | null => localStorage.getItem(REFRESH_KEY),
-  setRefreshToken: (token: string): void =>
-    localStorage.setItem(REFRESH_KEY, token),
+  setRefreshToken: (token: string): void => localStorage.setItem(REFRESH_KEY, token),
   clearRefreshToken: (): void => localStorage.removeItem(REFRESH_KEY),
 };

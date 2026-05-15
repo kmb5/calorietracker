@@ -64,9 +64,7 @@ export function RegisterPage() {
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         const detail: string =
-          typeof err.body === "object" &&
-          err.body !== null &&
-          "detail" in err.body
+          typeof err.body === "object" && err.body !== null && "detail" in err.body
             ? String((err.body as { detail: unknown }).detail)
             : "Registration failed. Please try again.";
 
@@ -107,7 +105,13 @@ export function RegisterPage() {
         {/* Server-level error alert */}
         {alert && (
           <div className="alert alert-error">
-            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <svg
+              viewBox="0 0 18 18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden="true"
+            >
               <circle cx="9" cy="9" r="8" />
               <path d="M9 5.5v4M9 12.5h.01" strokeLinecap="round" />
             </svg>
@@ -130,7 +134,10 @@ export function RegisterPage() {
               minLength={3}
               maxLength={64}
               className={usernameErr ? "error-input" : ""}
-              onChange={() => { setUsernameErr(null); setAlert(null); }}
+              onChange={() => {
+                setUsernameErr(null);
+                setAlert(null);
+              }}
             />
             {usernameErr && (
               <div className="field-error">
@@ -151,7 +158,10 @@ export function RegisterPage() {
               placeholder="you@example.com"
               autoComplete="email"
               className={emailErr ? "error-input" : ""}
-              onChange={() => { setEmailErr(null); setAlert(null); }}
+              onChange={() => {
+                setEmailErr(null);
+                setAlert(null);
+              }}
             />
             {emailErr && (
               <div className="field-error">
@@ -211,7 +221,7 @@ export function RegisterPage() {
 
           <button
             type="submit"
-            className={`btn-primary${loading ? " loading" : ""}`}
+            className={`btn-primary${loading ? "loading" : ""}`}
             style={{ marginTop: "4px" }}
             disabled={loading}
           >
@@ -225,8 +235,7 @@ export function RegisterPage() {
         </div>
 
         <p className="auth-switch">
-          Already have an account?{" "}
-          <Link to="/login">Sign in instead</Link>
+          Already have an account? <Link to="/login">Sign in instead</Link>
         </p>
       </div>
     </div>
@@ -271,7 +280,13 @@ function ErrorIcon() {
 
 function EyeIcon() {
   return (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <svg
+      viewBox="0 0 18 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+    >
       <path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" strokeLinecap="round" />
       <circle cx="9" cy="9" r="2.5" />
     </svg>
@@ -280,7 +295,13 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <svg
+      viewBox="0 0 18 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+    >
       <path
         d="M13.5 6.5C12.3 7.7 10.7 8.5 9 8.5 5.9 8.5 3 6 3 6M3 6s-.7-.8-1-1.5M15 6s.7-.8 1-1.5M6 10.5 4.5 12M12 10.5l1.5 1.5M9 9v2"
         strokeLinecap="round"

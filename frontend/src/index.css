@@ -97,7 +97,9 @@
 
 @media (min-width: 420px) {
   .auth-screen {
-    box-shadow: 0 0 0 1px hsl(var(--border)), 0 8px 48px rgba(26,18,8,0.12);
+    box-shadow:
+      0 0 0 1px hsl(var(--border)),
+      0 8px 48px rgba(26, 18, 8, 0.12);
   }
 }
 
@@ -113,28 +115,47 @@
 }
 
 .bg-layer::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 280px 220px at 90% 10%, rgba(201,86,43,0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 200px 300px at 10% 80%, rgba(201,86,43,0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 320px 180px at 50% 50%, rgba(245,234,219,0.60) 0%, transparent 80%);
+    radial-gradient(
+      ellipse 280px 220px at 90% 10%,
+      rgba(201, 86, 43, 0.12) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 200px 300px at 10% 80%,
+      rgba(201, 86, 43, 0.08) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 320px 180px at 50% 50%,
+      rgba(245, 234, 219, 0.6) 0%,
+      transparent 80%
+    );
   animation: authBreathe 8s ease-in-out infinite alternate;
 }
 
 .bg-layer::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -50%;
-  width: 200%; height: 200%;
+  width: 200%;
+  height: 200%;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   opacity: 0.4;
 }
 
 @keyframes authBreathe {
-  from { opacity: 0.7; transform: scale(1); }
-  to   { opacity: 1;   transform: scale(1.04); }
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
 }
 
 .brand {
@@ -148,17 +169,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px; height: 52px;
+  width: 52px;
+  height: 52px;
   border-radius: 14px;
   background: hsl(var(--primary));
   margin-bottom: 16px;
-  box-shadow: 0 4px 14px rgba(201,86,43,0.35);
+  box-shadow: 0 4px 14px rgba(201, 86, 43, 0.35);
 }
 
-.brand-mark svg { width: 28px; height: 28px; fill: white; }
+.brand-mark svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
 
 .brand-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: "Playfair Display", Georgia, serif;
   font-size: 28px;
   font-weight: 700;
   color: hsl(var(--foreground));
@@ -166,7 +192,9 @@
   line-height: 1.1;
 }
 
-.brand-title span { color: hsl(var(--primary)); }
+.brand-title span {
+  color: hsl(var(--primary));
+}
 
 .brand-subtitle {
   margin-top: 6px;
@@ -183,18 +211,19 @@
   background: hsl(var(--card));
   border-radius: 14px 14px 0 0;
   padding: 32px 24px 40px;
-  box-shadow: 0 -2px 20px rgba(26,18,8,0.06);
+  box-shadow: 0 -2px 20px rgba(26, 18, 8, 0.06);
 }
 
 .card-handle {
-  width: 36px; height: 3px;
+  width: 36px;
+  height: 3px;
   background: hsl(var(--border));
   border-radius: 2px;
   margin: 0 auto 28px;
 }
 
 .card-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: "Playfair Display", Georgia, serif;
   font-size: 22px;
   font-weight: 700;
   color: hsl(var(--foreground));
@@ -210,7 +239,9 @@
   line-height: 1.5;
 }
 
-.field { margin-bottom: 16px; }
+.field {
+  margin-bottom: 16px;
+}
 
 .field label {
   display: block;
@@ -234,20 +265,26 @@
   color: hsl(var(--foreground));
   background: hsl(var(--muted));
   outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background 0.18s;
 }
 
-.field input::placeholder { color: hsl(var(--muted-foreground)); opacity: 0.6; }
+.field input::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.6;
+}
 
 .field input:focus {
   border-color: hsl(var(--primary));
   background: hsl(var(--card));
-  box-shadow: 0 0 0 3px rgba(201,86,43,0.12);
+  box-shadow: 0 0 0 3px rgba(201, 86, 43, 0.12);
 }
 
 .field input.error-input {
   border-color: hsl(var(--destructive));
-  background: #F9E8E3;
+  background: #f9e8e3;
 }
 
 .field-error {
@@ -260,10 +297,18 @@
   margin-top: 5px;
 }
 
-.field-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+.field-error svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
 
-.password-wrap { position: relative; }
-.password-wrap input { padding-right: 48px; }
+.password-wrap {
+  position: relative;
+}
+.password-wrap input {
+  padding-right: 48px;
+}
 
 .toggle-pw {
   position: absolute;
@@ -279,10 +324,17 @@
   align-items: center;
 }
 
-.toggle-pw:hover { color: hsl(var(--primary)); }
-.toggle-pw svg { width: 18px; height: 18px; }
+.toggle-pw:hover {
+  color: hsl(var(--primary));
+}
+.toggle-pw svg {
+  width: 18px;
+  height: 18px;
+}
 
-.pw-strength { margin-top: 8px; }
+.pw-strength {
+  margin-top: 8px;
+}
 
 .pw-strength-bar {
   height: 3px;
@@ -295,10 +347,15 @@
 .pw-strength-fill {
   height: 100%;
   border-radius: 2px;
-  transition: width 0.3s, background 0.3s;
+  transition:
+    width 0.3s,
+    background 0.3s;
 }
 
-.pw-strength-label { font-size: 11px; font-weight: 500; }
+.pw-strength-label {
+  font-size: 11px;
+  font-weight: 500;
+}
 
 .alert {
   display: flex;
@@ -313,17 +370,28 @@
   animation: authSlideDown 0.25s ease;
 }
 
-.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
 
 .alert-error {
-  background: #F9E8E3;
-  color: #8B2A10;
-  border: 1px solid rgba(201,86,43,0.2);
+  background: #f9e8e3;
+  color: #8b2a10;
+  border: 1px solid rgba(201, 86, 43, 0.2);
 }
 
 @keyframes authSlideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .btn-primary {
@@ -340,37 +408,55 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
-  box-shadow: 0 3px 12px rgba(201,86,43,0.30);
+  transition:
+    background 0.18s,
+    transform 0.1s,
+    box-shadow 0.18s;
+  box-shadow: 0 3px 12px rgba(201, 86, 43, 0.3);
   margin-top: 8px;
 }
 
 .btn-primary:hover {
-  background: #A8431F;
-  box-shadow: 0 4px 16px rgba(201,86,43,0.38);
+  background: #a8431f;
+  box-shadow: 0 4px 16px rgba(201, 86, 43, 0.38);
 }
 
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary.loading { pointer-events: none; opacity: 0.85; }
-.btn-text { transition: opacity 0.15s; }
-.btn-primary.loading .btn-text { opacity: 0; }
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary.loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+.btn-text {
+  transition: opacity 0.15s;
+}
+.btn-primary.loading .btn-text {
+  opacity: 0;
+}
 
 .btn-spinner {
   display: none;
-  width: 18px; height: 18px;
-  border: 2.5px solid rgba(255,255,255,0.4);
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
   border-top-color: white;
   border-radius: 50%;
   animation: authSpin 0.7s linear infinite;
   position: absolute;
-  left: 50%; top: 50%;
+  left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
 }
 
-.btn-primary.loading .btn-spinner { display: block; }
+.btn-primary.loading .btn-spinner {
+  display: block;
+}
 
 @keyframes authSpin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 .divider {
@@ -380,8 +466,9 @@
   margin: 22px 0;
 }
 
-.divider::before, .divider::after {
-  content: '';
+.divider::before,
+.divider::after {
+  content: "";
   flex: 1;
   height: 1px;
   background: hsl(var(--border));
@@ -410,7 +497,9 @@
   cursor: pointer;
 }
 
-.auth-switch a:hover { text-decoration: underline; }
+.auth-switch a:hover {
+  text-decoration: underline;
+}
 
 .forgot-row {
   display: flex;
@@ -427,4 +516,6 @@
   cursor: pointer;
 }
 
-.forgot-link:hover { color: hsl(var(--primary)); }
+.forgot-link:hover {
+  color: hsl(var(--primary));
+}
