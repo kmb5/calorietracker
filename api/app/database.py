@@ -18,10 +18,18 @@ def _get_engine(database_url: str, echo: bool):
     return create_async_engine(database_url, echo=echo)
 
 
+@lru_cache
+def _get_session_factory(database_url: str, echo: bool) -> async_sessionmaker:
+    """Return a cached session factory.  One factory per engine across the process lifetime."""
+    engine = _get_engine(database_url, echo)
+    return async_sessionmaker(engine, expire_on_commit=False)
+
+
 async def get_db(
     settings: Settings = Depends(get_settings),
 ) -> AsyncGenerator[AsyncSession, None]:
-    engine = _get_engine(settings.DATABASE_URL, settings.ENVIRONMENT == "development")
-    session_factory = async_sessionmaker(engine, expire_on_commit=False)
-    async with session_factory() as session:
+    factory = _get_session_factory(
+        settings.DATABASE_URL, settings.ENVIRONMENT == "development"
+    )
+    async with factory() as session:
         yield session

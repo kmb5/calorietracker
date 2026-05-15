@@ -1,22 +1,30 @@
 """Tests for /auth/* endpoints."""
+
 import pytest
 from httpx import AsyncClient
-
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-async def register(client: AsyncClient, username: str = "alice", password: str = "s3cr3t!") -> dict:
+async def register(
+    client: AsyncClient, username: str = "alice", password: str = "s3cr3t!1"
+) -> dict:
     resp = await client.post(
         "/auth/register",
-        json={"username": username, "email": f"{username}@example.com", "password": password},
+        json={
+            "username": username,
+            "email": f"{username}@example.com",
+            "password": password,
+        },
     )
     return resp
 
 
-async def login(client: AsyncClient, username: str = "alice", password: str = "s3cr3t!") -> dict:
+async def login(
+    client: AsyncClient, username: str = "alice", password: str = "s3cr3t!1"
+) -> dict:
     resp = await client.post(
         "/auth/login",
         json={"username": username, "password": password},
@@ -52,12 +60,20 @@ async def test_register_duplicate_email(client: AsyncClient):
     # Two users with the same email but different usernames
     resp1 = await client.post(
         "/auth/register",
-        json={"username": "user_a", "email": "shared@example.com", "password": "pass1"},
+        json={
+            "username": "user_a",
+            "email": "shared@example.com",
+            "password": "passw0rd1",
+        },
     )
     assert resp1.status_code == 201
     resp2 = await client.post(
         "/auth/register",
-        json={"username": "user_b", "email": "shared@example.com", "password": "pass2"},
+        json={
+            "username": "user_b",
+            "email": "shared@example.com",
+            "password": "passw0rd2",
+        },
     )
     assert resp2.status_code == 400
     assert "Email" in resp2.json()["detail"]
@@ -70,8 +86,8 @@ async def test_register_duplicate_email(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_login_success(client: AsyncClient):
-    await register(client, "login_bob", "hunter2")
-    resp = await login(client, "login_bob", "hunter2")
+    await register(client, "login_bob", "hunter2!")
+    resp = await login(client, "login_bob", "hunter2!")
     assert resp.status_code == 200
     data = resp.json()
     assert "access_token" in data
@@ -99,9 +115,9 @@ async def test_login_nonexistent_user(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_login_error_message_generic(client: AsyncClient):
     """Error message on wrong username must be identical to wrong password."""
-    await register(client, "samemsg_user", "pass123")
+    await register(client, "samemsg_user", "pass1234")
     wrong_pw = await login(client, "samemsg_user", "wrongpass")
-    wrong_user = await login(client, "no_such_user", "pass123")
+    wrong_user = await login(client, "no_such_user", "pass1234")
     assert wrong_pw.json()["detail"] == wrong_user.json()["detail"]
 
 
@@ -131,8 +147,8 @@ async def test_refresh_invalid_token(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_refresh_revoked_token(client: AsyncClient):
-    await register(client, "revoke_refresh_user", "abc123")
-    login_resp = await login(client, "revoke_refresh_user", "abc123")
+    await register(client, "revoke_refresh_user", "abc12345")
+    login_resp = await login(client, "revoke_refresh_user", "abc12345")
     old_refresh = login_resp.json()["refresh_token"]
 
     # Use the refresh token once — it gets revoked after use
@@ -175,8 +191,8 @@ async def test_logout_revokes_refresh_token(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_logout_idempotent(client: AsyncClient):
     """Logging out with an already-revoked token should still return 204."""
-    await register(client, "idempotent_user", "pass")
-    login_resp = await login(client, "idempotent_user", "pass")
+    await register(client, "idempotent_user", "passw0rd")
+    login_resp = await login(client, "idempotent_user", "passw0rd")
     refresh_token = login_resp.json()["refresh_token"]
 
     await client.post("/auth/logout", json={"refresh_token": refresh_token})
@@ -198,7 +214,9 @@ async def test_access_token_encodes_user_id_and_role(client: AsyncClient):
     token = login_resp.json()["access_token"]
 
     # Must decode with the same key conftest injects into the app
-    payload = jwt.decode(token, "test-secret-key-not-for-production", algorithms=["HS256"])
+    payload = jwt.decode(
+        token, "test-secret-key-not-for-production", algorithms=["HS256"]
+    )
     assert "sub" in payload
     assert "role" in payload
     assert payload["role"] == "user"
@@ -212,12 +230,15 @@ async def test_access_token_encodes_user_id_and_role(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_deactivated_user_cannot_login(client: AsyncClient, db_session):
     from sqlalchemy import select
+
     from app.models import User
 
     await register(client, "inactive_user", "active123")
 
     # Deactivate the user directly in the DB
-    result = await db_session.execute(select(User).where(User.username == "inactive_user"))
+    result = await db_session.execute(
+        select(User).where(User.username == "inactive_user")
+    )
     user = result.scalar_one()
     user.is_active = False
     await db_session.commit()
@@ -234,7 +255,7 @@ async def test_deactivated_user_cannot_login(client: AsyncClient, db_session):
 @pytest.mark.asyncio
 async def test_rate_limit_429_on_sixth_attempt(client: AsyncClient):
     """6th login attempt within 1 minute from the same IP returns HTTP 429."""
-    await register(client, "ratelimit_user", "pass")
+    await register(client, "ratelimit_user", "passw0rd")
     for _ in range(5):
         await login(client, "ratelimit_user", "wrongpass")
     resp = await login(client, "ratelimit_user", "wrongpass")

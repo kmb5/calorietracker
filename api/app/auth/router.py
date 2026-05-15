@@ -27,9 +27,12 @@ from app.schemas.auth import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# Pre-computed dummy hash used in login to prevent username enumeration via timing.
-# Always runs bcrypt regardless of whether the user exists.
-_DUMMY_HASH = hash_password("dummy-timing-protection")
+
+# Dummy hash used in login to prevent username enumeration via timing.
+# Computed lazily per-request using the live BCRYPT_ROUNDS so the cost always
+# matches real password checks, even if BCRYPT_ROUNDS is raised in production.
+def _get_dummy_hash(bcrypt_rounds: int) -> str:
+    return hash_password("dummy-timing-protection", bcrypt_rounds)
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +79,9 @@ async def _issue_tokens(
 @router.post(
     "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
 )
+@limiter.limit("5/minute")
 async def register(
+    request: Request,  # required by slowapi
     body: RegisterRequest,
     session: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -93,7 +98,9 @@ async def register(
     )
     session.add(user)
     await session.flush()  # assigns user.id without committing yet
-    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
+    return await _issue_tokens(
+        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -108,7 +115,9 @@ async def login(
 
     # Always run bcrypt even when the user doesn't exist — skipping it leaks
     # timing information that allows username enumeration.
-    check_hash = user.hashed_password if user else _DUMMY_HASH
+    check_hash = (
+        user.hashed_password if user else _get_dummy_hash(settings.BCRYPT_ROUNDS)
+    )
     password_ok = verify_password(body.password, check_hash)
 
     if not user or not password_ok:
@@ -123,7 +132,9 @@ async def login(
             detail="Account is deactivated",
         )
 
-    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
+    return await _issue_tokens(
+        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+    )
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -166,7 +177,9 @@ async def refresh(
     matched.revoked_at = datetime.now(UTC)
     await session.commit()
 
-    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
+    return await _issue_tokens(
+        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+    )
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

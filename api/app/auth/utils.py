@@ -18,9 +18,7 @@ def _prepare(plain: str) -> bytes:
 
 
 def hash_password(plain: str, rounds: int = 12) -> str:
-    return bcrypt.hashpw(
-        _prepare(plain), bcrypt.gensalt(rounds=rounds)
-    ).decode()
+    return bcrypt.hashpw(_prepare(plain), bcrypt.gensalt(rounds=rounds)).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
