@@ -136,9 +136,6 @@ def extract_nutrients(food: dict) -> dict | None:
     if result["kcal"] == 0:
         return None
 
-    if result["kcal"] == 0:
-        return None
-
     # sodium in SR Legacy is in mg → convert to g
     result["sodium"] = round(result["sodium"] / 1000, 6)
     return result

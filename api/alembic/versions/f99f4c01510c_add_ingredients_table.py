@@ -54,6 +54,7 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(["owner_id"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("name", "unit", name="uq_ingredients_name_unit"),
     )
     op.create_index(op.f("ix_ingredients_id"), "ingredients", ["id"], unique=False)
     op.create_index(op.f("ix_ingredients_name"), "ingredients", ["name"], unique=False)
@@ -65,4 +66,5 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_ingredients_name"), table_name="ingredients")
     op.drop_index(op.f("ix_ingredients_id"), table_name="ingredients")
     op.drop_table("ingredients")
+    op.execute("DROP TYPE IF EXISTS unittype")
     # ### end Alembic commands ###

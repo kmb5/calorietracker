@@ -19,7 +19,7 @@ import logging
 import sys
 from pathlib import Path
 
-from sqlalchemy import func, select, text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 # ── Ensure the api/app package is importable when run as a script ─────────────
@@ -85,11 +85,11 @@ def merge(defaults: list[dict], usda: list[dict]) -> list[dict]:
 
 async def upsert(session: AsyncSession, ingredients: list[dict]) -> tuple[int, int]:
     """Idempotent insert/update by normalised name + unit."""
-    existing_rows = await session.execute(select(Ingredient.name, Ingredient.unit))
-    existing: set[tuple[str, str]] = {
-        (normalise(row.name), row.unit) for row in existing_rows
+    existing_rows = (await session.execute(select(Ingredient))).scalars().all()
+    existing_map: dict[tuple[str, str], Ingredient] = {
+        (normalise(row.name), row.unit): row for row in existing_rows
     }
-    log.info("Existing rows in DB: %d", len(existing))
+    log.info("Existing rows in DB: %d", len(existing_map))
 
     inserted = updated = 0
 
@@ -97,41 +97,34 @@ async def upsert(session: AsyncSession, ingredients: list[dict]) -> tuple[int, i
         key = (normalise(item["name"]), item["unit"])
         unit_val = UnitType(item["unit"])
 
-        if key in existing:
-            stmt = (
-                select(Ingredient)
-                .where(func.lower(func.trim(Ingredient.name)) == key[0])
-                .where(Ingredient.unit == unit_val)
-            )
-            row = (await session.execute(stmt)).scalar_one_or_none()
-            if row is not None:
-                row.kcal = item["kcal"]
-                row.protein = item["protein"]
-                row.fat = item["fat"]
-                row.carbohydrates = item["carbohydrates"]
-                row.fiber = item["fiber"]
-                row.sodium = item["sodium"]
-                row.portion_size = item["portion_size"]
-                updated += 1
+        if key in existing_map:
+            row = existing_map[key]
+            row.kcal = item["kcal"]
+            row.protein = item["protein"]
+            row.fat = item["fat"]
+            row.carbohydrates = item["carbohydrates"]
+            row.fiber = item["fiber"]
+            row.sodium = item["sodium"]
+            row.portion_size = item["portion_size"]
+            updated += 1
         else:
-            session.add(
-                Ingredient(
-                    name=item["name"],
-                    unit=unit_val,
-                    portion_size=item["portion_size"],
-                    kcal=item["kcal"],
-                    protein=item["protein"],
-                    fat=item["fat"],
-                    carbohydrates=item["carbohydrates"],
-                    fiber=item["fiber"],
-                    sodium=item["sodium"],
-                    is_system=True,
-                    owner_id=None,
-                    is_promotion_pending=False,
-                )
+            new_row = Ingredient(
+                name=item["name"],
+                unit=unit_val,
+                portion_size=item["portion_size"],
+                kcal=item["kcal"],
+                protein=item["protein"],
+                fat=item["fat"],
+                carbohydrates=item["carbohydrates"],
+                fiber=item["fiber"],
+                sodium=item["sodium"],
+                is_system=True,
+                owner_id=None,
+                is_promotion_pending=False,
             )
+            session.add(new_row)
+            existing_map[key] = new_row
             inserted += 1
-            existing.add(key)
 
     await session.commit()
     return inserted, updated
