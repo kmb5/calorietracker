@@ -54,3 +54,24 @@ repos:
         language: system
         files: ^frontend/.*\.(ts|tsx)$
         pass_filenames: false
+
+  # ── Backend: pytest ──────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: bash -c 'cd api && .venv/bin/pytest'
+        language: system
+        files: ^api/
+        types: [python]
+        pass_filenames: false
+
+  # ── Frontend: Jest ───────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: jest
+        name: jest
+        entry: bash -c 'cd frontend && pnpm exec jest --passWithNoTests'
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
