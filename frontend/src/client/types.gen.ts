@@ -42,15 +42,7 @@ export type LoginAuthLoginPostData = {
 
 export type LoginAuthLoginPostResponse = TokenResponse;
 
-export type RefreshAuthRefreshPostData = {
-  refreshToken?: string | null;
-};
-
 export type RefreshAuthRefreshPostResponse = TokenResponse;
-
-export type LogoutAuthLogoutPostData = {
-  refreshToken?: string | null;
-};
 
 export type LogoutAuthLogoutPostResponse = void;
 
@@ -91,7 +83,6 @@ export type $OpenApiTs = {
   };
   "/auth/refresh": {
     post: {
-      req: RefreshAuthRefreshPostData;
       res: {
         /**
          * Successful Response
@@ -106,7 +97,6 @@ export type $OpenApiTs = {
   };
   "/auth/logout": {
     post: {
-      req: LogoutAuthLogoutPostData;
       res: {
         /**
          * Successful Response

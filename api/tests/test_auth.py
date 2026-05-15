@@ -45,6 +45,10 @@ async def test_register_success(client: AsyncClient):
     assert "refresh_token" not in data
     assert data["token_type"] == "bearer"
     assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
 
 
 @pytest.mark.asyncio
@@ -93,6 +97,10 @@ async def test_login_success(client: AsyncClient):
     # refresh_token must NOT be in the response body
     assert "refresh_token" not in data
     assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
 
 
 @pytest.mark.asyncio
@@ -140,6 +148,10 @@ async def test_refresh_success(client: AsyncClient):
     assert "refresh_token" not in data
     # A fresh cookie must be issued (token rotation)
     assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
 
 
 @pytest.mark.asyncio
@@ -279,3 +291,48 @@ async def test_rate_limit_429_on_sixth_attempt(client: AsyncClient):
         await login(client, "ratelimit_user", "wrongpass")
     resp = await login(client, "ratelimit_user", "wrongpass")
     assert resp.status_code == 429
+
+
+# ---------------------------------------------------------------------------
+# Cookie Secure flag
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_cookie_secure_flag_set_when_cookie_secure_true(
+    client: AsyncClient,
+):
+    """When COOKIE_SECURE=True, the Set-Cookie header must contain the Secure flag."""
+    from conftest import _test_get_db
+    from httpx import ASGITransport
+    from httpx import AsyncClient as HttpxClient
+
+    from app.config import Settings, get_settings
+    from app.database import get_db
+    from app.main import app
+
+    secure_settings = Settings(
+        DATABASE_URL="sqlite+aiosqlite:///:memory:",
+        SECRET_KEY="test-secret-key-not-for-production",
+        BCRYPT_ROUNDS=4,
+        COOKIE_SECURE=True,
+    )
+    app.dependency_overrides[get_settings] = lambda: secure_settings
+    app.dependency_overrides[get_db] = _test_get_db
+    try:
+        transport = ASGITransport(app=app)
+        async with HttpxClient(
+            transport=transport, base_url="http://test"
+        ) as secure_client:
+            resp = await secure_client.post(
+                "/auth/register",
+                json={
+                    "username": "secure_user",
+                    "email": "secure@example.com",
+                    "password": "s3cr3t!1",
+                },
+            )
+            assert resp.status_code == 201
+            assert "Secure" in resp.headers["set-cookie"]
+    finally:
+        app.dependency_overrides.clear()
