@@ -7,10 +7,17 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 3
+    # Major version bumps often contain breaking changes — handle those manually.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       python-all:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # JavaScript dependencies (pnpm)
   - package-ecosystem: "npm"
@@ -19,10 +26,17 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 3
+    # Major version bumps often contain breaking changes — handle those manually.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-all:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -31,7 +45,14 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 3
+    # Major version bumps often contain breaking changes — handle those manually.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       github-actions-all:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
