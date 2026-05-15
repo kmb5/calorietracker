@@ -30,45 +30,45 @@
 @layer base {
   :root {
     /* ── Backgrounds ─────────────────────────────────────────── */
-    --background:           34 80% 96%;   /* cream        #FDF6ED */
-    --foreground:           33 53% 7%;    /* ink          #1A1208 */
+    --background: 34 80% 96%; /* cream        #FDF6ED */
+    --foreground: 33 53% 7%; /* ink          #1A1208 */
 
-    --card:                 0 0% 100%;    /* white        #FFFFFF */
-    --card-foreground:      33 53% 7%;    /* ink          #1A1208 */
+    --card: 0 0% 100%; /* white        #FFFFFF */
+    --card-foreground: 33 53% 7%; /* ink          #1A1208 */
 
-    --popover:              0 0% 100%;    /* white        #FFFFFF */
-    --popover-foreground:   33 53% 7%;    /* ink          #1A1208 */
+    --popover: 0 0% 100%; /* white        #FFFFFF */
+    --popover-foreground: 33 53% 7%; /* ink          #1A1208 */
 
     /* ── Brand ───────────────────────────────────────────────── */
-    --primary:              16 65% 48%;   /* terra        #C9562B */
-    --primary-foreground:   0 0% 100%;    /* white        #FFFFFF */
+    --primary: 16 65% 48%; /* terra        #C9562B */
+    --primary-foreground: 0 0% 100%; /* white        #FFFFFF */
 
-    --secondary:            18 50% 90%;   /* terra-light  #F2E0D8 */
-    --secondary-foreground: 26 30% 22%;   /* ink-mid      #4A3728 */
+    --secondary: 18 50% 90%; /* terra-light  #F2E0D8 */
+    --secondary-foreground: 26 30% 22%; /* ink-mid      #4A3728 */
 
     /* ── Muted / subtle ──────────────────────────────────────── */
-    --muted:                35 57% 91%;   /* cream-dark   #F5EADB */
-    --muted-foreground:     26 18% 41%;   /* ink-soft     #7A6555 */
+    --muted: 35 57% 91%; /* cream-dark   #F5EADB */
+    --muted-foreground: 26 18% 41%; /* ink-soft     #7A6555 */
 
     /* ── Accent (hover fills, badges) ───────────────────────── */
-    --accent:               18 50% 90%;   /* terra-light  #F2E0D8 */
-    --accent-foreground:    26 30% 22%;   /* ink-mid      #4A3728 */
+    --accent: 18 50% 90%; /* terra-light  #F2E0D8 */
+    --accent-foreground: 26 30% 22%; /* ink-mid      #4A3728 */
 
     /* ── Destructive / error ─────────────────────────────────── */
-    --destructive:          16 65% 48%;   /* terra        #C9562B */
-    --destructive-foreground: 0 0% 100%;  /* white        #FFFFFF */
+    --destructive: 16 65% 48%; /* terra        #C9562B */
+    --destructive-foreground: 0 0% 100%; /* white        #FFFFFF */
 
     /* ── Chrome ──────────────────────────────────────────────── */
-    --border:               30 41% 81%;   /* border       #E2CEBA */
-    --input:                30 41% 81%;   /* border       #E2CEBA */
-    --ring:                 16 65% 48%;   /* terra        #C9562B */
-    --radius:               0.875rem;     /* 14px */
+    --border: 30 41% 81%; /* border       #E2CEBA */
+    --input: 30 41% 81%; /* border       #E2CEBA */
+    --ring: 16 65% 48%; /* terra        #C9562B */
+    --radius: 0.875rem; /* 14px */
 
     /* ── Brand extras (not in shadcn semantic set) ───────────── */
-    --terra-dark:           16 69% 39%;   /* terra-dark   #A8431F */
-    --ink-mid:              26 30% 22%;   /* ink-mid      #4A3728 */
-    --success:              143 43% 29%;  /* success      #2B6B44 */
-    --success-bg:           149 39% 88%;  /* success-bg   #D6EDE1 */
+    --terra-dark: 16 69% 39%; /* terra-dark   #A8431F */
+    --ink-mid: 26 30% 22%; /* ink-mid      #4A3728 */
+    --success: 143 43% 29%; /* success      #2B6B44 */
+    --success-bg: 149 39% 88%; /* success-bg   #D6EDE1 */
   }
 
   /* No dark mode palette defined yet — add when needed */
@@ -79,6 +79,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background font-body text-foreground;
   }
 }
