@@ -101,3 +101,42 @@ jobs:
 
       - name: Jest tests
         run: pnpm run test
+
+  # ── Security: Trivy (deps + secrets) ────────────────────────────────────────
+  security:
+    name: Security scan (Trivy)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # required to upload SARIF to the Security tab
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy — dependency vulnerabilities
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          format: sarif
+          output: trivy-vuln.sarif
+
+      - name: Trivy — secret scan
+        if: always()  # run even if vuln step failed
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret
+          exit-code: "1"
+          format: sarif
+          output: trivy-secrets.sarif
+
+      - name: Upload results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .
+          category: trivy
