@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: str = "development"
     BCRYPT_ROUNDS: int = 12
+    CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
     @model_validator(mode="after")
     def _check_production_secrets(self) -> "Settings":
