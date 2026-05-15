@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
 
     ENVIRONMENT: str = "development"
+    TEST_DATABASE_URL: str = (
+        "postgresql+asyncpg://calorietracker:secret@localhost:5432/calorietracker_test"
+    )
 
     @model_validator(mode="after")
     def _check_production_secrets(self) -> "Settings":
