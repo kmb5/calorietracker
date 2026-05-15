@@ -8,7 +8,19 @@ are needed for tests to run.
 """
 
 import asyncio
+import os
 from collections.abc import AsyncGenerator
+
+# ---------------------------------------------------------------------------
+# Set required env vars BEFORE any app module is imported.
+# app/main.py calls get_settings() at module level (to configure middleware),
+# so the env vars must exist at import time.  These values are only used for
+# the Settings object that wires up the CORS middleware; all DB / auth
+# behaviour is overridden below via app.dependency_overrides.
+# ---------------------------------------------------------------------------
+os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
+
 
 import pytest
 import pytest_asyncio
