@@ -60,18 +60,19 @@ export const loginAuthLoginPost = (
 /**
  * Refresh
  * @param data The data for the request.
- * @param data.requestBody
+ * @param data.refreshToken
  * @returns TokenResponse Successful Response
  * @throws ApiError
  */
 export const refreshAuthRefreshPost = (
-  data: RefreshAuthRefreshPostData
+  data: RefreshAuthRefreshPostData = {}
 ): CancelablePromise<RefreshAuthRefreshPostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
     url: "/auth/refresh",
-    body: data.requestBody,
-    mediaType: "application/json",
+    cookies: {
+      refresh_token: data.refreshToken,
+    },
     errors: {
       422: "Validation Error",
     },
@@ -81,18 +82,19 @@ export const refreshAuthRefreshPost = (
 /**
  * Logout
  * @param data The data for the request.
- * @param data.requestBody
+ * @param data.refreshToken
  * @returns void Successful Response
  * @throws ApiError
  */
 export const logoutAuthLogoutPost = (
-  data: LogoutAuthLogoutPostData
+  data: LogoutAuthLogoutPostData = {}
 ): CancelablePromise<LogoutAuthLogoutPostResponse> => {
   return __request(OpenAPI, {
     method: "POST",
     url: "/auth/logout",
-    body: data.requestBody,
-    mediaType: "application/json",
+    cookies: {
+      refresh_token: data.refreshToken,
+    },
     errors: {
       422: "Validation Error",
     },

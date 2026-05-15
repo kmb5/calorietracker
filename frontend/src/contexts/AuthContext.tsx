@@ -1,10 +1,5 @@
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
-import {
-  authApi,
-  storage,
-  type LoginRequest,
-  type RegisterRequest,
-} from "../services/auth";
+import { createContext, useCallback, useEffect, useState } from "react";
+import { authApi, type LoginRequest, type RegisterRequest } from "../services/auth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -20,9 +15,9 @@ interface AuthContextValue extends AuthState {
   login: (payload: LoginRequest) => Promise<void>;
   /** Register a new account. Throws on failure. */
   register: (payload: RegisterRequest) => Promise<void>;
-  /** Attempt a silent refresh using the stored refresh token. */
+  /** Attempt a silent refresh using the HttpOnly refresh token cookie. */
   refreshToken: () => Promise<boolean>;
-  /** Clear auth state and revoke the refresh token. */
+  /** Clear auth state and revoke the refresh token cookie. */
   logout: () => Promise<void>;
 }
 
@@ -36,38 +31,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  // Keep a ref so callbacks always see the latest refresh token without
-  // triggering re-renders.
-  const refreshTokenRef = useRef<string | null>(null);
-
-  const setTokens = useCallback((accessToken: string, refreshToken: string) => {
-    refreshTokenRef.current = refreshToken;
-    storage.setRefreshToken(refreshToken);
+  const setAccessToken = useCallback((accessToken: string) => {
     setState({ accessToken, loading: false });
   }, []);
 
-  const clearTokens = useCallback(() => {
-    refreshTokenRef.current = null;
-    storage.clearRefreshToken();
+  const clearAccessToken = useCallback(() => {
     setState({ accessToken: null, loading: false });
   }, []);
 
   // ── Silent refresh on mount ───────────────────────────────────────────────
+  // The browser automatically sends the HttpOnly refresh token cookie —
+  // no token value is read or managed by JS.
   const refreshToken = useCallback(async (): Promise<boolean> => {
-    const stored = storage.getRefreshToken();
-    if (!stored) {
-      setState((s) => ({ ...s, loading: false }));
-      return false;
-    }
     try {
-      const data = await authApi.refresh(stored);
-      setTokens(data.access_token, data.refresh_token);
+      const data = await authApi.refresh();
+      setAccessToken(data.access_token);
       return true;
     } catch {
-      clearTokens();
+      clearAccessToken();
       return false;
     }
-  }, [clearTokens, setTokens]);
+  }, [clearAccessToken, setAccessToken]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -78,28 +62,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (payload: LoginRequest) => {
       const data = await authApi.login(payload);
-      setTokens(data.access_token, data.refresh_token);
+      setAccessToken(data.access_token);
     },
-    [setTokens]
+    [setAccessToken]
   );
 
   const register = useCallback(
     async (payload: RegisterRequest) => {
       const data = await authApi.register(payload);
-      setTokens(data.access_token, data.refresh_token);
+      setAccessToken(data.access_token);
     },
-    [setTokens]
+    [setAccessToken]
   );
 
   const logout = useCallback(async () => {
-    const rt = refreshTokenRef.current ?? storage.getRefreshToken();
-    if (rt) {
-      await authApi.logout(rt).catch(() => {
-        // Ignore logout errors — clear local state regardless
-      });
-    }
-    clearTokens();
-  }, [clearTokens]);
+    await authApi.logout().catch(() => {
+      // Ignore logout errors — clear local state regardless
+    });
+    clearAccessToken();
+  }, [clearAccessToken]);
 
   return (
     <AuthContext.Provider value={{ ...state, login, register, refreshToken, logout }}>

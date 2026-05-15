@@ -9,14 +9,6 @@ export type LoginRequest = {
   password: string;
 };
 
-export type LogoutRequest = {
-  refresh_token: string;
-};
-
-export type RefreshRequest = {
-  refresh_token: string;
-};
-
 export type RegisterRequest = {
   username: string;
   email: string;
@@ -25,7 +17,6 @@ export type RegisterRequest = {
 
 export type TokenResponse = {
   access_token: string;
-  refresh_token: string;
   token_type?: string;
 };
 
@@ -52,13 +43,13 @@ export type LoginAuthLoginPostData = {
 export type LoginAuthLoginPostResponse = TokenResponse;
 
 export type RefreshAuthRefreshPostData = {
-  requestBody: RefreshRequest;
+  refreshToken?: string | null;
 };
 
 export type RefreshAuthRefreshPostResponse = TokenResponse;
 
 export type LogoutAuthLogoutPostData = {
-  requestBody: LogoutRequest;
+  refreshToken?: string | null;
 };
 
 export type LogoutAuthLogoutPostResponse = void;
