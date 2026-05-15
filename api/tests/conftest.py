@@ -1,21 +1,20 @@
 """
 Shared pytest fixtures.
 
-No environment variables are required — test settings are injected via
-app.dependency_overrides[get_settings].  The test DB engine uses NullPool
-so asyncpg connections are never reused across pytest-asyncio's
-function-scoped event loops.
+Uses SQLite in-memory as the test database — no running Postgres required.
+StaticPool ensures all sessions share the same in-memory database instance.
+Settings are injected via app.dependency_overrides; no environment variables
+are needed for tests to run.
 """
 import asyncio
-import os
 from collections.abc import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import text
+from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import StaticPool
 
 from app.config import Settings, get_settings
 from app.database import Base, get_db
@@ -23,42 +22,39 @@ from app.limiter import limiter
 from app.main import app
 
 # ---------------------------------------------------------------------------
-# Hardcoded test settings — DATABASE_URL defaults to localhost but can be
-# overridden via TEST_DATABASE_URL for Docker / CI environments.
-# SECRET_KEY is always a fixed test value; no real secret needed.
+# Hardcoded test settings — no env vars, no real DB
 # ---------------------------------------------------------------------------
 
-_TEST_DB_URL = os.environ.get(
-    "TEST_DATABASE_URL",
-    "postgresql+asyncpg://calorietracker:secret@localhost:5432/calorietracker_test",
-)
-
-_TEST_SETTINGS = Settings(
-    DATABASE_URL=_TEST_DB_URL,
+TEST_SETTINGS = Settings(
+    DATABASE_URL="sqlite+aiosqlite:///:memory:",
     SECRET_KEY="test-secret-key-not-for-production",
 )
 
 
 def get_test_settings() -> Settings:
-    return _TEST_SETTINGS
+    return TEST_SETTINGS
 
 
 # ---------------------------------------------------------------------------
-# Test DB engine (NullPool avoids cross-loop connection reuse)
+# In-memory SQLite engine shared across the whole test session
+# StaticPool: all connections reuse the same in-memory DB instance
 # ---------------------------------------------------------------------------
 
-_test_engine = create_async_engine(_TEST_SETTINGS.DATABASE_URL, poolclass=NullPool)
+_test_engine = create_async_engine(
+    TEST_SETTINGS.DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 _TestSessionLocal = async_sessionmaker(_test_engine, expire_on_commit=False)
 
 
 async def _test_get_db() -> AsyncGenerator[AsyncSession, None]:
-    """get_db override: uses the test DB with NullPool."""
     async with _TestSessionLocal() as session:
         yield session
 
 
 # ---------------------------------------------------------------------------
-# Session-scoped: create all tables once, drop at the end
+# Session-scoped: create all tables once
 # ---------------------------------------------------------------------------
 
 
@@ -76,7 +72,6 @@ async def create_test_tables():
     yield
     async with _test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    await _test_engine.dispose()
 
 
 # ---------------------------------------------------------------------------
@@ -92,12 +87,12 @@ async def clean_between_tests():
     yield
     async with _test_engine.begin() as conn:
         for table in _TRUNCATE_TABLES:
-            await conn.execute(text(f"TRUNCATE {table} CASCADE"))
+            await conn.execute(text(f"DELETE FROM {table}"))
     limiter._storage.reset()
 
 
 # ---------------------------------------------------------------------------
-# HTTP client wired to test settings + test DB
+# HTTP client wired to test settings + in-memory DB
 # ---------------------------------------------------------------------------
 
 
