@@ -2,51 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Design tokens — CalorieTracker brand palette
+ *
+ * Semantic name      Brand name        Hex       HSL
+ * ─────────────────────────────────────────────────────────────
+ * --background       cream             #FDF6ED   34 80% 96%
+ * --card             white             #FFFFFF   0 0% 100%
+ * --foreground       ink               #1A1208   33 53% 7%
+ * --primary          terra             #C9562B   16 65% 48%
+ * --secondary        terra-light       #F2E0D8   18 50% 90%
+ * --muted            cream-dark        #F5EADB   35 57% 91%
+ * --muted-foreground ink-soft          #7A6555   26 18% 41%
+ * --accent           terra-light       #F2E0D8   18 50% 90%
+ * --destructive      terra (error)     #C9562B   16 65% 48%
+ * --border / --input border            #E2CEBA   30 41% 81%
+ * --ring             terra             #C9562B   16 65% 48%
+ * --radius           —                 14px      0.875rem
+ *
+ * Non-shadcn extras (use as CSS vars or Tailwind utilities):
+ * --terra-dark       terra-dark        #A8431F   16 69% 39%
+ * --ink-mid          ink-mid           #4A3728   26 30% 22%
+ * --success          success           #2B6B44   143 43% 29%
+ * --success-bg       success-bg        #D6EDE1   149 39% 88%
+ */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    /* ── Backgrounds ─────────────────────────────────────────── */
+    --background:           34 80% 96%;   /* cream        #FDF6ED */
+    --foreground:           33 53% 7%;    /* ink          #1A1208 */
+
+    --card:                 0 0% 100%;    /* white        #FFFFFF */
+    --card-foreground:      33 53% 7%;    /* ink          #1A1208 */
+
+    --popover:              0 0% 100%;    /* white        #FFFFFF */
+    --popover-foreground:   33 53% 7%;    /* ink          #1A1208 */
+
+    /* ── Brand ───────────────────────────────────────────────── */
+    --primary:              16 65% 48%;   /* terra        #C9562B */
+    --primary-foreground:   0 0% 100%;    /* white        #FFFFFF */
+
+    --secondary:            18 50% 90%;   /* terra-light  #F2E0D8 */
+    --secondary-foreground: 26 30% 22%;   /* ink-mid      #4A3728 */
+
+    /* ── Muted / subtle ──────────────────────────────────────── */
+    --muted:                35 57% 91%;   /* cream-dark   #F5EADB */
+    --muted-foreground:     26 18% 41%;   /* ink-soft     #7A6555 */
+
+    /* ── Accent (hover fills, badges) ───────────────────────── */
+    --accent:               18 50% 90%;   /* terra-light  #F2E0D8 */
+    --accent-foreground:    26 30% 22%;   /* ink-mid      #4A3728 */
+
+    /* ── Destructive / error ─────────────────────────────────── */
+    --destructive:          16 65% 48%;   /* terra        #C9562B */
+    --destructive-foreground: 0 0% 100%;  /* white        #FFFFFF */
+
+    /* ── Chrome ──────────────────────────────────────────────── */
+    --border:               30 41% 81%;   /* border       #E2CEBA */
+    --input:                30 41% 81%;   /* border       #E2CEBA */
+    --ring:                 16 65% 48%;   /* terra        #C9562B */
+    --radius:               0.875rem;     /* 14px */
+
+    /* ── Brand extras (not in shadcn semantic set) ───────────── */
+    --terra-dark:           16 69% 39%;   /* terra-dark   #A8431F */
+    --ink-mid:              26 30% 22%;   /* ink-mid      #4A3728 */
+    --success:              143 43% 29%;  /* success      #2B6B44 */
+    --success-bg:           149 39% 88%;  /* success-bg   #D6EDE1 */
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
+  /* No dark mode palette defined yet — add when needed */
 }
 
 @layer base {
@@ -54,6 +79,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
   }
 }
