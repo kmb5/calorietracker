@@ -35,6 +35,28 @@
       --shadow-sm:    0 2px 8px rgba(26,18,8,0.07);
     }
 
+    /* ── Dark mode overrides ───────────────────────────────────── */
+    html.dark {
+      color-scheme: dark;
+
+      --cream:       #1D1209;   /* deep warm near-black  */
+      --cream-dark:  #261810;   /* lifted muted surface  */
+      --terra:       #D4673A;   /* terra brightened      */
+      --terra-dark:  #B85A30;   /* hover                 */
+      --terra-light: #2D1A0D;   /* secondary surface     */
+      --ink:         #FDF6ED;   /* foreground = cream    */
+      --ink-mid:     #D4B89A;   /* secondary text        */
+      --ink-soft:    #9C8270;   /* muted foreground      */
+      --border:      #3D2416;   /* warm dark border      */
+      --white:       #221508;   /* card surface          */
+      --success:     #3D9965;   /* brighter green        */
+      --success-bg:  #122318;   /* dark success surface  */
+      --error:       #D4673A;   /* same as terra         */
+      --error-bg:    #2A1208;   /* dark error surface    */
+      --shadow:      0 4px 24px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-sm:   0 2px 8px rgba(0,0,0,0.30);
+    }
+
     html, body {
       width: 375px;
       min-height: 100vh;
@@ -44,6 +66,7 @@
       color: var(--ink);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     /* Center on large screens while preserving 375 feel */
@@ -71,8 +94,16 @@
       background:
         radial-gradient(ellipse 280px 220px at 90% 10%, rgba(201,86,43,0.12) 0%, transparent 70%),
         radial-gradient(ellipse 200px 300px at 10% 80%, rgba(201,86,43,0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 320px 180px at 50% 50%, rgba(245,234,219,0.6) 0%, transparent 80%);
+        radial-gradient(ellipse 320px 180px at 50% 50%, rgba(245,234,219,0.60) 0%, transparent 80%);
       animation: breathe 8s ease-in-out infinite alternate;
+      transition: opacity 0.3s ease;
+    }
+
+    html.dark .bg-layer::before {
+      background:
+        radial-gradient(ellipse 300px 240px at 90% 10%, rgba(212,103,58,0.20) 0%, transparent 70%),
+        radial-gradient(ellipse 220px 320px at 10% 80%, rgba(212,103,58,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 280px 200px at 50% 50%, rgba(212,103,58,0.04) 0%, transparent 80%);
     }
 
     @keyframes breathe {
@@ -152,6 +183,11 @@
       padding: 32px 24px 40px;
       box-shadow: 0 -2px 20px rgba(26,18,8,0.06);
       position: relative;
+      transition: background-color 0.3s ease;
+    }
+
+    html.dark .card {
+      box-shadow: 0 -2px 20px rgba(0,0,0,0.35);
     }
 
     .card-handle {
@@ -209,13 +245,18 @@
     }
 
     .field input::placeholder {
-      color: #C4B0A0;
+      color: var(--ink-soft);
+      opacity: 0.6;
     }
 
     .field input:focus {
       border-color: var(--terra);
       background: var(--white);
       box-shadow: 0 0 0 3px rgba(201,86,43,0.12);
+    }
+
+    html.dark .field input:focus {
+      box-shadow: 0 0 0 3px rgba(212,103,58,0.22);
     }
 
     .field input.error-input {
@@ -614,6 +655,34 @@
       background: var(--cream);
     }
 
+    /* ── Theme toggle ──────────────────────────────────────────── */
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 200;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease,
+                  color 0.18s, transform 0.18s, box-shadow 0.18s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .theme-toggle:hover {
+      color: var(--terra);
+      border-color: var(--terra);
+      transform: rotate(15deg) scale(1.08);
+    }
+
+    .theme-toggle svg { width: 18px; height: 18px; }
+
     /* ── Prototype banner ────────────────────────────────────────── */
     .proto-banner {
       position: fixed;
@@ -623,6 +692,7 @@
       margin: 0 auto;
       background: rgba(26,18,8,0.88);
       backdrop-filter: blur(8px);
+      transition: background-color 0.3s ease;
       color: rgba(255,255,255,0.7);
       font-size: 10.5px;
       font-weight: 500;
@@ -652,6 +722,13 @@
 
   <!-- Background layer -->
   <div class="bg-layer"></div>
+
+  <!-- Theme toggle - persists to localStorage -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" id="theme-btn">
+    <svg id="theme-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>
+    </svg>
+  </button>
 
   <!-- ════════════════════════════════════════════════════════════
        SCREEN 1 — LOGIN
@@ -957,6 +1034,29 @@
 
 
   <script>
+    // ── Theme toggle ──────────────────────────────────────────
+    const SUN = `<circle cx="9" cy="9" r="3.5"/><line x1="9" y1="1.5" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="16.5"/><line x1="1.5" y1="9" x2="3" y2="9"/><line x1="15" y1="9" x2="16.5" y2="9"/><line x1="3.7" y1="3.7" x2="4.76" y2="4.76"/><line x1="13.24" y1="13.24" x2="14.3" y2="14.3"/><line x1="14.3" y1="3.7" x2="13.24" y2="4.76"/><line x1="4.76" y1="13.24" x2="3.7" y2="14.3"/>` ;
+    const MOON = `<path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>`;
+
+    function applyTheme(dark) {
+      document.documentElement.classList.toggle('dark', dark);
+      document.getElementById('theme-icon').innerHTML = dark ? SUN : MOON;
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const next = !isDark;
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+      applyTheme(next);
+    }
+
+    // On load: honour saved preference, then system preference
+    (function () {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(saved === 'dark' || (!saved && prefersDark));
+    })();
+
     // ── Screen navigation ─────────────────────────────────────────
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
