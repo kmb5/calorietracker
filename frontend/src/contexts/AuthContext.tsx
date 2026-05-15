@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [clearTokens, setTokens]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
