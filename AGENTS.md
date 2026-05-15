@@ -189,7 +189,7 @@ docker compose up -d
 pnpm --prefix frontend run gen:api
 ```
 
-The client is gitignored (it's always rebuilt from the live OpenAPI schema). In code, import directly from the generated modules:
+The client is committed to the repo — it must be kept in sync with the live API. In code, import directly from the generated modules:
 
 ```ts
 import { loginAuthLoginPost } from "../client/services.gen";
