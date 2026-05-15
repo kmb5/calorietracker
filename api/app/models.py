@@ -50,6 +50,8 @@ class RefreshToken(Base):
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     token_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    # First 16 chars of the raw token — fast lookup index, not a secret
+    token_prefix: Mapped[str] = mapped_column(String(16), nullable=False, index=True)
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )

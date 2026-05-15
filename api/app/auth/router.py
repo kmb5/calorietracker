@@ -27,6 +27,10 @@ from app.schemas.auth import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Pre-computed dummy hash used in login to prevent username enumeration via timing.
+# Always runs bcrypt regardless of whether the user exists.
+_DUMMY_HASH = hash_password("dummy-timing-protection")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -55,6 +59,7 @@ async def _issue_tokens(
     db_token = RefreshToken(
         user_id=user.id,
         token_hash=token_hash,
+        token_prefix=raw_refresh[:16],
         expires_at=refresh_token_expiry(),
     )
     session.add(db_token)
@@ -101,10 +106,10 @@ async def login(
 ) -> TokenResponse:
     user = await _get_user_by_username(session, body.username)
 
-    # Constant-time check even when user doesn't exist (prevents timing attacks)
-    password_ok = (
-        verify_password(body.password, user.hashed_password) if user else False
-    )
+    # Always run bcrypt even when the user doesn't exist — skipping it leaks
+    # timing information that allows username enumeration.
+    check_hash = user.hashed_password if user else _DUMMY_HASH
+    password_ok = verify_password(body.password, check_hash)
 
     if not user or not password_ok:
         raise HTTPException(
@@ -132,9 +137,10 @@ async def refresh(
         detail="Invalid or expired refresh token",
     )
 
-    # Load all non-revoked, non-expired tokens and find a bcrypt match
+    # Look up the single candidate by prefix (indexed), then bcrypt-verify
     result = await session.execute(
         select(RefreshToken).where(
+            RefreshToken.token_prefix == body.refresh_token[:16],
             RefreshToken.revoked_at.is_(None),
             RefreshToken.expires_at > datetime.now(UTC),
         )
@@ -170,6 +176,7 @@ async def logout(
 ) -> None:
     result = await session.execute(
         select(RefreshToken).where(
+            RefreshToken.token_prefix == body.refresh_token[:16],
             RefreshToken.revoked_at.is_(None),
             RefreshToken.expires_at > datetime.now(UTC),
         )
