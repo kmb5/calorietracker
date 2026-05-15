@@ -8,9 +8,7 @@ import type {
   RegisterAuthRegisterPostResponse,
   LoginAuthLoginPostData,
   LoginAuthLoginPostResponse,
-  RefreshAuthRefreshPostData,
   RefreshAuthRefreshPostResponse,
-  LogoutAuthLogoutPostData,
   LogoutAuthLogoutPostResponse,
   HealthHealthGetResponse,
 } from "./types.gen";
@@ -59,45 +57,41 @@ export const loginAuthLoginPost = (
 
 /**
  * Refresh
- * @param data The data for the request.
- * @param data.requestBody
+ * The refresh token is sent automatically as an HttpOnly cookie by the browser.
+ * No explicit cookie injection is needed — credentials are included via
+ * `WITH_CREDENTIALS: true` on the OpenAPI config.
  * @returns TokenResponse Successful Response
  * @throws ApiError
  */
-export const refreshAuthRefreshPost = (
-  data: RefreshAuthRefreshPostData
-): CancelablePromise<RefreshAuthRefreshPostResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/auth/refresh",
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  });
-};
+export const refreshAuthRefreshPost =
+  (): CancelablePromise<RefreshAuthRefreshPostResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/auth/refresh",
+      errors: {
+        422: "Validation Error",
+      },
+    });
+  };
 
 /**
  * Logout
- * @param data The data for the request.
- * @param data.requestBody
+ * The refresh token is sent automatically as an HttpOnly cookie by the browser.
+ * No explicit cookie injection is needed — credentials are included via
+ * `WITH_CREDENTIALS: true` on the OpenAPI config.
  * @returns void Successful Response
  * @throws ApiError
  */
-export const logoutAuthLogoutPost = (
-  data: LogoutAuthLogoutPostData
-): CancelablePromise<LogoutAuthLogoutPostResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/auth/logout",
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  });
-};
+export const logoutAuthLogoutPost =
+  (): CancelablePromise<LogoutAuthLogoutPostResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/auth/logout",
+      errors: {
+        422: "Validation Error",
+      },
+    });
+  };
 
 /**
  * Health

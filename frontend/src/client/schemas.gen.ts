@@ -30,30 +30,6 @@ export const $LoginRequest = {
   title: "LoginRequest",
 } as const;
 
-export const $LogoutRequest = {
-  properties: {
-    refresh_token: {
-      type: "string",
-      title: "Refresh Token",
-    },
-  },
-  type: "object",
-  required: ["refresh_token"],
-  title: "LogoutRequest",
-} as const;
-
-export const $RefreshRequest = {
-  properties: {
-    refresh_token: {
-      type: "string",
-      title: "Refresh Token",
-    },
-  },
-  type: "object",
-  required: ["refresh_token"],
-  title: "RefreshRequest",
-} as const;
-
 export const $RegisterRequest = {
   properties: {
     username: {
@@ -84,10 +60,6 @@ export const $TokenResponse = {
       type: "string",
       title: "Access Token",
     },
-    refresh_token: {
-      type: "string",
-      title: "Refresh Token",
-    },
     token_type: {
       type: "string",
       title: "Token Type",
@@ -95,7 +67,7 @@ export const $TokenResponse = {
     },
   },
   type: "object",
-  required: ["access_token", "refresh_token"],
+  required: ["access_token"],
   title: "TokenResponse",
 } as const;
 

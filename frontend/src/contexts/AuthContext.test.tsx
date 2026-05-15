@@ -2,13 +2,16 @@
  * AuthContext tests
  *
  * Strategy: mock `../services/auth` at the module level so no real HTTP is
- * made. Each test controls what authApi and storage return.
+ * made. Each test controls what authApi returns.
+ *
+ * The refresh token is an HttpOnly cookie managed by the browser/server —
+ * JS never reads or writes it, so there are no storage assertions here.
  */
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useAuth } from "../hooks/useAuth";
-import { authApi, storage } from "../services/auth";
+import { authApi } from "../services/auth";
 
 // ── Module-level mocks ────────────────────────────────────────────────────────
 
@@ -19,19 +22,12 @@ jest.mock("../services/auth", () => ({
     refresh: jest.fn(),
     logout: jest.fn(),
   },
-  storage: {
-    getRefreshToken: jest.fn(),
-    setRefreshToken: jest.fn(),
-    clearRefreshToken: jest.fn(),
-  },
 }));
 
 const mockAuthApi = authApi as jest.Mocked<typeof authApi>;
-const mockStorage = storage as jest.Mocked<typeof storage>;
 
 const TOKEN_RESPONSE = {
   access_token: "access-abc",
-  refresh_token: "refresh-xyz",
   token_type: "bearer",
 };
 
@@ -52,39 +48,36 @@ async function renderAuth() {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Default: no stored refresh token → user is unauthenticated
-  mockStorage.getRefreshToken.mockReturnValue(null);
+  // Default: no cookie / expired cookie → refresh fails → unauthenticated
+  mockAuthApi.refresh.mockRejectedValue(new Error("401"));
 });
 
-describe("initial load — no stored refresh token", () => {
+describe("initial load — no valid cookie", () => {
   it("starts loading=true then settles to unauthenticated", async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
-    // May or may not observe loading=true depending on timing, but must settle
+    // Must eventually settle
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.accessToken).toBeNull();
-    expect(mockAuthApi.refresh).not.toHaveBeenCalled();
+    expect(mockAuthApi.refresh).toHaveBeenCalledTimes(1);
   });
 });
 
-describe("initial load — valid stored refresh token", () => {
+describe("initial load — valid cookie present", () => {
   it("silently restores the session", async () => {
-    mockStorage.getRefreshToken.mockReturnValue("stored-rt");
     mockAuthApi.refresh.mockResolvedValue(TOKEN_RESPONSE);
 
     const { result } = await renderAuth();
 
     expect(result.current.accessToken).toBe("access-abc");
-    expect(mockStorage.setRefreshToken).toHaveBeenCalledWith("refresh-xyz");
+    expect(mockAuthApi.refresh).toHaveBeenCalledTimes(1);
   });
 
   it("clears state when refresh fails", async () => {
-    mockStorage.getRefreshToken.mockReturnValue("expired-rt");
     mockAuthApi.refresh.mockRejectedValue(new Error("401"));
 
     const { result } = await renderAuth();
 
     expect(result.current.accessToken).toBeNull();
-    expect(mockStorage.clearRefreshToken).toHaveBeenCalled();
   });
 });
 
@@ -98,7 +91,6 @@ describe("login()", () => {
     });
 
     expect(result.current.accessToken).toBe("access-abc");
-    expect(mockStorage.setRefreshToken).toHaveBeenCalledWith("refresh-xyz");
   });
 
   it("propagates errors so the caller can handle them", async () => {
@@ -149,7 +141,6 @@ describe("register()", () => {
 
 describe("logout()", () => {
   it("clears the access token and calls the API", async () => {
-    mockStorage.getRefreshToken.mockReturnValue("stored-rt");
     mockAuthApi.refresh.mockResolvedValue(TOKEN_RESPONSE);
     mockAuthApi.logout.mockResolvedValue(undefined);
 
@@ -161,12 +152,11 @@ describe("logout()", () => {
     });
 
     expect(result.current.accessToken).toBeNull();
-    expect(mockAuthApi.logout).toHaveBeenCalledWith("refresh-xyz");
-    expect(mockStorage.clearRefreshToken).toHaveBeenCalled();
+    // logout takes no arguments — the cookie is sent by the browser
+    expect(mockAuthApi.logout).toHaveBeenCalledWith();
   });
 
   it("clears local state even when the API call fails", async () => {
-    mockStorage.getRefreshToken.mockReturnValue("stored-rt");
     mockAuthApi.refresh.mockResolvedValue(TOKEN_RESPONSE);
     mockAuthApi.logout.mockRejectedValue(new Error("network error"));
 

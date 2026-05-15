@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,8 +19,6 @@ from app.limiter import limiter
 from app.models import RefreshToken, User
 from app.schemas.auth import (
     LoginRequest,
-    LogoutRequest,
-    RefreshRequest,
     RegisterRequest,
     TokenResponse,
 )
@@ -51,9 +49,15 @@ async def _get_user_by_email(session: AsyncSession, email: str) -> User | None:
 
 
 async def _issue_tokens(
-    session: AsyncSession, user: User, secret_key: str, bcrypt_rounds: int
+    session: AsyncSession,
+    user: User,
+    secret_key: str,
+    bcrypt_rounds: int,
+    response: Response,
+    cookie_secure: bool,
 ) -> TokenResponse:
-    """Create and persist a new refresh token; return both tokens."""
+    """Create and persist a new refresh token; set it as an HttpOnly cookie and
+    return only the access token in the response body."""
     access_token = create_access_token(user.id, user.role.value, secret_key)
 
     raw_refresh = generate_refresh_token()
@@ -68,7 +72,17 @@ async def _issue_tokens(
     session.add(db_token)
     await session.commit()
 
-    return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+    response.set_cookie(
+        key="refresh_token",
+        value=raw_refresh,
+        httponly=True,
+        secure=cookie_secure,
+        samesite="strict",
+        max_age=7 * 24 * 60 * 60,  # 7 days in seconds
+        path="/auth",
+    )
+
+    return TokenResponse(access_token=access_token)
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +96,7 @@ async def _issue_tokens(
 @limiter.limit("5/minute")
 async def register(
     request: Request,  # required by slowapi
+    response: Response,
     body: RegisterRequest,
     session: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -99,7 +114,12 @@ async def register(
     session.add(user)
     await session.flush()  # assigns user.id without committing yet
     return await _issue_tokens(
-        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+        session,
+        user,
+        settings.SECRET_KEY,
+        settings.BCRYPT_ROUNDS,
+        response,
+        settings.COOKIE_SECURE,
     )
 
 
@@ -107,6 +127,7 @@ async def register(
 @limiter.limit("5/minute")
 async def login(
     request: Request,  # required by slowapi
+    response: Response,
     body: LoginRequest,
     session: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -133,25 +154,34 @@ async def login(
         )
 
     return await _issue_tokens(
-        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+        session,
+        user,
+        settings.SECRET_KEY,
+        settings.BCRYPT_ROUNDS,
+        response,
+        settings.COOKIE_SECURE,
     )
 
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(
-    body: RefreshRequest,
+    response: Response,
     session: AsyncSession = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    refresh_token: str | None = Cookie(default=None),
 ) -> TokenResponse:
     invalid_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired refresh token",
     )
 
+    if not refresh_token:
+        raise invalid_exc
+
     # Look up the single candidate by prefix (indexed), then bcrypt-verify
     result = await session.execute(
         select(RefreshToken).where(
-            RefreshToken.token_prefix == body.refresh_token[:16],
+            RefreshToken.token_prefix == refresh_token[:16],
             RefreshToken.revoked_at.is_(None),
             RefreshToken.expires_at > datetime.now(UTC),
         )
@@ -160,7 +190,7 @@ async def refresh(
 
     matched: RefreshToken | None = None
     for candidate in candidates:
-        if verify_password(body.refresh_token, candidate.token_hash):
+        if verify_password(refresh_token, candidate.token_hash):
             matched = candidate
             break
 
@@ -178,28 +208,37 @@ async def refresh(
     await session.commit()
 
     return await _issue_tokens(
-        session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS
+        session,
+        user,
+        settings.SECRET_KEY,
+        settings.BCRYPT_ROUNDS,
+        response,
+        settings.COOKIE_SECURE,
     )
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
-    body: LogoutRequest,
+    response: Response,
     session: AsyncSession = Depends(get_db),
+    refresh_token: str | None = Cookie(default=None),
 ) -> None:
-    result = await session.execute(
-        select(RefreshToken).where(
-            RefreshToken.token_prefix == body.refresh_token[:16],
-            RefreshToken.revoked_at.is_(None),
-            RefreshToken.expires_at > datetime.now(UTC),
+    if refresh_token:
+        result = await session.execute(
+            select(RefreshToken).where(
+                RefreshToken.token_prefix == refresh_token[:16],
+                RefreshToken.revoked_at.is_(None),
+                RefreshToken.expires_at > datetime.now(UTC),
+            )
         )
-    )
-    candidates = result.scalars().all()
+        candidates = result.scalars().all()
 
-    for candidate in candidates:
-        if verify_password(body.refresh_token, candidate.token_hash):
-            candidate.revoked_at = datetime.now(UTC)
-            await session.commit()
-            return
+        for candidate in candidates:
+            if verify_password(refresh_token, candidate.token_hash):
+                candidate.revoked_at = datetime.now(UTC)
+                await session.commit()
+                break
 
-    # Token not found or already revoked — treat as success (idempotent)
+    # Clear the cookie regardless of whether the token was found —
+    # the client should always end up logged out.
+    response.delete_cookie(key="refresh_token", path="/auth")

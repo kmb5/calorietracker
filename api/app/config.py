@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     BCRYPT_ROUNDS: int = 12
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+    # Set to True in production (requires HTTPS). Defaults to False so the
+    # cookie works over plain HTTP in local dev.
+    COOKIE_SECURE: bool = False
 
     @model_validator(mode="after")
     def _check_production_secrets(self) -> "Settings":

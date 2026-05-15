@@ -10,8 +10,8 @@ from httpx import AsyncClient
 
 async def register(
     client: AsyncClient, username: str = "alice", password: str = "s3cr3t!1"
-) -> dict:
-    resp = await client.post(
+):
+    return await client.post(
         "/auth/register",
         json={
             "username": username,
@@ -19,17 +19,15 @@ async def register(
             "password": password,
         },
     )
-    return resp
 
 
 async def login(
     client: AsyncClient, username: str = "alice", password: str = "s3cr3t!1"
-) -> dict:
-    resp = await client.post(
+):
+    return await client.post(
         "/auth/login",
         json={"username": username, "password": password},
     )
-    return resp
 
 
 # ---------------------------------------------------------------------------
@@ -43,8 +41,14 @@ async def test_register_success(client: AsyncClient):
     assert resp.status_code == 201
     data = resp.json()
     assert "access_token" in data
-    assert "refresh_token" in data
+    # refresh_token must NOT be in the response body — it lives in the cookie
+    assert "refresh_token" not in data
     assert data["token_type"] == "bearer"
+    assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
 
 
 @pytest.mark.asyncio
@@ -57,7 +61,6 @@ async def test_register_duplicate_username(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_register_duplicate_email(client: AsyncClient):
-    # Two users with the same email but different usernames
     resp1 = await client.post(
         "/auth/register",
         json={
@@ -91,7 +94,13 @@ async def test_login_success(client: AsyncClient):
     assert resp.status_code == 200
     data = resp.json()
     assert "access_token" in data
-    assert "refresh_token" in data
+    # refresh_token must NOT be in the response body
+    assert "refresh_token" not in data
+    assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
 
 
 @pytest.mark.asyncio
@@ -99,7 +108,6 @@ async def test_login_wrong_password(client: AsyncClient):
     await register(client, "wrong_pw_user", "correcthorse")
     resp = await login(client, "wrong_pw_user", "wrongpassword")
     assert resp.status_code == 401
-    # Generic message — must not reveal which field was wrong
     detail = resp.json()["detail"].lower()
     assert "invalid credentials" in detail or "invalid" in detail
     assert "password" not in detail
@@ -128,35 +136,55 @@ async def test_login_error_message_generic(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_refresh_success(client: AsyncClient):
+    """After login the refresh cookie is sent automatically on the next call."""
     await register(client, "refresh_user", "mypassword")
-    login_resp = await login(client, "refresh_user", "mypassword")
-    refresh_token = login_resp.json()["refresh_token"]
+    await login(client, "refresh_user", "mypassword")
 
-    resp = await client.post("/auth/refresh", json={"refresh_token": refresh_token})
+    # httpx AsyncClient stores Set-Cookie headers and sends them back
+    resp = await client.post("/auth/refresh")
     assert resp.status_code == 200
     data = resp.json()
     assert "access_token" in data
-    assert "refresh_token" in data
+    assert "refresh_token" not in data
+    # A fresh cookie must be issued (token rotation)
+    assert "refresh_token" in resp.cookies
+    set_cookie = resp.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=strict" in set_cookie
+    assert "Path=/auth" in set_cookie
+
+
+@pytest.mark.asyncio
+async def test_refresh_no_cookie(client: AsyncClient):
+    """Request with no cookie at all must be rejected."""
+    resp = await client.post("/auth/refresh")
+    assert resp.status_code == 401
 
 
 @pytest.mark.asyncio
 async def test_refresh_invalid_token(client: AsyncClient):
-    resp = await client.post("/auth/refresh", json={"refresh_token": "notavalidtoken"})
+    """Request with a bad cookie value must be rejected."""
+    resp = await client.post(
+        "/auth/refresh", headers={"Cookie": "refresh_token=notavalidtoken"}
+    )
     assert resp.status_code == 401
 
 
 @pytest.mark.asyncio
 async def test_refresh_revoked_token(client: AsyncClient):
+    """A token that has already been used (rotated) must be rejected."""
     await register(client, "revoke_refresh_user", "abc12345")
     login_resp = await login(client, "revoke_refresh_user", "abc12345")
-    old_refresh = login_resp.json()["refresh_token"]
+    old_refresh = login_resp.cookies["refresh_token"]
 
-    # Use the refresh token once — it gets revoked after use
-    resp = await client.post("/auth/refresh", json={"refresh_token": old_refresh})
+    # Use the refresh token once — it gets revoked and replaced
+    resp = await client.post("/auth/refresh")
     assert resp.status_code == 200
 
-    # Second use of the same token must fail
-    resp2 = await client.post("/auth/refresh", json={"refresh_token": old_refresh})
+    # Replay the old (now-revoked) token
+    resp2 = await client.post(
+        "/auth/refresh", headers={"Cookie": f"refresh_token={old_refresh}"}
+    )
     assert resp2.status_code == 401
 
 
@@ -168,23 +196,26 @@ async def test_refresh_revoked_token(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_logout_success(client: AsyncClient):
     await register(client, "logout_user", "passw0rd")
-    login_resp = await login(client, "logout_user", "passw0rd")
-    refresh_token = login_resp.json()["refresh_token"]
+    await login(client, "logout_user", "passw0rd")
 
-    resp = await client.post("/auth/logout", json={"refresh_token": refresh_token})
+    resp = await client.post("/auth/logout")
     assert resp.status_code == 204
+    # Cookie must be cleared in the response
+    assert resp.cookies.get("refresh_token", "") == ""
 
 
 @pytest.mark.asyncio
 async def test_logout_revokes_refresh_token(client: AsyncClient):
     await register(client, "logout_revoke_user", "passw0rd")
     login_resp = await login(client, "logout_revoke_user", "passw0rd")
-    refresh_token = login_resp.json()["refresh_token"]
+    old_refresh = login_resp.cookies["refresh_token"]
 
-    await client.post("/auth/logout", json={"refresh_token": refresh_token})
+    await client.post("/auth/logout")
 
-    # Token must now be unusable
-    resp = await client.post("/auth/refresh", json={"refresh_token": refresh_token})
+    # The revoked token must no longer work
+    resp = await client.post(
+        "/auth/refresh", headers={"Cookie": f"refresh_token={old_refresh}"}
+    )
     assert resp.status_code == 401
 
 
@@ -193,10 +224,12 @@ async def test_logout_idempotent(client: AsyncClient):
     """Logging out with an already-revoked token should still return 204."""
     await register(client, "idempotent_user", "passw0rd")
     login_resp = await login(client, "idempotent_user", "passw0rd")
-    refresh_token = login_resp.json()["refresh_token"]
+    old_refresh = login_resp.cookies["refresh_token"]
 
-    await client.post("/auth/logout", json={"refresh_token": refresh_token})
-    resp2 = await client.post("/auth/logout", json={"refresh_token": refresh_token})
+    await client.post("/auth/logout")
+    resp2 = await client.post(
+        "/auth/logout", headers={"Cookie": f"refresh_token={old_refresh}"}
+    )
     assert resp2.status_code == 204
 
 
@@ -213,7 +246,6 @@ async def test_access_token_encodes_user_id_and_role(client: AsyncClient):
     login_resp = await login(client, "jwt_user", "secret99")
     token = login_resp.json()["access_token"]
 
-    # Must decode with the same key conftest injects into the app
     payload = jwt.decode(
         token, "test-secret-key-not-for-production", algorithms=["HS256"]
     )
@@ -235,7 +267,6 @@ async def test_deactivated_user_cannot_login(client: AsyncClient, db_session):
 
     await register(client, "inactive_user", "active123")
 
-    # Deactivate the user directly in the DB
     result = await db_session.execute(
         select(User).where(User.username == "inactive_user")
     )
@@ -260,3 +291,48 @@ async def test_rate_limit_429_on_sixth_attempt(client: AsyncClient):
         await login(client, "ratelimit_user", "wrongpass")
     resp = await login(client, "ratelimit_user", "wrongpass")
     assert resp.status_code == 429
+
+
+# ---------------------------------------------------------------------------
+# Cookie Secure flag
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_cookie_secure_flag_set_when_cookie_secure_true(
+    client: AsyncClient,
+):
+    """When COOKIE_SECURE=True, the Set-Cookie header must contain the Secure flag."""
+    from conftest import _test_get_db
+    from httpx import ASGITransport
+    from httpx import AsyncClient as HttpxClient
+
+    from app.config import Settings, get_settings
+    from app.database import get_db
+    from app.main import app
+
+    secure_settings = Settings(
+        DATABASE_URL="sqlite+aiosqlite:///:memory:",
+        SECRET_KEY="test-secret-key-not-for-production",
+        BCRYPT_ROUNDS=4,
+        COOKIE_SECURE=True,
+    )
+    app.dependency_overrides[get_settings] = lambda: secure_settings
+    app.dependency_overrides[get_db] = _test_get_db
+    try:
+        transport = ASGITransport(app=app)
+        async with HttpxClient(
+            transport=transport, base_url="http://test"
+        ) as secure_client:
+            resp = await secure_client.post(
+                "/auth/register",
+                json={
+                    "username": "secure_user",
+                    "email": "secure@example.com",
+                    "password": "s3cr3t!1",
+                },
+            )
+            assert resp.status_code == 201
+            assert "Secure" in resp.headers["set-cookie"]
+    finally:
+        app.dependency_overrides.clear()
