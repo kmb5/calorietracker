@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Ingredient Search Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --border-focus:  #C9562B;
+      --white:         #FFFFFF;
+      --badge-system:  #C9562B;
+      --badge-custom:  #5B7FA6;
+      --badge-sys-bg:  #F2E0D8;
+      --badge-cus-bg:  #DDE8F4;
+      --highlight:     rgba(201,86,43,0.10);
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --radius-xs:     6px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+      --shadow-drop:   0 8px 40px rgba(26,18,8,0.16), 0 2px 8px rgba(26,18,8,0.08);
+    }
+
+    html.dark {
+      color-scheme: dark;
+      --cream:         #1D1209;
+      --cream-dark:    #261810;
+      --cream-mid:     #301E12;
+      --terra:         #D4673A;
+      --terra-dark:    #B85A30;
+      --terra-light:   #2D1A0D;
+      --ink:           #FDF6ED;
+      --ink-mid:       #D4B89A;
+      --ink-soft:      #9C8270;
+      --border:        #3D2416;
+      --border-focus:  #D4673A;
+      --white:         #221508;
+      --badge-system:  #D4673A;
+      --badge-custom:  #7BAFD4;
+      --badge-sys-bg:  #2A1208;
+      --badge-cus-bg:  #0E1E2D;
+      --highlight:     rgba(212,103,58,0.12);
+      --shadow:        0 4px 24px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-sm:     0 2px 8px rgba(0,0,0,0.30);
+      --shadow-drop:   0 8px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    }
+
+    html, body {
+      width: 375px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--cream);
+      font-family: var(--font-body);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    @media (min-width: 420px) {
+      body {
+        width: 375px;
+        box-shadow: 0 0 0 1px var(--border), 0 8px 48px rgba(26,18,8,0.12);
+      }
+    }
+
+    /* ── Background layer ─────────────────────────────────────────── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      width: 375px;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 280px 220px at 90% 10%, rgba(201,86,43,0.09) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 300px at 10% 80%, rgba(201,86,43,0.06) 0%, transparent 70%);
+      animation: breathe 8s ease-in-out infinite alternate;
+    }
+    @keyframes breathe {
+      from { opacity: 0.8; transform: scale(1); }
+      to   { opacity: 1;   transform: scale(1.04); }
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--cream);
+    }
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: var(--terra); }
+
+    /* ── Dark mode toggle ─────────────────────────────────────────── */
+    .dark-toggle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.2s, border-color 0.2s;
+      color: var(--ink);
+    }
+    .dark-toggle:hover { background: var(--cream-dark); }
+
+    /* ── State navigation tabs ────────────────────────────────────── */
+    .state-nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 0;
+      padding: 12px 20px 0;
+      background: var(--cream);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .state-nav::-webkit-scrollbar { display: none; }
+    .state-tab {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-body);
+      color: var(--ink-soft);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      transition: color 0.2s, border-color 0.2s;
+      margin-bottom: -1px;
+    }
+    .state-tab.active {
+      color: var(--terra);
+      border-bottom-color: var(--terra);
+    }
+    .state-tab:hover:not(.active) { color: var(--ink-mid); }
+
+    /* ── Main content area ────────────────────────────────────────── */
+    .screen {
+      position: relative;
+      z-index: 5;
+      display: none;
+      flex-direction: column;
+      min-height: calc(100vh - 110px);
+      padding: 24px 20px;
+    }
+    .screen.active { display: flex; }
+
+    /* ── State label ──────────────────────────────────────────────── */
+    .state-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 16px;
+    }
+
+    /* ── Search input wrapper ─────────────────────────────────────── */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    .search-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 44px 0 44px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--white);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-input::placeholder { color: var(--ink-soft); }
+    .search-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(201,86,43,0.12), var(--shadow-sm);
+    }
+    .search-input--active {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(201,86,43,0.12), var(--shadow-sm);
+    }
+    .search-clear {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: var(--cream-mid);
+      color: var(--ink-mid);
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .search-clear:hover { background: var(--terra-light); color: var(--terra); }
+
+    /* ── Selected chip ────────────────────────────────────────────── */
+    .selected-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px 0 14px;
+      height: 52px;
+      border: 1.5px solid var(--terra);
+      border-radius: var(--radius);
+      background: var(--terra-light);
+      box-shadow: 0 0 0 3px rgba(201,86,43,0.10), var(--shadow-sm);
+    }
+    .selected-chip-icon {
+      color: var(--terra);
+      flex-shrink: 0;
+    }
+    .selected-chip-text {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .selected-chip-clear {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(201,86,43,0.15);
+      color: var(--terra);
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .selected-chip-clear:hover { background: rgba(201,86,43,0.25); }
+
+    /* ── Dropdown ─────────────────────────────────────────────────── */
+    .dropdown {
+      margin-top: 6px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow-drop);
+      overflow: hidden;
+    }
+    .dropdown-header {
+      padding: 9px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      border-bottom: 1px solid var(--border);
+      background: var(--cream-dark);
+    }
+
+    /* ── Result row ───────────────────────────────────────────────── */
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.12s;
+      min-height: 60px;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row:hover { background: var(--highlight); }
+    .result-row.keyboard-focus {
+      background: var(--highlight);
+      outline: none;
+    }
+    .result-row.keyboard-focus .result-name {
+      color: var(--terra);
+    }
+    .result-row--highlighted {
+      background: var(--highlight);
+    }
+    .result-row--highlighted .result-name {
+      color: var(--terra);
+    }
+
+    .result-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: var(--cream-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .result-body { flex: 1; min-width: 0; }
+    .result-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+      transition: color 0.12s;
+    }
+    .result-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .result-unit {
+      font-size: 11px;
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+    .result-kcal {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--terra);
+    }
+
+    /* ── Badges ───────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-system {
+      background: var(--badge-sys-bg);
+      color: var(--badge-system);
+    }
+    .badge-custom {
+      background: var(--badge-cus-bg);
+      color: var(--badge-custom);
+    }
+    .badge-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── Chevron ──────────────────────────────────────────────────── */
+    .result-chevron {
+      color: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── No-results ───────────────────────────────────────────────── */
+    .no-results {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 32px;
+      gap: 8px;
+    }
+    .no-results-icon {
+      font-size: 40px;
+      margin-bottom: 4px;
+      opacity: 0.5;
+    }
+    .no-results-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+    }
+    .no-results-sub {
+      font-size: 13px;
+      color: var(--ink-soft);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .no-results-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 11px 20px;
+      background: var(--terra);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(201,86,43,0.28);
+      transition: background 0.15s, transform 0.1s;
+      border: none;
+      font-family: var(--font-body);
+    }
+    .no-results-cta:hover {
+      background: var(--terra-dark);
+      transform: translateY(-1px);
+    }
+    .no-results-cta:active { transform: translateY(0); }
+
+    /* ── Keyboard hint ────────────────────────────────────────────── */
+    .kbd-hint {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      font-size: 11px;
+      color: var(--ink-soft);
+      background: var(--cream-dark);
+      border-top: 1px solid var(--border);
+    }
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    /* ── Detail sheet ─────────────────────────────────────────────── */
+    .detail-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 375px;
+      background: var(--white);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -8px 48px rgba(26,18,8,0.18), 0 -2px 8px rgba(26,18,8,0.08);
+      z-index: 50;
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .detail-sheet.open {
+      transform: translateX(-50%) translateY(0);
+    }
+    .detail-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,18,8,0.40);
+      z-index: 49;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      width: 375px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .detail-sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .detail-handle {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 4px;
+    }
+    .detail-handle-bar {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+    }
+
+    .detail-header {
+      padding: 8px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .detail-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+      flex: 1;
+    }
+    .detail-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--cream-dark);
+      color: var(--ink-mid);
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .detail-close:hover { background: var(--cream-mid); }
+    .detail-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .detail-portion {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    /* ── Nutrition grid ───────────────────────────────────────────── */
+    .nutrition-section {
+      padding: 16px 20px 24px;
+    }
+    .nutrition-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 14px;
+    }
+    .nutrition-hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--terra-light);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .nutrition-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 200px 100px at 50% 100%, rgba(201,86,43,0.15) 0%, transparent 70%);
+    }
+    .nutrition-hero-value {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--terra);
+      line-height: 1;
+      position: relative;
+    }
+    .nutrition-hero-unit {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--terra);
+      margin-left: 4px;
+      align-self: flex-end;
+      padding-bottom: 6px;
+      position: relative;
+    }
+    .nutrition-hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      text-align: center;
+      position: relative;
+    }
+    .nutrition-hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .nutrition-hero-row {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .macro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .macro-card {
+      background: var(--cream-dark);
+      border-radius: var(--radius-sm);
+      padding: 14px 14px 12px;
+      border: 1px solid var(--border);
+    }
+    .macro-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      margin-bottom: 4px;
+      letter-spacing: 0.2px;
+    }
+    .macro-value {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .macro-unit {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      margin-left: 2px;
+    }
+    .macro-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .macro-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--terra);
+      transition: width 0.6s ease;
+    }
+    .macro-bar-fill--protein { background: #5B9A6E; }
+    .macro-bar-fill--fat     { background: #D4A54A; }
+    .macro-bar-fill--carbs   { background: #C9562B; }
+    .macro-bar-fill--fiber   { background: #8AAF7B; }
+    .macro-bar-fill--sodium  { background: #7B8FAF; }
+
+    /* ── Detail CTA ───────────────────────────────────────────────── */
+    .detail-cta-row {
+      padding: 0 20px 32px;
+      display: flex;
+      gap: 10px;
+    }
+    .btn-primary {
+      flex: 1;
+      height: 50px;
+      background: var(--terra);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(201,86,43,0.28);
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--terra-dark); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      height: 50px;
+      padding: 0 16px;
+      background: var(--cream-dark);
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--cream-mid); }
+
+    /* ── State 4 inline detail ────────────────────────────────────── */
+    .inline-detail {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ── Keyboard instruction ─────────────────────────────────────── */
+    .instruction {
+      font-size: 12px;
+      color: var(--ink-soft);
+      padding: 6px 0;
+      line-height: 1.5;
+    }
+
+    /* ── Divider ──────────────────────────────────────────────────── */
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* ── Scrollable area for states with overflow ─────────────────── */
+    .scroll-area {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ── Prototype note ───────────────────────────────────────────── */
+    .proto-note {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--ink-soft);
+      padding: 8px 14px;
+      background: var(--cream-dark);
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <span class="header-title">Calorie<span>Tracker</span></span>
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+  </header>
+
+  <!-- State nav tabs -->
+  <nav class="state-nav" role="tablist" aria-label="Prototype states">
+    <button class="state-tab active" role="tab" data-state="1" onclick="showState(1)">1 · Idle</button>
+    <button class="state-tab" role="tab" data-state="2" onclick="showState(2)">2 · Typing</button>
+    <button class="state-tab" role="tab" data-state="3" onclick="showState(3)">3 · Selected</button>
+    <button class="state-tab" role="tab" data-state="4" onclick="showState(4)">4 · Detail</button>
+    <button class="state-tab" role="tab" data-state="5" onclick="showState(5)">5 · No Results</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATE 1 — IDLE
+  ════════════════════════════════════════════════════ -->
+  <section class="screen active" id="state-1" role="tabpanel">
+    <p class="state-label">State 1 — Search combobox · Idle</p>
+    <p class="proto-note">Empty input with placeholder text. Tap the field or press ↓ to open results. Try clicking to jump to the typing state.</p>
+
+    <div class="search-wrapper">
+      <span class="search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search ingredients…"
+        readonly
+        onclick="showState(2)"
+        onkeydown="if(event.key==='Enter'||event.key==='ArrowDown'){showState(2)}"
+        aria-label="Search ingredients"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+      />
+    </div>
+
+    <p class="instruction" style="margin-top:12px; text-align:center;">
+      ↑↓ navigate · <span class="kbd">Enter</span> select · <span class="kbd">Esc</span> close
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATE 2 — TYPING / RESULTS OPEN
+  ════════════════════════════════════════════════════ -->
+  <section class="screen" id="state-2" role="tabpanel">
+    <p class="state-label">State 2 — Typing · Results dropdown</p>
+    <p class="proto-note">Dropdown shows name, unit, kcal, and system/custom badge. Row 2 is keyboard-focused (↑↓). Click a row to jump to State 3.</p>
+
+    <div class="search-wrapper">
+      <span class="search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="search-input search-input--active"
+        value="chick"
+        aria-label="Search ingredients"
+        aria-haspopup="listbox"
+        aria-expanded="true"
+        aria-activedescendant="result-2"
+        aria-autocomplete="list"
+        readonly
+      />
+      <button class="search-clear" aria-label="Clear search" onclick="showState(1)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="dropdown" role="listbox" aria-label="Search results">
+      <div class="dropdown-header">5 results for "chick"</div>
+
+      <div class="result-row" role="option" id="result-1" aria-selected="false" onclick="showState(3)" tabindex="0">
+        <div class="result-icon">🍗</div>
+        <div class="result-body">
+          <div class="result-name">Chicken Breast, raw</div>
+          <div class="result-meta">
+            <span class="result-kcal">110 kcal</span>
+            <span class="result-unit">per 100g</span>
+            <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+          </div>
+        </div>
+        <svg class="result-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+
+      <div class="result-row result-row--highlighted" role="option" id="result-2" aria-selected="true" onclick="showState(3)" tabindex="0">
+        <div class="result-icon">🍗</div>
+        <div class="result-body">
+          <div class="result-name">Chicken Breast, cooked</div>
+          <div class="result-meta">
+            <span class="result-kcal">165 kcal</span>
+            <span class="result-unit">per 100g</span>
+            <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+          </div>
+        </div>
+        <svg class="result-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+
+      <div class="result-row" role="option" id="result-3" aria-selected="false" onclick="showState(3)" tabindex="0">
+        <div class="result-icon">🥫</div>
+        <div class="result-body">
+          <div class="result-name">Chicken Thigh, skin-on</div>
+          <div class="result-meta">
+            <span class="result-kcal">209 kcal</span>
+            <span class="result-unit">per 100g</span>
+            <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+          </div>
+        </div>
+        <svg class="result-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+
+      <div class="result-row" role="option" id="result-4" aria-selected="false" onclick="showState(3)" tabindex="0">
+        <div class="result-icon">🍗</div>
+        <div class="result-body">
+          <div class="result-name">Spicy Chicken Marinade</div>
+          <div class="result-meta">
+            <span class="result-kcal">48 kcal</span>
+            <span class="result-unit">per tbsp</span>
+            <span class="badge badge-custom"><span class="badge-dot"></span>Custom</span>
+          </div>
+        </div>
+        <svg class="result-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+
+      <div class="result-row" role="option" id="result-5" aria-selected="false" onclick="showState(3)" tabindex="0">
+        <div class="result-icon">🍳</div>
+        <div class="result-body">
+          <div class="result-name">Chickpeas, canned</div>
+          <div class="result-meta">
+            <span class="result-kcal">139 kcal</span>
+            <span class="result-unit">per 100g</span>
+            <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+          </div>
+        </div>
+        <svg class="result-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+
+      <div class="kbd-hint">
+        <span class="kbd">↑</span><span class="kbd">↓</span> navigate
+        &nbsp;·&nbsp;
+        <span class="kbd">↵</span> select
+        &nbsp;·&nbsp;
+        <span class="kbd">Esc</span> close
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATE 3 — SELECTED
+  ════════════════════════════════════════════════════ -->
+  <section class="screen" id="state-3" role="tabpanel">
+    <p class="state-label">State 3 — Ingredient selected</p>
+    <p class="proto-note">Selected ingredient shown as a chip with a clear (×) button. Tap the chip or click "View details" to open the detail panel (State 4). Tap × to return to idle.</p>
+
+    <div class="search-wrapper">
+      <div class="selected-chip">
+        <svg class="selected-chip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="selected-chip-text">Chicken Breast, cooked</span>
+        <span class="badge badge-system" style="margin-right:4px;"><span class="badge-dot"></span>System</span>
+        <button class="selected-chip-clear" aria-label="Clear selection" onclick="showState(1)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button class="btn-primary" onclick="openDetailSheet()">View full nutrition →</button>
+      <button class="btn-secondary" onclick="showState(2)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATE 4 — DETAIL PANEL (bottom sheet)
+  ════════════════════════════════════════════════════ -->
+  <section class="screen" id="state-4" role="tabpanel">
+    <p class="state-label">State 4 — Ingredient detail panel</p>
+    <p class="proto-note">Full nutrition breakdown in a bottom sheet. Scroll to see all macros. Tap the backdrop or × to dismiss.</p>
+
+    <!-- Re-show the selected state behind the sheet -->
+    <div class="search-wrapper">
+      <div class="selected-chip">
+        <svg class="selected-chip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="selected-chip-text">Chicken Breast, cooked</span>
+        <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+        <button class="selected-chip-clear" aria-label="Clear selection" onclick="showState(1)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CTA to open the sheet (auto-opens on state enter) -->
+    <p style="font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center;">Detail sheet opens automatically. Tap backdrop or × to close.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATE 5 — NO RESULTS
+  ════════════════════════════════════════════════════ -->
+  <section class="screen" id="state-5" role="tabpanel">
+    <p class="state-label">State 5 — No results</p>
+    <p class="proto-note">Empty search state with a "Create custom ingredient" call-to-action. The link is static in this prototype (links to the issue #10 form).</p>
+
+    <div class="search-wrapper">
+      <span class="search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="search-input search-input--active"
+        value="xylitolsauce"
+        aria-label="Search ingredients"
+        aria-expanded="true"
+        readonly
+      />
+      <button class="search-clear" aria-label="Clear search" onclick="showState(1)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="dropdown">
+      <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <p class="no-results-title">No ingredients found</p>
+        <p class="no-results-sub">No results for <strong>"xylitolsauce"</strong>.<br>You can add it as a custom ingredient.</p>
+        <a class="no-results-cta" href="#" onclick="alert('→ Would navigate to: /ingredients/new?name=xylitolsauce\n(Issue #10 — custom ingredient form)')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Create custom ingredient
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       DETAIL BOTTOM SHEET (shared across states 3 & 4)
+  ════════════════════════════════════════════════════ -->
+  <div class="detail-sheet-backdrop" id="detailBackdrop" onclick="closeDetailSheet()"></div>
+
+  <div class="detail-sheet" id="detailSheet" role="dialog" aria-modal="true" aria-label="Chicken Breast, cooked — Nutrition detail">
+
+    <div class="detail-handle">
+      <div class="detail-handle-bar"></div>
+    </div>
+
+    <div class="detail-header">
+      <div class="detail-header-top">
+        <h2 class="detail-name">Chicken Breast, cooked</h2>
+        <button class="detail-close" onclick="closeDetailSheet()" aria-label="Close detail">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="detail-meta-row">
+        <span class="badge badge-system"><span class="badge-dot"></span>System</span>
+        <span class="detail-portion">per 100 g portion</span>
+      </div>
+    </div>
+
+    <div class="nutrition-section">
+      <p class="nutrition-section-label">Nutrition per portion</p>
+
+      <!-- Hero: kcal -->
+      <div class="nutrition-hero">
+        <div class="nutrition-hero-inner">
+          <div class="nutrition-hero-row">
+            <span class="nutrition-hero-value">165</span>
+            <span class="nutrition-hero-unit">kcal</span>
+          </div>
+          <span class="nutrition-hero-label">Calories</span>
+        </div>
+      </div>
+
+      <!-- Macros grid -->
+      <div class="macro-grid">
+
+        <div class="macro-card">
+          <div class="macro-label">Protein</div>
+          <div>
+            <span class="macro-value">31</span><span class="macro-unit">g</span>
+          </div>
+          <div class="macro-bar"><div class="macro-bar-fill macro-bar-fill--protein" style="width:78%"></div></div>
+        </div>
+
+        <div class="macro-card">
+          <div class="macro-label">Fat</div>
+          <div>
+            <span class="macro-value">3.6</span><span class="macro-unit">g</span>
+          </div>
+          <div class="macro-bar"><div class="macro-bar-fill macro-bar-fill--fat" style="width:18%"></div></div>
+        </div>
+
+        <div class="macro-card">
+          <div class="macro-label">Carbohydrates</div>
+          <div>
+            <span class="macro-value">0</span><span class="macro-unit">g</span>
+          </div>
+          <div class="macro-bar"><div class="macro-bar-fill macro-bar-fill--carbs" style="width:0%"></div></div>
+        </div>
+
+        <div class="macro-card">
+          <div class="macro-label">Fiber</div>
+          <div>
+            <span class="macro-value">0</span><span class="macro-unit">g</span>
+          </div>
+          <div class="macro-bar"><div class="macro-bar-fill macro-bar-fill--fiber" style="width:0%"></div></div>
+        </div>
+
+        <div class="macro-card" style="grid-column:1/-1;">
+          <div class="macro-label">Sodium</div>
+          <div>
+            <span class="macro-value">74</span><span class="macro-unit">mg</span>
+          </div>
+          <div class="macro-bar"><div class="macro-bar-fill macro-bar-fill--sodium" style="width:12%"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="detail-cta-row">
+      <button class="btn-primary" onclick="alert('→ Ingredient added to log / recipe')">Add to log</button>
+      <button class="btn-secondary" onclick="closeDetailSheet()">Cancel</button>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── State navigation ─────────────────────────────────────────── */
+    function showState(n) {
+      // Hide all screens
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+
+      // Show selected
+      document.getElementById('state-' + n).classList.add('active');
+      document.querySelector('[data-state="' + n + '"]').classList.add('active');
+
+      // Auto-open detail sheet on state 4
+      if (n === 4) {
+        setTimeout(openDetailSheet, 120);
+      } else {
+        closeDetailSheet();
+      }
+
+      // Scroll state nav tab into view
+      const tab = document.querySelector('[data-state="' + n + '"]');
+      if (tab) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    /* ── Detail sheet ─────────────────────────────────────────────── */
+    function openDetailSheet() {
+      document.getElementById('detailSheet').classList.add('open');
+      document.getElementById('detailBackdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailSheet() {
+      document.getElementById('detailSheet').classList.remove('open');
+      document.getElementById('detailBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ── Keyboard navigation within dropdown (State 2) ────────────── */
+    (function () {
+      let focusIndex = 1; // 0-based index into result rows
+      const ROWS = 5;
+
+      document.addEventListener('keydown', function (e) {
+        const state2 = document.getElementById('state-2');
+        if (!state2.classList.contains('active')) return;
+
+        const rows = state2.querySelectorAll('.result-row');
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          rows[focusIndex].classList.remove('result-row--highlighted');
+          focusIndex = (focusIndex + 1) % ROWS;
+          rows[focusIndex].classList.add('result-row--highlighted');
+          rows[focusIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          rows[focusIndex].classList.remove('result-row--highlighted');
+          focusIndex = (focusIndex - 1 + ROWS) % ROWS;
+          rows[focusIndex].classList.add('result-row--highlighted');
+          rows[focusIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+          showState(3);
+        } else if (e.key === 'Escape') {
+          showState(1);
+        }
+      });
+    })();
+
+    /* ── Dark mode toggle ─────────────────────────────────────────── */
+    const darkToggle = document.getElementById('darkToggle');
+    let isDark = false;
+    darkToggle.addEventListener('click', function () {
+      isDark = !isDark;
+      document.documentElement.classList.toggle('dark', isDark);
+      darkToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+  </script>
+</body>
+</html>
