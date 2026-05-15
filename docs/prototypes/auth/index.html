@@ -100,10 +100,12 @@
     }
 
     html.dark .bg-layer::before {
+      /* Very large ellipses centred outside the viewport so their
+         visible portion is a gentle corner warmth with no hard edge
+         anywhere within the 375px content area. */
       background:
-        radial-gradient(ellipse 300px 240px at 90% 10%, rgba(212,103,58,0.20) 0%, transparent 70%),
-        radial-gradient(ellipse 220px 320px at 10% 80%, rgba(212,103,58,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 280px 200px at 50% 50%, rgba(212,103,58,0.04) 0%, transparent 80%);
+        radial-gradient(ellipse 640px 560px at 115% -8%, rgba(212,103,58,0.20) 0%, transparent 60%),
+        radial-gradient(ellipse 560px 680px at -15% 108%, rgba(212,103,58,0.12) 0%, transparent 60%);
     }
 
     @keyframes breathe {
@@ -188,6 +190,18 @@
 
     html.dark .card {
       box-shadow: 0 -2px 20px rgba(0,0,0,0.35);
+    }
+
+    /* Blend the card's top edge into the brand area above it so the
+       background gradient doesn't get cut off in a hard seam. */
+    html.dark .card::before {
+      content: '';
+      position: absolute;
+      top: -32px; left: 0; right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, #221508);
+      pointer-events: none;
+      border-radius: var(--radius) var(--radius) 0 0;
     }
 
     .card-handle {
