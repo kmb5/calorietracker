@@ -230,3 +230,45 @@ Always invoke the **frontend-design skill** when implementing any UI issue. It e
 - shadcn/ui components for all UI primitives; extend with Tailwind utility classes
 - Mobile-first: design for 375px viewport, then scale up
 - All new components go under `frontend/src/components/`; screens under `frontend/src/pages/`
+
+### Frontend Testing
+
+**Every frontend issue must ship tests alongside the implementation.** The test suite runs in CI (`pnpm run test`) and must stay green.
+
+#### What to test
+
+| Unit | What to cover |
+|---|---|
+| Context / hooks | All state transitions: happy path, error path, loading state, edge cases (e.g. expired token, API down) |
+| Pages | Form validation (client-side), successful submit → navigation, each distinct API error message, loading/disabled state during request |
+| Route guards | Authenticated → renders content; unauthenticated → redirects; `loading=true` → spinner, no redirect |
+| Pure utils | All branches of any non-trivial logic (e.g. `calcStrength`, formatters) |
+
+**Do not test:** implementation details (internal state shape, exact hook call counts), visual styling, or icon rendering.
+
+#### How to structure tests
+
+- One `*.test.tsx` / `*.test.ts` file per source file, co-located next to the file it tests.
+- Use `jest.mock("../services/auth")` (or the relevant service module) to avoid real HTTP in every test.
+- Mock `useAuth` at the module level when testing pages/components that consume it — never render a real `AuthProvider` in page tests.
+- Wrap async state changes in `act()` or use `waitFor()` / `findBy*` queries.
+- Prefer `getByRole` and `getByLabelText` over `getByTestId`; use exact label strings (e.g. `getByLabelText("Password")`) when a fuzzy regex would match multiple elements.
+
+#### Constructing an `ApiError` in tests
+
+```ts
+import { ApiError } from "../client/core/ApiError";
+
+const err = new ApiError(
+  { method: "POST", url: "/auth/login" },
+  { url: "/auth/login", ok: false, status: 401, statusText: "Unauthorized", body: {} },
+  "Unauthorized"
+);
+```
+
+#### Running tests
+
+```bash
+pnpm --prefix frontend run test          # run once
+pnpm --prefix frontend run test:watch    # watch mode during development
+```
