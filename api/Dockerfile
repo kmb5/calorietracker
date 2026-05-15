@@ -17,7 +17,14 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then uv sync --frozen --all-extras; else uv 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
 
+# Copy entrypoint separately so its execute bit is set in the image layer.
+# (The dev bind-mount overlays /app at runtime, so the host file must also
+# have +x — ensured by git's fileMode and the chmod in this project's setup.)
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
+
 # Copy source (overridden by the volume mount in development)
 COPY . .
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

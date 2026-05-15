@@ -52,6 +52,7 @@ CalorieTracker v3 is a personal, mobile-first web app for home cooks who want to
 cp .env.example .env            # defaults work out-of-the-box
 cd api && uv sync --frozen --all-extras && cd ..   # API venv (for local tooling)
 pnpm --prefix frontend install  # Frontend deps (for local tooling)
+pre-commit install               # REQUIRED — installs the git pre-commit hook
 
 # Start everything
 docker compose up
@@ -179,6 +180,27 @@ gh pr list --repo kmb5/calorietracker --state merged  # confirm blockers are mer
 - **Prefer many small focused edits** over one large batch of writes.
 - **Frontend + backend**: wire up and verify one end before starting the other.
 
+## API Client Generation
+
+**Always regenerate the TypeScript client before writing any frontend code that calls the API.** The generated client at `frontend/src/client/` is the authoritative source of types and service functions — never hand-write fetch calls or duplicate types that already exist there.
+
+```bash
+# API must be running first
+docker compose up -d
+pnpm --prefix frontend run gen:api
+```
+
+The client is committed to the repo — it must be kept in sync with the live API. In code, import directly from the generated modules:
+
+```ts
+import { loginAuthLoginPost } from "../client/services.gen";
+import type { LoginRequest, TokenResponse } from "../client/types.gen";
+```
+
+Errors thrown by the generated client are instances of `ApiError` (from `../client/core/ApiError`) with a `.status` number and `.body` payload — use `instanceof ApiError` to handle them.
+
+---
+
 ## Key Design Decisions
 
 1. **Recipe Calculator is the hero feature** — optimise Cooking Mode for one-handed mobile use while actively standing at a stove.
@@ -209,3 +231,45 @@ Always invoke the **frontend-design skill** when implementing any UI issue. It e
 - shadcn/ui components for all UI primitives; extend with Tailwind utility classes
 - Mobile-first: design for 375px viewport, then scale up
 - All new components go under `frontend/src/components/`; screens under `frontend/src/pages/`
+
+### Frontend Testing
+
+**Every frontend issue must ship tests alongside the implementation.** The test suite runs in CI (`pnpm run test`) and must stay green.
+
+#### What to test
+
+| Unit | What to cover |
+|---|---|
+| Context / hooks | All state transitions: happy path, error path, loading state, edge cases (e.g. expired token, API down) |
+| Pages | Form validation (client-side), successful submit → navigation, each distinct API error message, loading/disabled state during request |
+| Route guards | Authenticated → renders content; unauthenticated → redirects; `loading=true` → spinner, no redirect |
+| Pure utils | All branches of any non-trivial logic (e.g. `calcStrength`, formatters) |
+
+**Do not test:** implementation details (internal state shape, exact hook call counts), visual styling, or icon rendering.
+
+#### How to structure tests
+
+- One `*.test.tsx` / `*.test.ts` file per source file, co-located next to the file it tests.
+- Use `jest.mock("../services/auth")` (or the relevant service module) to avoid real HTTP in every test.
+- Mock `useAuth` at the module level when testing pages/components that consume it — never render a real `AuthProvider` in page tests.
+- Wrap async state changes in `act()` or use `waitFor()` / `findBy*` queries.
+- Prefer `getByRole` and `getByLabelText` over `getByTestId`; use exact label strings (e.g. `getByLabelText("Password")`) when a fuzzy regex would match multiple elements.
+
+#### Constructing an `ApiError` in tests
+
+```ts
+import { ApiError } from "../client/core/ApiError";
+
+const err = new ApiError(
+  { method: "POST", url: "/auth/login" },
+  { url: "/auth/login", ok: false, status: 401, statusText: "Unauthorized", body: {} },
+  "Unauthorized"
+);
+```
+
+#### Running tests
+
+```bash
+pnpm --prefix frontend run test          # run once
+pnpm --prefix frontend run test:watch    # watch mode during development
+```

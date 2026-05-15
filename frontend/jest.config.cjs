@@ -17,6 +17,8 @@ module.exports = {
       {
         tsconfig: {
           jsx: "react-jsx",
+          moduleResolution: "bundler",
+          ignoreDeprecations: "6.0",
           // Relax strict checks that don't apply to test files
           noUnusedLocals: false,
           noUnusedParameters: false,
@@ -24,5 +26,5 @@ module.exports = {
       },
     ],
   },
-  testPathPattern: "src/.*\\.test\\.tsx?$",
+  testMatch: ["<rootDir>/src/**/*.test.ts", "<rootDir>/src/**/*.test.tsx"],
 };
