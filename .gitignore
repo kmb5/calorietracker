@@ -1,0 +1,43 @@
+# ── Environment ───────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Python ────────────────────────────────────────────────────────────────────
+api/.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Node / pnpm ───────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ── Generated API client (rebuilt with pnpm run gen:api) ─────────────────────
+frontend/src/client/
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# local override files only — committed compose files are tracked above
+docker-compose.override.yml
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
