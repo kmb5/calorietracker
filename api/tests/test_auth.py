@@ -224,3 +224,18 @@ async def test_deactivated_user_cannot_login(client: AsyncClient, db_session):
 
     resp = await login(client, "inactive_user", "active123")
     assert resp.status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# Rate limiting
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_429_on_sixth_attempt(client: AsyncClient):
+    """6th login attempt within 1 minute from the same IP returns HTTP 429."""
+    await register(client, "ratelimit_user", "pass")
+    for _ in range(5):
+        await login(client, "ratelimit_user", "wrongpass")
+    resp = await login(client, "ratelimit_user", "wrongpass")
+    assert resp.status_code == 429
