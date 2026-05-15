@@ -179,6 +179,27 @@ gh pr list --repo kmb5/calorietracker --state merged  # confirm blockers are mer
 - **Prefer many small focused edits** over one large batch of writes.
 - **Frontend + backend**: wire up and verify one end before starting the other.
 
+## API Client Generation
+
+**Always regenerate the TypeScript client before writing any frontend code that calls the API.** The generated client at `frontend/src/client/` is the authoritative source of types and service functions — never hand-write fetch calls or duplicate types that already exist there.
+
+```bash
+# API must be running first
+docker compose up -d
+pnpm --prefix frontend run gen:api
+```
+
+The client is gitignored (it's always rebuilt from the live OpenAPI schema). In code, import directly from the generated modules:
+
+```ts
+import { loginAuthLoginPost } from "../client/services.gen";
+import type { LoginRequest, TokenResponse } from "../client/types.gen";
+```
+
+Errors thrown by the generated client are instances of `ApiError` (from `../client/core/ApiError`) with a `.status` number and `.body` payload — use `instanceof ApiError` to handle them.
+
+---
+
 ## Key Design Decisions
 
 1. **Recipe Calculator is the hero feature** — optimise Cooking Mode for one-handed mobile use while actively standing at a stove.
