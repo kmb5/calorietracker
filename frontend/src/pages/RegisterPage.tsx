@@ -68,6 +68,12 @@ export function RegisterPage() {
             ? String((err.body as { detail: unknown }).detail)
             : "Registration failed. Please try again.";
 
+        // NOTE: These checks rely on the exact wording of the backend's 400
+        // error message text. If the backend error messages change, these
+        // branches will silently fall through to the generic alert. A future
+        // improvement is to return a machine-readable error code from the API
+        // (e.g. { code: "USERNAME_TAKEN", detail: "..." }) and key on that
+        // instead, or use HTTP 409 Conflict with a specific body field.
         if (detail.toLowerCase().includes("username")) {
           setAlert("Username already registered. Please choose a different one.");
           setUsernameErr("Username already taken");
