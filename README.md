@@ -6,8 +6,8 @@
 # 1. Copy env vars and fill in values (defaults work out-of-the-box)
 cp .env.example .env
 
-# 2. Create the API virtualenv (needed for local tooling: mypy, ruff, pytest)
-cd api && uv venv && uv pip install -e ".[dev]" && cd ..
+# 2. Create the API virtualenv (needed for local tooling: ty, pytest)
+cd api && uv sync --frozen --all-extras && cd ..
 
 # 3. Install frontend deps (needed for local tooling: eslint, prettier, tsc)
 pnpm --prefix frontend install

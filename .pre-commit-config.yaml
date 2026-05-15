@@ -1,22 +1,19 @@
 repos:
-  # ── Python: lint + format (ruff, from the api uv venv) ──────────────────────
-  - repo: local
+  # ── Python: lint + format (managed by pre-commit; no local venv required) ───
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.10
     hooks:
-      - id: ruff-lint
+      - id: ruff
         name: ruff lint
-        entry: api/.venv/bin/ruff check --fix
-        language: system
+        args: [--fix]
         files: ^api/
-        types: [python]
 
       - id: ruff-format
         name: ruff format
-        entry: api/.venv/bin/ruff format
-        language: system
         files: ^api/
-        types: [python]
 
   # ── Python: type-check (ty, from the api uv venv) ───────────────────────────
+  # Requires: cd api && uv sync --frozen --all-extras  (see README step 2)
   - repo: local
     hooks:
       - id: ty

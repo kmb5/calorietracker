@@ -1,16 +1,15 @@
 FROM python:3.12-slim
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# Pin uv version for reproducible builds
+COPY --from=ghcr.io/astral-sh/uv:0.4.30 /uv /usr/local/bin/uv
 
 WORKDIR /app
 
-# Copy dependency manifest first so this layer is cached
-COPY pyproject.toml ./
+# Copy dependency manifests first so this layer is cached
+COPY pyproject.toml uv.lock ./
 
-# Create venv and install all deps (including dev extras) with uv
-RUN uv venv .venv && \
-    uv pip install --python .venv/bin/python -e ".[dev]"
+# Create venv and install all deps from the lockfile (reproducible)
+RUN uv sync --frozen --all-extras
 
 # Make the venv the default Python for the container
 ENV PATH="/app/.venv/bin:$PATH"

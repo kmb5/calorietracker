@@ -6,10 +6,10 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # Copy manifests first so the install layer is cached
-COPY package.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# Install deps (pnpm-lock.yaml is generated on first install if absent)
-RUN pnpm install
+# Install deps from the lockfile — reproducible, fails if lock is out of date
+RUN pnpm install --frozen-lockfile
 
 # Copy source (overridden by the volume mount in development)
 COPY . .
