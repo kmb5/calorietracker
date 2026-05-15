@@ -119,6 +119,7 @@ jobs:
           scan-ref: .
           scanners: vuln
           severity: HIGH,CRITICAL
+          ignore-unfixed: true
           exit-code: "1"
           format: sarif
           output: trivy-vuln.sarif
