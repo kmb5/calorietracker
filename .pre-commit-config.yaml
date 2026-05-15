@@ -1,0 +1,56 @@
+repos:
+  # ── Python: lint + format (managed by pre-commit; no local venv required) ───
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.13
+    hooks:
+      - id: ruff
+        name: ruff lint
+        args: [--fix]
+        files: ^api/
+
+      - id: ruff-format
+        name: ruff format
+        files: ^api/
+
+  # ── Python: type-check (ty, from the api uv venv) ───────────────────────────
+  # Requires: cd api && uv sync --frozen --all-extras  (see README step 2)
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty
+        entry: bash -c 'cd api && .venv/bin/ty check app/'
+        language: system
+        files: ^api/
+        types: [python]
+        pass_filenames: false
+
+  # ── Frontend: ESLint ─────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd frontend && pnpm exec eslint --ext .ts,.tsx src/ --max-warnings 0'
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # ── Frontend: Prettier ───────────────────────────────────────────────────────
+  # Run from frontend/ so pnpm resolves prettier-plugin-tailwindcss correctly.
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: bash -c 'cd frontend && pnpm exec prettier --write "src/**/*.{ts,tsx,js,jsx,json,css}"'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css)$
+        pass_filenames: false
+
+  # ── Frontend: TypeScript type-check ─────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: tsc
+        name: tsc
+        entry: bash -c 'cd frontend && pnpm exec tsc --noEmit'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
