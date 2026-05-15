@@ -28,9 +28,6 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 
-# ── Generated API client (rebuilt with pnpm run gen:api) ─────────────────────
-frontend/src/client/
-
 # ── Docker ────────────────────────────────────────────────────────────────────
 # local override files only — committed compose files are tracked above
 docker-compose.override.yml
