@@ -27,12 +27,24 @@ docker compose up
 # Run the initial migration (also works inside Docker)
 docker compose run --rm api alembic upgrade head
 
+# Seed the ingredient database (~500 common ingredients from USDA FoodData Central)
+docker compose run --rm api python scripts/seed_ingredients.py
+
 # Generate the TypeScript API client (API must be running)
 pnpm --prefix frontend run gen:api
 
 # Run all pre-commit checks
 pre-commit run --all-files
 ```
+
+> **Note — volume wipes and seed data:** `docker compose down -v` destroys the
+> `postgres_data` volume and with it all seed data. Run the two commands below
+> to restore from scratch (the JSON source is committed to the repo, so nothing
+> is permanently lost):
+> ```bash
+> docker compose run --rm api alembic upgrade head
+> docker compose run --rm api python scripts/seed_ingredients.py
+> ```
 
 ---
 
