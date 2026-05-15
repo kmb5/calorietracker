@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
 
     ENVIRONMENT: str = "development"
+    BCRYPT_ROUNDS: int = 12
 
     @model_validator(mode="after")
     def _check_production_secrets(self) -> "Settings":

@@ -8,10 +8,8 @@ import bcrypt
 from jose import JWTError, jwt
 
 # ---------------------------------------------------------------------------
-# Password hashing  (bcrypt cost ≥ 12)
+# Password hashing  (bcrypt cost ≥ 12 in production; configurable for tests)
 # ---------------------------------------------------------------------------
-
-_BCRYPT_ROUNDS = 12
 
 
 def _prepare(plain: str) -> bytes:
@@ -19,9 +17,9 @@ def _prepare(plain: str) -> bytes:
     return hashlib.sha256(plain.encode()).hexdigest().encode()
 
 
-def hash_password(plain: str) -> str:
+def hash_password(plain: str, rounds: int = 12) -> str:
     return bcrypt.hashpw(
-        _prepare(plain), bcrypt.gensalt(rounds=_BCRYPT_ROUNDS)
+        _prepare(plain), bcrypt.gensalt(rounds=rounds)
     ).decode()
 
 

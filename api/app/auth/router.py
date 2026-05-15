@@ -44,13 +44,13 @@ async def _get_user_by_email(session: AsyncSession, email: str) -> User | None:
 
 
 async def _issue_tokens(
-    session: AsyncSession, user: User, secret_key: str
+    session: AsyncSession, user: User, secret_key: str, bcrypt_rounds: int
 ) -> TokenResponse:
     """Create and persist a new refresh token; return both tokens."""
     access_token = create_access_token(user.id, user.role.value, secret_key)
 
     raw_refresh = generate_refresh_token()
-    token_hash = hash_password(raw_refresh)  # bcrypt hash stored in DB
+    token_hash = hash_password(raw_refresh, bcrypt_rounds)  # bcrypt hash stored in DB
 
     db_token = RefreshToken(
         user_id=user.id,
@@ -84,11 +84,11 @@ async def register(
     user = User(
         username=body.username,
         email=body.email,
-        hashed_password=hash_password(body.password),
+        hashed_password=hash_password(body.password, settings.BCRYPT_ROUNDS),
     )
     session.add(user)
     await session.flush()  # assigns user.id without committing yet
-    return await _issue_tokens(session, user, settings.SECRET_KEY)
+    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -118,7 +118,7 @@ async def login(
             detail="Account is deactivated",
         )
 
-    return await _issue_tokens(session, user, settings.SECRET_KEY)
+    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -160,7 +160,7 @@ async def refresh(
     matched.revoked_at = datetime.now(UTC)
     await session.commit()
 
-    return await _issue_tokens(session, user, settings.SECRET_KEY)
+    return await _issue_tokens(session, user, settings.SECRET_KEY, settings.BCRYPT_ROUNDS)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

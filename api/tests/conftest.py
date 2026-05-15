@@ -28,6 +28,7 @@ from app.main import app
 TEST_SETTINGS = Settings(
     DATABASE_URL="sqlite+aiosqlite:///:memory:",
     SECRET_KEY="test-secret-key-not-for-production",
+    BCRYPT_ROUNDS=4,
 )
 
 
