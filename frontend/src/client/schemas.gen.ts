@@ -14,6 +14,80 @@ export const $HTTPValidationError = {
   title: "HTTPValidationError",
 } as const;
 
+export const $IngredientCreate = {
+  properties: {
+    name: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Name",
+    },
+    unit: {
+      $ref: "#/components/schemas/UnitType",
+    },
+    portion_size: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Portion Size",
+      default: 100,
+    },
+    kcal: {
+      type: "number",
+      minimum: 0,
+      title: "Kcal",
+    },
+    protein: {
+      type: "number",
+      minimum: 0,
+      title: "Protein",
+    },
+    fat: {
+      type: "number",
+      minimum: 0,
+      title: "Fat",
+    },
+    carbohydrates: {
+      type: "number",
+      minimum: 0,
+      title: "Carbohydrates",
+    },
+    fiber: {
+      type: "number",
+      minimum: 0,
+      title: "Fiber",
+    },
+    sodium: {
+      type: "number",
+      minimum: 0,
+      title: "Sodium",
+    },
+    icon: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 10,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Icon",
+    },
+  },
+  type: "object",
+  required: [
+    "name",
+    "unit",
+    "kcal",
+    "protein",
+    "fat",
+    "carbohydrates",
+    "fiber",
+    "sodium",
+  ],
+  title: "IngredientCreate",
+} as const;
+
 export const $IngredientDetail = {
   properties: {
     id: {
@@ -70,6 +144,21 @@ export const $IngredientDetail = {
       ],
       title: "Owner Id",
     },
+    icon: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Icon",
+    },
+    is_promotion_pending: {
+      type: "boolean",
+      title: "Is Promotion Pending",
+    },
   },
   type: "object",
   required: [
@@ -85,6 +174,8 @@ export const $IngredientDetail = {
     "sodium",
     "is_system",
     "owner_id",
+    "icon",
+    "is_promotion_pending",
   ],
   title: "IngredientDetail",
 } as const;
@@ -114,10 +205,147 @@ export const $IngredientSearchResult = {
       type: "boolean",
       title: "Is System",
     },
+    icon: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Icon",
+    },
   },
   type: "object",
-  required: ["id", "name", "unit", "portion_size", "kcal", "is_system"],
+  required: ["id", "name", "unit", "portion_size", "kcal", "is_system", "icon"],
   title: "IngredientSearchResult",
+} as const;
+
+export const $IngredientUpdate = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Name",
+    },
+    unit: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/UnitType",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    portion_size: {
+      anyOf: [
+        {
+          type: "number",
+          exclusiveMinimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Portion Size",
+    },
+    kcal: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Kcal",
+    },
+    protein: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Protein",
+    },
+    fat: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Fat",
+    },
+    carbohydrates: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Carbohydrates",
+    },
+    fiber: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Fiber",
+    },
+    sodium: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Sodium",
+    },
+    icon: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 10,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Icon",
+    },
+  },
+  type: "object",
+  title: "IngredientUpdate",
 } as const;
 
 export const $LoginRequest = {
