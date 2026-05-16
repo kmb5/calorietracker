@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Weekly Strip & Streak Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --white:         #FFFFFF;
+      --success:       #3D7A4A;
+      --success-bg:    #D6EDD9;
+      --success-light: #BBDFC2;
+      --warning:       #B85F00;
+      --warning-bg:    #FFECD4;
+      --warning-bar:   #E88A30;
+      --neutral:       #A8996A;
+      --neutral-bg:    #F0EAD8;
+      --bar-on-target: #3D7A4A;
+      --bar-over:      #E88A30;
+      --bar-empty:     #D8CCBA;
+      --streak-fire:   #E84B1A;
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+    }
+
+    html.dark {
+      color-scheme: dark;
+      --cream:         #1D1209;
+      --cream-dark:    #261810;
+      --cream-mid:     #2E1D11;
+      --terra:         #D4673A;
+      --terra-dark:    #B85A30;
+      --terra-light:   #2D1A0D;
+      --ink:           #FDF6ED;
+      --ink-mid:       #D4B89A;
+      --ink-soft:      #9C8270;
+      --border:        #3D2416;
+      --white:         #221508;
+      --success:       #4DAA60;
+      --success-bg:    #122318;
+      --success-light: #1E3D22;
+      --warning:       #F0A050;
+      --warning-bg:    #2A1800;
+      --warning-bar:   #D4893A;
+      --neutral:       #8C7A50;
+      --neutral-bg:    #1E1A10;
+      --bar-on-target: #4DAA60;
+      --bar-over:      #D4893A;
+      --bar-empty:     #3D2F1E;
+      --shadow:        0 4px 24px rgba(0,0,0,0.40);
+      --shadow-sm:     0 2px 8px rgba(0,0,0,0.30);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #2D1E10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+      color: var(--ink);
+    }
+
+    /* ── Screen nav ──────────────────────────────────────────────── */
+    .screen-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+      width: 375px;
+    }
+
+    .screen-btn {
+      padding: 6px 14px;
+      border: 1.5px solid rgba(253,246,237,0.30);
+      border-radius: 20px;
+      background: rgba(253,246,237,0.10);
+      color: rgba(253,246,237,0.80);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .screen-btn:hover,
+    .screen-btn.active {
+      background: rgba(253,246,237,0.20);
+      border-color: rgba(253,246,237,0.60);
+      color: #FDF6ED;
+    }
+
+    .screen-btn.active {
+      background: #C9562B;
+      border-color: #C9562B;
+    }
+
+    /* ── Dark toggle ─────────────────────────────────────────────── */
+    .dark-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(253,246,237,0.30);
+      background: rgba(253,246,237,0.10);
+      color: #FDF6ED;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    /* ── Screen shell ────────────────────────────────────────────── */
+    .screen {
+      width: 375px;
+      background: var(--cream);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.40);
+      display: none;
+      flex-direction: column;
+      min-height: 680px;
+    }
+
+    .screen.active { display: flex; }
+
+    /* ── App bar ────────────────────────────────────────────────── */
+    .app-bar {
+      background: var(--white);
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-bar-back {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--cream-dark);
+      color: var(--ink-mid);
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .app-bar-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    /* ── Scroll content ─────────────────────────────────────────── */
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--cream);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ── Section card ───────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 14px 16px 0;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+
+    /* ── Streak banner ──────────────────────────────────────────── */
+    .streak-banner {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .streak-fire-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #FF6B35, #E84B1A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(232,75,26,0.35);
+    }
+
+    .streak-fire-wrap.zero {
+      background: linear-gradient(135deg, #C0B0A0, #9A8070);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    }
+
+    .streak-info { flex: 1; }
+
+    .streak-label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .streak-value {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--streak-fire);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .streak-value.zero { color: var(--ink-soft); }
+
+    .streak-sub {
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .streak-sub strong {
+      color: var(--ink-mid);
+      font-weight: 600;
+    }
+
+    .streak-encourage {
+      font-size: 13px;
+      color: var(--ink-mid);
+      line-height: 1.4;
+    }
+
+    /* ── Bar chart ──────────────────────────────────────────────── */
+    .chart-wrap {
+      padding: 14px 16px 10px;
+      position: relative;
+    }
+
+    .chart-inner {
+      position: relative;
+      height: 120px;
+    }
+
+    /* reference line */
+    .ref-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      background: var(--terra);
+      opacity: 0.55;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .ref-label {
+      position: absolute;
+      right: 0;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--terra);
+      background: var(--white);
+      padding: 0 3px;
+      transform: translateY(-50%);
+      z-index: 3;
+    }
+
+    /* bars grid */
+    .bars-grid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .bar-kcal {
+      font-size: 8.5px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      line-height: 1;
+      text-align: center;
+      min-height: 11px;
+    }
+
+    .bar-rect {
+      width: 100%;
+      border-radius: 5px 5px 0 0;
+      transition: height 0.3s ease;
+      position: relative;
+      min-height: 4px;
+    }
+
+    .bar-rect.on-target  { background: var(--bar-on-target); }
+    .bar-rect.over       { background: var(--bar-over); }
+    .bar-rect.empty      { background: var(--bar-empty); border-radius: 5px; min-height: 6px; height: 6px !important; }
+    .bar-rect.no-target  { background: var(--terra); opacity: 0.75; }
+
+    .bar-day {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-align: center;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .bar-day.today {
+      color: var(--terra);
+      font-weight: 700;
+    }
+
+    /* ── Avg row ────────────────────────────────────────────────── */
+    .avg-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+    }
+
+    .avg-cell {
+      background: var(--white);
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .avg-cell:first-child { border-radius: 0 0 0 var(--radius); }
+    .avg-cell:last-child  { border-radius: 0 0 var(--radius) 0; }
+
+    .avg-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .avg-lbl {
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    .avg-val.kcal { color: var(--terra); }
+    .avg-val.protein { color: #3D7A4A; }
+    .avg-val.fat { color: #7A5B9A; }
+    .avg-val.carbs { color: #2E7BB8; }
+
+    /* ── Legend ────────────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 16px 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      color: var(--ink-soft);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Bottom nav ─────────────────────────────────────────────── */
+    .bottom-nav {
+      display: flex;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 0;
+      cursor: pointer;
+      color: var(--ink-soft);
+      font-size: 10px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .nav-item.active { color: var(--terra); }
+
+    .nav-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    /* ── No target note ─────────────────────────────────────────── */
+    .no-target-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--neutral-bg);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 0 16px 14px;
+      font-size: 12px;
+      color: var(--neutral);
+    }
+
+    .no-target-note-icon { font-size: 16px; }
+
+    /* ── Screen label ───────────────────────────────────────────── */
+    .screen-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      text-align: center;
+      padding: 10px 16px 0;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+
+<!-- Screen navigation -->
+<nav class="screen-nav">
+  <button class="screen-btn active" onclick="showScreen('s1')">1 · Populated</button>
+  <button class="screen-btn" onclick="showScreen('s2')">2 · Missing days</button>
+  <button class="screen-btn" onclick="showScreen('s3')">3 · No target</button>
+  <button class="screen-btn" onclick="showScreen('s4')">4 · Streak active</button>
+  <button class="screen-btn" onclick="showScreen('s5')">5 · Streak = 0</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SCREEN 1 — Populated weekly strip (on target + over target bars)
+═══════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="s1">
+  <div class="app-bar">
+    <div class="app-bar-back">←</div>
+    <div class="app-bar-title">History</div>
+  </div>
+
+  <div class="scroll-content">
+    <p class="screen-label">Screen 1 — Populated (with target)</p>
+
+    <!-- Streak banner -->
+    <div class="streak-banner">
+      <div class="streak-fire-wrap">🔥</div>
+      <div class="streak-info">
+        <div class="streak-label">Current streak</div>
+        <div class="streak-value">7 days</div>
+        <div class="streak-sub">Best: <strong>21 days</strong></div>
+      </div>
+    </div>
+
+    <!-- Weekly bar chart card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Last 7 days</div>
+        <div class="card-subtitle">Target: 2 000 kcal</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-inner" id="chart1"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-on-target)"></div>
+          On / under target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-over)"></div>
+          Over target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--terra); height:2px; width:16px; border-radius:1px;"></div>
+          Target line
+        </div>
+      </div>
+
+      <!-- 7-day averages -->
+      <div class="avg-row">
+        <div class="avg-cell">
+          <div class="avg-val kcal">1 934</div>
+          <div class="avg-lbl">kcal avg</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val protein">142g</div>
+          <div class="avg-lbl">protein</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val fat">68g</div>
+          <div class="avg-lbl">fat</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val carbs">215g</div>
+          <div class="avg-lbl">carbs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">📒</div>Log</div>
+    <div class="nav-item"><div class="nav-icon">🍳</div>Recipes</div>
+    <div class="nav-item active"><div class="nav-icon">📅</div>History</div>
+    <div class="nav-item"><div class="nav-icon">🥦</div>Pantry</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SCREEN 2 — Missing days (some bars empty)
+═══════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <div class="app-bar">
+    <div class="app-bar-back">←</div>
+    <div class="app-bar-title">History</div>
+  </div>
+
+  <div class="scroll-content">
+    <p class="screen-label">Screen 2 — Missing days</p>
+
+    <!-- Streak banner — lower streak due to gaps -->
+    <div class="streak-banner">
+      <div class="streak-fire-wrap">🔥</div>
+      <div class="streak-info">
+        <div class="streak-label">Current streak</div>
+        <div class="streak-value">3 days</div>
+        <div class="streak-sub">Best: <strong>14 days</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Last 7 days</div>
+        <div class="card-subtitle">Target: 2 000 kcal</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-inner" id="chart2"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-on-target)"></div>
+          On / under target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-over)"></div>
+          Over target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-empty)"></div>
+          No entry
+        </div>
+      </div>
+
+      <div class="avg-row">
+        <div class="avg-cell">
+          <div class="avg-val kcal">1 142</div>
+          <div class="avg-lbl">kcal avg</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val protein">84g</div>
+          <div class="avg-lbl">protein</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val fat">40g</div>
+          <div class="avg-lbl">fat</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val carbs">127g</div>
+          <div class="avg-lbl">carbs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">📒</div>Log</div>
+    <div class="nav-item"><div class="nav-icon">🍳</div>Recipes</div>
+    <div class="nav-item active"><div class="nav-icon">📅</div>History</div>
+    <div class="nav-item"><div class="nav-icon">🥦</div>Pantry</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SCREEN 3 — No target set (uniform bar colour, no reference line)
+═══════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="app-bar">
+    <div class="app-bar-back">←</div>
+    <div class="app-bar-title">History</div>
+  </div>
+
+  <div class="scroll-content">
+    <p class="screen-label">Screen 3 — No target set</p>
+
+    <div class="streak-banner">
+      <div class="streak-fire-wrap">🔥</div>
+      <div class="streak-info">
+        <div class="streak-label">Current streak</div>
+        <div class="streak-value">5 days</div>
+        <div class="streak-sub">Best: <strong>5 days</strong></div>
+      </div>
+    </div>
+
+    <div class="no-target-note">
+      <span class="no-target-note-icon">ℹ️</span>
+      <span>Set a daily calorie target to see how you're tracking against your goal.</span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Last 7 days</div>
+        <div class="card-subtitle">No target set</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-inner" id="chart3"></div>
+      </div>
+
+      <div class="avg-row">
+        <div class="avg-cell">
+          <div class="avg-val kcal">1 820</div>
+          <div class="avg-lbl">kcal avg</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val protein">128g</div>
+          <div class="avg-lbl">protein</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val fat">62g</div>
+          <div class="avg-lbl">fat</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val carbs">198g</div>
+          <div class="avg-lbl">carbs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">📒</div>Log</div>
+    <div class="nav-item"><div class="nav-icon">🍳</div>Recipes</div>
+    <div class="nav-item active"><div class="nav-icon">📅</div>History</div>
+    <div class="nav-item"><div class="nav-icon">🥦</div>Pantry</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SCREEN 4 — Streak active (long streak, motivational)
+═══════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="app-bar">
+    <div class="app-bar-back">←</div>
+    <div class="app-bar-title">History</div>
+  </div>
+
+  <div class="scroll-content">
+    <p class="screen-label">Screen 4 — Long streak</p>
+
+    <!-- Large motivational streak card -->
+    <div class="streak-banner" style="background: linear-gradient(135deg, #FFF4EC, #FDE8D4); border-color: #F0C9A0;">
+      <div class="streak-fire-wrap" style="font-size: 36px; width:70px; height:70px;">🔥</div>
+      <div class="streak-info">
+        <div class="streak-label" style="color:#8A4010;">Current streak</div>
+        <div class="streak-value" style="font-size:36px;">21 days</div>
+        <div class="streak-sub"><strong style="color:#C9562B;">New personal best!</strong> 🎉</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Last 7 days</div>
+        <div class="card-subtitle">Target: 1 800 kcal</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-inner" id="chart4"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-on-target)"></div>
+          On / under target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-over)"></div>
+          Over target
+        </div>
+      </div>
+
+      <div class="avg-row">
+        <div class="avg-cell">
+          <div class="avg-val kcal">1 774</div>
+          <div class="avg-lbl">kcal avg</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val protein">156g</div>
+          <div class="avg-lbl">protein</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val fat">58g</div>
+          <div class="avg-lbl">fat</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val carbs">189g</div>
+          <div class="avg-lbl">carbs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">📒</div>Log</div>
+    <div class="nav-item"><div class="nav-icon">🍳</div>Recipes</div>
+    <div class="nav-item active"><div class="nav-icon">📅</div>History</div>
+    <div class="nav-item"><div class="nav-icon">🥦</div>Pantry</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+  SCREEN 5 — Streak = 0 (encouragement message)
+═══════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <div class="app-bar">
+    <div class="app-bar-back">←</div>
+    <div class="app-bar-title">History</div>
+  </div>
+
+  <div class="scroll-content">
+    <p class="screen-label">Screen 5 — Streak = 0</p>
+
+    <!-- Zero streak banner -->
+    <div class="streak-banner">
+      <div class="streak-fire-wrap zero">💤</div>
+      <div class="streak-info">
+        <div class="streak-label">Current streak</div>
+        <div class="streak-value zero">0 days</div>
+        <div class="streak-encourage">Log today to start your streak! Best: <strong>14 days</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Last 7 days</div>
+        <div class="card-subtitle">Target: 2 000 kcal</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-inner" id="chart5"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-on-target)"></div>
+          On / under target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-over)"></div>
+          Over target
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--bar-empty)"></div>
+          No entry
+        </div>
+      </div>
+
+      <div class="avg-row">
+        <div class="avg-cell">
+          <div class="avg-val kcal">571</div>
+          <div class="avg-lbl">kcal avg</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val protein">41g</div>
+          <div class="avg-lbl">protein</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val fat">19g</div>
+          <div class="avg-lbl">fat</div>
+        </div>
+        <div class="avg-cell">
+          <div class="avg-val carbs">61g</div>
+          <div class="avg-lbl">carbs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item"><div class="nav-icon">📒</div>Log</div>
+    <div class="nav-item"><div class="nav-icon">🍳</div>Recipes</div>
+    <div class="nav-item active"><div class="nav-icon">📅</div>History</div>
+    <div class="nav-item"><div class="nav-icon">🥦</div>Pantry</div>
+  </div>
+</div>
+
+<script>
+  /* ── Screen switching ──────────────────────────────────────────── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.screen-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const idx = parseInt(id.replace('s','')) - 1;
+    document.querySelectorAll('.screen-btn')[idx].classList.add('active');
+  }
+
+  /* ── Dark mode ─────────────────────────────────────────────────── */
+  const darkToggle = document.getElementById('darkToggle');
+  darkToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    darkToggle.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+  });
+
+  /* ── Bar chart renderer ────────────────────────────────────────── */
+  /**
+   * @param {string} containerId
+   * @param {Array<{day:string, kcal:number, isToday?:boolean}>} data
+   * @param {number|null} target  — null means no target set
+   */
+  function renderChart(containerId, data, target) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const maxKcal = target
+      ? Math.max(...data.map(d => d.kcal), target) * 1.15
+      : Math.max(...data.map(d => d.kcal), 100) * 1.15;
+
+    // reference line position (% from bottom)
+    const refPct = target ? (target / maxKcal) * 100 : null;
+
+    // Build HTML
+    let html = '';
+
+    // Reference line
+    if (refPct !== null) {
+      html += `<div class="ref-line" style="bottom:${refPct}%"></div>`;
+      html += `<div class="ref-label" style="bottom:${refPct}%">target</div>`;
+    }
+
+    // Bars grid
+    html += '<div class="bars-grid">';
+    for (const d of data) {
+      const barPct = d.kcal > 0 ? Math.min((d.kcal / maxKcal) * 100, 100) : 0;
+      let barClass = 'bar-rect';
+      if (d.kcal === 0) {
+        barClass += ' empty';
+      } else if (target === null) {
+        barClass += ' no-target';
+      } else if (d.kcal > target) {
+        barClass += ' over';
+      } else {
+        barClass += ' on-target';
+      }
+
+      const kcalLabel = d.kcal > 0 ? (d.kcal >= 1000 ? (d.kcal / 1000).toFixed(1) + 'k' : d.kcal) : '';
+
+      html += `
+        <div class="bar-col">
+          <div class="bar-kcal">${kcalLabel}</div>
+          <div class="${barClass}" style="height:${barPct}%"></div>
+          <div class="bar-day${d.isToday ? ' today' : ''}">${d.day}</div>
+        </div>`;
+    }
+    html += '</div>';
+
+    container.innerHTML = html;
+  }
+
+  /* ── Data sets ─────────────────────────────────────────────────── */
+
+  // Screen 1 — full data, mixed on/over target
+  const data1 = [
+    { day: 'Mon', kcal: 1840 },
+    { day: 'Tue', kcal: 2240 },
+    { day: 'Wed', kcal: 1920 },
+    { day: 'Thu', kcal: 1780 },
+    { day: 'Fri', kcal: 2100 },
+    { day: 'Sat', kcal: 1950 },
+    { day: 'Sun', kcal: 1920, isToday: true },
+  ];
+
+  // Screen 2 — some missing days
+  const data2 = [
+    { day: 'Mon', kcal: 1920 },
+    { day: 'Tue', kcal: 0 },
+    { day: 'Wed', kcal: 2200 },
+    { day: 'Thu', kcal: 0 },
+    { day: 'Fri', kcal: 0 },
+    { day: 'Sat', kcal: 1750 },
+    { day: 'Sun', kcal: 1130, isToday: true },
+  ];
+
+  // Screen 3 — no target
+  const data3 = [
+    { day: 'Mon', kcal: 1620 },
+    { day: 'Tue', kcal: 2040 },
+    { day: 'Wed', kcal: 1980 },
+    { day: 'Thu', kcal: 1750 },
+    { day: 'Fri', kcal: 1880 },
+    { day: 'Sat', kcal: 2060 },
+    { day: 'Sun', kcal: 1810, isToday: true },
+  ];
+
+  // Screen 4 — long streak, mostly on target (1800 kcal target)
+  const data4 = [
+    { day: 'Mon', kcal: 1760 },
+    { day: 'Tue', kcal: 1820 },
+    { day: 'Wed', kcal: 1690 },
+    { day: 'Thu', kcal: 1910 },
+    { day: 'Fri', kcal: 1780 },
+    { day: 'Sat', kcal: 1840 },
+    { day: 'Sun', kcal: 1820, isToday: true },
+  ];
+
+  // Screen 5 — streak = 0, lots of missing days
+  const data5 = [
+    { day: 'Mon', kcal: 0 },
+    { day: 'Tue', kcal: 1980 },
+    { day: 'Wed', kcal: 0 },
+    { day: 'Thu', kcal: 0 },
+    { day: 'Fri', kcal: 2020 },
+    { day: 'Sat', kcal: 0 },
+    { day: 'Sun', kcal: 0, isToday: true },
+  ];
+
+  /* ── Render all charts on load ─────────────────────────────────── */
+  renderChart('chart1', data1, 2000);
+  renderChart('chart2', data2, 2000);
+  renderChart('chart3', data3, null);   // no target
+  renderChart('chart4', data4, 1800);
+  renderChart('chart5', data5, 2000);
+</script>
+
+</body>
+</html>
