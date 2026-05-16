@@ -46,9 +46,8 @@ function IngredientResultRow({
       onClick={() => onSelect(ingredient)}
       onMouseEnter={onMouseEnter}
     >
-      {/* Icon placeholder — will use ingredient.icon once that field exists */}
       <div className="bg-muted flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px] text-lg">
-        {UNIT_ICONS[ingredient.unit] ?? "🍽️"}
+        {ingredient.icon ?? UNIT_ICONS[ingredient.unit] ?? "🍽️"}
       </div>
 
       {/* Body */}
@@ -422,6 +421,12 @@ export function IngredientSearch({
         open={isDetailOpen}
         onClose={closeDetail}
         onAdd={onAdd}
+        onPromoted={(updated) => {
+          // Reflect promotion state change in the local detail
+          if (detail && updated.id === detail.id) {
+            openDetail(detail.id);
+          }
+        }}
       />
     </div>
   );

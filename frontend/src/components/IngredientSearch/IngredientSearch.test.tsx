@@ -16,6 +16,11 @@ import { MemoryRouter } from "react-router-dom";
 import type { IngredientDetail, IngredientSearchResult } from "../../client/types.gen";
 import { IngredientSearch } from "./IngredientSearch";
 
+// ── Mock toast (IngredientDetailSheet now uses useToast) ────────────────────
+jest.mock("../../hooks/useToast", () => ({
+  useToast: () => ({ toast: jest.fn() }),
+}));
+
 // ── Mock the generated API client ─────────────────────────────────────────────
 jest.mock("../../client/services.gen", () => ({
   searchIngredientsIngredientsSearchGet: jest.fn(),
@@ -42,6 +47,7 @@ const SYSTEM_RESULT: IngredientSearchResult = {
   portion_size: 100,
   kcal: 165,
   is_system: true,
+  icon: null,
 };
 
 const CUSTOM_RESULT: IngredientSearchResult = {
@@ -51,6 +57,7 @@ const CUSTOM_RESULT: IngredientSearchResult = {
   portion_size: 15,
   kcal: 48,
   is_system: false,
+  icon: null,
 };
 
 const DETAIL: IngredientDetail = {
@@ -66,6 +73,8 @@ const DETAIL: IngredientDetail = {
   sodium: 74,
   is_system: true,
   owner_id: null,
+  icon: null,
+  is_promotion_pending: false,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

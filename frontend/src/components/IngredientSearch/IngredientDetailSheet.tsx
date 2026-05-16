@@ -1,6 +1,10 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { promoteIngredientIngredientsIngredientIdPromotePost } from "../../client/services.gen";
 import type { IngredientDetail } from "../../client/types.gen";
 import { Badge } from "../ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import { useToast } from "../../hooks/useToast";
 
 interface MacroRowProps {
   label: string;
@@ -37,6 +41,8 @@ interface IngredientDetailSheetProps {
   open: boolean;
   onClose: () => void;
   onAdd?: (detail: IngredientDetail) => void;
+  /** Called after a successful promote so parent can update state */
+  onPromoted?: (updated: IngredientDetail) => void;
 }
 
 export function IngredientDetailSheet({
@@ -45,7 +51,15 @@ export function IngredientDetailSheet({
   open,
   onClose,
   onAdd,
+  onPromoted,
 }: IngredientDetailSheetProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [isPromoting, setIsPromoting] = useState(false);
+  // Local pending state — reset when sheet opens for a different ingredient
+  const [localPromotionPending, setLocalPromotionPending] = useState(false);
+
   const portionLabel =
     detail?.unit === "tablespoon"
       ? `per ${detail.portion_size} tbsp`
@@ -53,8 +67,43 @@ export function IngredientDetailSheet({
         ? `per ${detail.portion_size} piece${detail.portion_size !== 1 ? "s" : ""}`
         : `per ${detail?.portion_size}${detail?.unit}`;
 
+  // Whether the promote button should show as "Pending review"
+  const isPending = localPromotionPending || detail?.is_promotion_pending === true;
+
+  async function handlePromote() {
+    if (!detail) return;
+    setIsPromoting(true);
+    try {
+      const updated = await promoteIngredientIngredientsIngredientIdPromotePost({
+        ingredientId: detail.id,
+      });
+      setLocalPromotionPending(true);
+      onPromoted?.(updated);
+      toast({
+        title: "Submitted for review",
+        description: "An admin will review your ingredient.",
+        variant: "success",
+      });
+    } catch {
+      toast({
+        title: "Failed to submit for review",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPromoting(false);
+    }
+  }
+
+  function handleSheetOpenChange(o: boolean) {
+    if (!o) {
+      setLocalPromotionPending(false);
+      onClose();
+    }
+  }
+
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
+    <Sheet open={open} onOpenChange={handleSheetOpenChange}>
       <SheetContent
         side="bottom"
         className="bg-card border-border max-h-[90vh] overflow-y-auto rounded-t-[20px] border-t px-0 pb-0"
@@ -66,13 +115,28 @@ export function IngredientDetailSheet({
 
         <SheetHeader className="border-border border-b px-5 pt-1 pb-4 text-left">
           <div className="flex items-start justify-between gap-3">
-            <SheetTitle className="font-display text-foreground text-xl leading-snug font-bold">
-              {isLoading ? (
-                <span className="bg-muted block h-6 w-48 animate-pulse rounded" />
-              ) : (
-                (detail?.name ?? "—")
+            <div className="flex min-w-0 items-center gap-2.5">
+              {/* Icon */}
+              {!isLoading && detail && (
+                <div className="bg-secondary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] text-xl">
+                  {detail.icon ||
+                    (detail.unit === "g"
+                      ? "⚖️"
+                      : detail.unit === "ml"
+                        ? "💧"
+                        : detail.unit === "tablespoon"
+                          ? "🥄"
+                          : "🔵")}
+                </div>
               )}
-            </SheetTitle>
+              <SheetTitle className="font-display text-foreground text-xl leading-snug font-bold">
+                {isLoading ? (
+                  <span className="bg-muted block h-6 w-48 animate-pulse rounded" />
+                ) : (
+                  (detail?.name ?? "—")
+                )}
+              </SheetTitle>
+            </div>
           </div>
           <div className="mt-2 flex items-center gap-2">
             {isLoading ? (
@@ -96,7 +160,7 @@ export function IngredientDetailSheet({
           </div>
         </SheetHeader>
 
-        <div className="px-5 pt-4 pb-6">
+        <div className="px-5 pt-4 pb-4">
           <p className="text-muted-foreground mb-3.5 text-[11px] font-semibold tracking-[0.7px] uppercase">
             Nutrition per portion
           </p>
@@ -179,23 +243,75 @@ export function IngredientDetailSheet({
           ) : null}
         </div>
 
-        {/* CTA */}
+        {/* CTA area */}
         {!isLoading && detail && (
-          <div className="border-border flex gap-2.5 border-t px-5 pt-4 pb-8">
+          <div className="border-border space-y-2.5 border-t px-5 pt-4 pb-8">
+            {/* Add to log */}
             {onAdd && (
               <button
                 onClick={() => onAdd(detail)}
-                className="bg-primary text-primary-foreground hover:bg-terra-dark shadow-terra flex-1 cursor-pointer rounded-[10px] py-3 text-sm font-semibold transition-all hover:-translate-y-px active:translate-y-0"
+                className="bg-primary text-primary-foreground hover:bg-terra-dark shadow-terra w-full cursor-pointer rounded-[10px] py-3 text-sm font-semibold transition-all hover:-translate-y-px active:translate-y-0"
               >
                 Add to log
               </button>
             )}
-            <button
-              onClick={onClose}
-              className="bg-muted text-ink-mid border-border hover:bg-muted/80 cursor-pointer rounded-[10px] border px-4 py-3 text-sm font-medium transition"
-            >
-              Close
-            </button>
+
+            {/* Custom ingredient actions */}
+            {!detail.is_system && (
+              <div className="flex gap-2.5">
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/ingredients/${detail.id}/edit`);
+                  }}
+                  className="bg-muted text-foreground border-border hover:bg-muted/80 flex-1 cursor-pointer rounded-[10px] border py-3 text-sm font-medium transition"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={handlePromote}
+                  disabled={isPending || isPromoting}
+                  className={`flex-1 cursor-pointer rounded-[10px] py-3 text-sm font-semibold transition-all ${
+                    isPending
+                      ? "bg-muted text-muted-foreground border-border cursor-default border"
+                      : "border border-[hsl(214_50%_55%)] bg-[hsl(214_60%_96%)] text-[hsl(214_50%_45%)] hover:bg-[hsl(214_55%_92%)]"
+                  } disabled:cursor-not-allowed disabled:opacity-70`}
+                  aria-label={isPending ? "Pending review" : "Submit for review"}
+                >
+                  {isPromoting ? (
+                    <span className="flex items-center justify-center gap-1.5">
+                      <svg
+                        className="animate-spin"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      >
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                      Submitting…
+                    </span>
+                  ) : isPending ? (
+                    "Pending review"
+                  ) : (
+                    "Submit for review"
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Close */}
+            {!onAdd && detail.is_system && (
+              <button
+                onClick={onClose}
+                className="bg-muted text-ink-mid border-border hover:bg-muted/80 w-full cursor-pointer rounded-[10px] border px-4 py-3 text-sm font-medium transition"
+              >
+                Close
+              </button>
+            )}
           </div>
         )}
       </SheetContent>
