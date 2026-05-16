@@ -5,6 +5,7 @@
 
 from app.models.ingredient import Ingredient, UnitType
 from app.models.macro_target import MacroTarget
+from app.models.meal_log import MealLog, MealLogEntry, MealType
 from app.models.recipe import Recipe, RecipeIngredient
 from app.models.user import RefreshToken, User, UserRole
 
@@ -15,6 +16,9 @@ __all__ = [
     "Ingredient",
     "UnitType",
     "MacroTarget",
+    "MealLog",
+    "MealLogEntry",
+    "MealType",
     "Recipe",
     "RecipeIngredient",
 ]
