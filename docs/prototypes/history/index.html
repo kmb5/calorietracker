@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — History Calendar Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:           #FDF6ED;
+      --cream-dark:      #F5EADB;
+      --cream-mid:       #EFE0CD;
+      --terra:           #C9562B;
+      --terra-dark:      #A8431F;
+      --terra-light:     #F2E0D8;
+      --ink:             #1A1208;
+      --ink-mid:         #4A3728;
+      --ink-soft:        #7A6555;
+      --border:          #E2CEBA;
+      --border-focus:    #C9562B;
+      --white:           #FFFFFF;
+
+      /* Day status colours */
+      --status-on-target:    #2B6B44;
+      --status-on-target-bg: #D6EDE1;
+      --status-over:         #B45309;
+      --status-over-bg:      #FEF3C7;
+      --status-under:        #1E6091;
+      --status-under-bg:     #DBEAFE;
+      --status-no-log:       #9C8270;
+      --status-no-log-bg:    #EDE5DC;
+      --status-future-text:  #C4B5A5;
+
+      /* Neutral (no-target) logged colour */
+      --status-neutral:      #6D5E4E;
+      --status-neutral-bg:   #E5D9CE;
+
+      --font-display:    'Playfair Display', Georgia, serif;
+      --font-body:       'DM Sans', system-ui, sans-serif;
+      --radius:          14px;
+      --radius-sm:       8px;
+      --radius-xs:       6px;
+      --shadow:          0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:       0 2px 8px rgba(26,18,8,0.07);
+      --shadow-drop:     0 8px 40px rgba(26,18,8,0.16), 0 2px 8px rgba(26,18,8,0.08);
+    }
+
+    html.dark {
+      color-scheme: dark;
+      --cream:           #1D1209;
+      --cream-dark:      #261810;
+      --cream-mid:       #301E12;
+      --terra:           #D4673A;
+      --terra-dark:      #B85A30;
+      --terra-light:     #2D1A0D;
+      --ink:             #FDF6ED;
+      --ink-mid:         #D4B89A;
+      --ink-soft:        #9C8270;
+      --border:          #3D2416;
+      --border-focus:    #D4673A;
+      --white:           #221508;
+
+      --status-on-target:    #4ADE80;
+      --status-on-target-bg: #052e16;
+      --status-over:         #FBBF24;
+      --status-over-bg:      #1c1005;
+      --status-under:        #60A5FA;
+      --status-under-bg:     #0a1929;
+      --status-no-log:       #6B5E50;
+      --status-no-log-bg:    #231810;
+      --status-future-text:  #4A3728;
+
+      --status-neutral:      #A89080;
+      --status-neutral-bg:   #2A1E14;
+
+      --shadow:          0 4px 24px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-sm:       0 2px 8px rgba(0,0,0,0.30);
+      --shadow-drop:     0 8px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    }
+
+    html, body {
+      width: 375px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--cream);
+      font-family: var(--font-body);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    @media (min-width: 420px) {
+      body {
+        width: 375px;
+        box-shadow: 0 0 0 1px var(--border), 0 8px 48px rgba(26,18,8,0.12);
+      }
+    }
+
+    /* ── Background gradient layer ───────────────────────────────── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      width: 375px;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-layer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 280px 200px at 95% 8%, rgba(201,86,43,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 220px 160px at 5% 85%, rgba(201,86,43,0.05) 0%, transparent 70%);
+    }
+
+    /* ── Screen system ──────────────────────────────────────────── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+    .screen.active { display: flex; }
+
+    /* ── Dev toolbar ─────────────────────────────────────────────── */
+    .dev-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      z-index: 9999;
+      background: var(--ink);
+      color: var(--cream);
+      display: flex;
+      gap: 2px;
+      padding: 6px 8px;
+      font-size: 10px;
+      font-family: var(--font-body);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .dev-bar span { color: var(--ink-soft); font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 4px; }
+    .dev-btn {
+      background: var(--ink-mid);
+      color: var(--cream);
+      border: none;
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .dev-btn:hover { background: var(--terra); }
+    .dev-btn.active { background: var(--terra); }
+    .dev-sep { flex: 1; }
+    .dark-toggle {
+      background: none;
+      border: 1px solid var(--ink-soft);
+      color: var(--cream);
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    /* ── App Header ──────────────────────────────────────────────── */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+    }
+    .app-header-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .app-header-sub {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 1px;
+    }
+    .header-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--cream-dark);
+      color: var(--ink-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.15s;
+    }
+    .header-icon-btn:hover { background: var(--terra-light); color: var(--terra); }
+
+    /* ── Month Navigation ──────────────────────────────────────── */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px 4px;
+      max-height: 52px;
+    }
+    .month-nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--ink-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.15s;
+      touch-action: manipulation;
+    }
+    .month-nav-btn:hover { background: var(--terra-light); border-color: var(--terra); color: var(--terra); }
+    .month-nav-btn:active { transform: scale(0.92); }
+    .month-label {
+      text-align: center;
+    }
+    .month-label-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.2px;
+    }
+    .month-label-year {
+      font-size: 12px;
+      color: var(--ink-soft);
+      display: block;
+      margin-top: -1px;
+    }
+
+    /* ── Calendar Grid ──────────────────────────────────────────── */
+    .calendar-wrapper {
+      padding: 12px 16px 8px;
+      flex: 1;
+    }
+
+    .weekday-headers {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 6px;
+    }
+    .weekday-header {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      padding: 4px 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .day-cell {
+      aspect-ratio: 1;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      position: relative;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 0.15s, transform 0.1s;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    .day-cell:not(.day-empty):not(.day-future):hover {
+      background: var(--cream-dark);
+    }
+    .day-cell:not(.day-empty):not(.day-future):active {
+      transform: scale(0.92);
+    }
+
+    .day-cell.day-empty {
+      cursor: default;
+      pointer-events: none;
+    }
+    .day-cell.day-future {
+      cursor: default;
+      pointer-events: none;
+    }
+    .day-cell.day-today {
+      background: var(--terra-light);
+    }
+    html.dark .day-cell.day-today {
+      background: var(--terra-light);
+    }
+
+    /* Day number */
+    .day-num {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .day-cell.day-future .day-num {
+      color: var(--status-future-text);
+    }
+    .day-cell.day-today .day-num {
+      color: var(--terra);
+      font-weight: 700;
+    }
+
+    /* Coloured dot indicator */
+    .day-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-on-target  { background: var(--status-on-target); }
+    .dot-over       { background: var(--status-over); }
+    .dot-under      { background: var(--status-under); }
+    .dot-no-log     { background: var(--status-no-log); opacity: 0.4; }
+    .dot-neutral    { background: var(--status-neutral); }
+    .dot-today-nolog { background: var(--terra); opacity: 0.35; }
+
+    /* kcal micro-label */
+    .day-kcal {
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      line-height: 1;
+      letter-spacing: -0.2px;
+    }
+    .day-cell.day-future .day-kcal { display: none; }
+    .day-cell.day-today .day-kcal  { color: var(--terra-dark); }
+
+    /* Today ring */
+    .day-cell.day-today::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: var(--radius-xs);
+      border: 1.5px solid var(--terra);
+      pointer-events: none;
+    }
+
+    /* ── Streak Banner ───────────────────────────────────────────── */
+    .streak-banner {
+      margin: 12px 16px 0;
+      background: linear-gradient(135deg, var(--terra-light) 0%, var(--cream-dark) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .streak-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+    .streak-text-block { flex: 1; }
+    .streak-label {
+      font-size: 11px;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .streak-count {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--terra);
+      line-height: 1.1;
+    }
+    .streak-count span {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+    .streak-best {
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-top: 1px;
+    }
+
+    /* ── Legend ─────────────────────────────────────────────────── */
+    .legend {
+      margin: 12px 16px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--ink-soft);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ── Section heading ────────────────────────────────────────── */
+    .section-label {
+      padding: 16px 20px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── No-target banner ────────────────────────────────────────── */
+    .no-target-banner {
+      margin: 8px 16px 0;
+      background: var(--cream-mid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--ink-mid);
+    }
+    .no-target-banner a {
+      color: var(--terra);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .no-target-banner a:hover { text-decoration: underline; }
+
+    /* ── Day Detail Screen ──────────────────────────────────────── */
+    .detail-back-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px 8px;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: var(--terra);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+      padding: 6px 0;
+    }
+    .back-btn:hover { color: var(--terra-dark); }
+
+    .detail-date-hero {
+      padding: 4px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-date-hero h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .detail-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-on-target { background: var(--status-on-target-bg); color: var(--status-on-target); }
+    .badge-over      { background: var(--status-over-bg);      color: var(--status-over); }
+    .badge-under     { background: var(--status-under-bg);     color: var(--status-under); }
+
+    .detail-macro-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .macro-card {
+      background: var(--cream-dark);
+      border-radius: var(--radius-sm);
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .macro-card .macro-val {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .macro-card .macro-name {
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .macro-kcal .macro-val { color: var(--terra); }
+
+    .detail-progress {
+      padding: 14px 20px 8px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .progress-bar-track {
+      height: 8px;
+      background: var(--cream-mid);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .fill-on-target { background: var(--status-on-target); }
+    .fill-over      { background: var(--status-over); }
+    .fill-under     { background: var(--status-under); }
+
+    .detail-meal-list {
+      padding: 4px 20px 80px;
+    }
+    .meal-type-heading {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 12px 0 6px;
+    }
+    .meal-entry-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .meal-entry-row:last-child { border-bottom: none; }
+    .meal-entry-name {
+      flex: 1;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .meal-entry-meta {
+      text-align: right;
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+    .meal-entry-kcal {
+      font-weight: 600;
+      color: var(--ink-mid);
+      font-size: 13px;
+    }
+
+    /* ── Bottom nav placeholder ──────────────────────────────────── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: var(--font-body);
+      padding: 4px 0;
+      touch-action: manipulation;
+    }
+    .nav-item.active { color: var(--terra); }
+    .nav-item svg { width: 22px; height: 22px; }
+    .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+
+    /* Main screen needs padding for bottom nav */
+    .screen-with-nav {
+      padding-bottom: 72px;
+    }
+
+    /* ── No-target state toggle button ─────────────────────────── */
+    .view-toggle-bar {
+      display: flex;
+      gap: 6px;
+      padding: 0 16px;
+      margin-bottom: 4px;
+    }
+    .view-toggle-btn {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: all 0.15s;
+      touch-action: manipulation;
+    }
+    .view-toggle-btn.active {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #fff;
+    }
+    .view-toggle-btn:hover:not(.active) {
+      border-color: var(--terra);
+      color: var(--terra);
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCREEN 1: Calendar — Populated Month (with target)
+════════════════════════════════════════════════════════════════ -->
+<div id="screen-calendar" class="screen active">
+  <div class="screen-with-nav">
+
+    <!-- App header -->
+    <div class="app-header">
+      <div>
+        <div class="app-header-title">History</div>
+        <div class="app-header-sub">Your logging journey</div>
+      </div>
+      <button class="header-icon-btn" title="Settings">⚙️</button>
+    </div>
+
+    <!-- View mode toggle: with-target / no-target -->
+    <div class="view-toggle-bar">
+      <button class="view-toggle-btn active" id="btn-with-target" onclick="setTargetMode(true)">With calorie target</button>
+      <button class="view-toggle-btn" id="btn-no-target" onclick="setTargetMode(false)">No target set</button>
+    </div>
+
+    <!-- Month navigation (max ~15% of 812px screen height ≈ 122px; actual ~52px) -->
+    <div class="month-nav">
+      <button class="month-nav-btn" id="btn-prev" onclick="changeMonth(-1)" title="Previous month" aria-label="Previous month">
+        ‹
+      </button>
+      <div class="month-label">
+        <div class="month-label-name" id="month-name">May</div>
+        <span class="month-label-year" id="month-year">2026</span>
+      </div>
+      <button class="month-nav-btn" id="btn-next" onclick="changeMonth(+1)" title="Next month" aria-label="Next month">
+        ›
+      </button>
+    </div>
+
+    <!-- No-target banner (hidden when target is set) -->
+    <div id="no-target-banner" class="no-target-banner" style="display:none">
+      ℹ️ <span>No calorie target set. <a href="#" onclick="return false">Set a target</a> to see colour coding.</span>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-wrapper">
+      <!-- Weekday row headers: Mon–Sun -->
+      <div class="weekday-headers">
+        <div class="weekday-header">Mo</div>
+        <div class="weekday-header">Tu</div>
+        <div class="weekday-header">We</div>
+        <div class="weekday-header">Th</div>
+        <div class="weekday-header">Fr</div>
+        <div class="weekday-header">Sa</div>
+        <div class="weekday-header">Su</div>
+      </div>
+      <!-- Calendar cells injected by JS -->
+      <div class="calendar-grid" id="calendar-grid"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend" id="legend-with-target">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-on-target)"></div> On target (±10%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-over)"></div> Over target</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-under)"></div> Under target</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-no-log);opacity:0.4"></div> No log</div>
+    </div>
+    <div class="legend" id="legend-no-target" style="display:none">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-neutral)"></div> Logged</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-no-log);opacity:0.4"></div> No log</div>
+    </div>
+
+    <!-- Streak banner -->
+    <div class="streak-banner">
+      <div class="streak-icon">🔥</div>
+      <div class="streak-text-block">
+        <div class="streak-label">Current streak</div>
+        <div class="streak-count">14 <span>days</span></div>
+        <div class="streak-best">Personal best: 31 days</div>
+      </div>
+    </div>
+
+    <!-- Section spacer -->
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">🍳</span>Recipes</button>
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">📋</span>Log</button>
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">🥦</span>Pantry</button>
+    <button class="nav-item active" onclick="void 0"><span class="nav-icon">📅</span>History</button>
+  </nav>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCREEN 2: Day Detail — Logged day
+════════════════════════════════════════════════════════════════ -->
+<div id="screen-day-detail" class="screen">
+  <div class="screen-with-nav">
+
+    <!-- Back bar -->
+    <div class="detail-back-bar">
+      <button class="back-btn" onclick="showScreen('screen-calendar')">
+        ‹ <span>History</span>
+      </button>
+    </div>
+
+    <!-- Date + status -->
+    <div class="detail-date-hero">
+      <h2 id="detail-date-label">Wednesday, 7 May 2026</h2>
+      <div id="detail-status-badge" class="detail-status-badge badge-on-target">
+        <span id="detail-status-dot">●</span>
+        <span id="detail-status-text">On target</span>
+      </div>
+    </div>
+
+    <!-- Macro cards -->
+    <div class="detail-macro-row">
+      <div class="macro-card macro-kcal">
+        <div class="macro-val" id="detail-kcal">1,840</div>
+        <div class="macro-name">kcal</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val" id="detail-protein">112g</div>
+        <div class="macro-name">protein</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val" id="detail-fat">62g</div>
+        <div class="macro-name">fat</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val" id="detail-carbs">185g</div>
+        <div class="macro-name">carbs</div>
+      </div>
+    </div>
+
+    <!-- Progress bar vs target -->
+    <div class="detail-progress">
+      <div class="progress-label">
+        <span>Calories vs target</span>
+        <span id="detail-progress-text">1,840 / 2,000 kcal</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill fill-on-target" id="detail-progress-fill" style="width: 92%"></div>
+      </div>
+    </div>
+
+    <!-- Meal entries (static example) -->
+    <div class="detail-meal-list">
+      <div class="meal-type-heading">Breakfast</div>
+      <div class="meal-entry-row">
+        <div class="meal-entry-name">🥚 Scrambled eggs (3)</div>
+        <div class="meal-entry-meta">
+          <div class="meal-entry-kcal">285 kcal</div>
+          <div>P 21g · F 20g</div>
+        </div>
+      </div>
+      <div class="meal-entry-row">
+        <div class="meal-entry-name">🍞 Sourdough toast (80g)</div>
+        <div class="meal-entry-meta">
+          <div class="meal-entry-kcal">196 kcal</div>
+          <div>C 38g · F 2g</div>
+        </div>
+      </div>
+
+      <div class="meal-type-heading">Lunch</div>
+      <div class="meal-entry-row">
+        <div class="meal-entry-name">🍗 Chicken & rice bowl</div>
+        <div class="meal-entry-meta">
+          <div class="meal-entry-kcal">540 kcal</div>
+          <div>P 48g · C 58g</div>
+        </div>
+      </div>
+
+      <div class="meal-type-heading">Dinner</div>
+      <div class="meal-entry-row">
+        <div class="meal-entry-name">🥗 Greek salad</div>
+        <div class="meal-entry-meta">
+          <div class="meal-entry-kcal">310 kcal</div>
+          <div>P 14g · F 22g</div>
+        </div>
+      </div>
+      <div class="meal-entry-row">
+        <div class="meal-entry-name">🍝 Pasta bolognese (300g)</div>
+        <div class="meal-entry-meta">
+          <div class="meal-entry-kcal">509 kcal</div>
+          <div>P 29g · C 52g</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">🍳</span>Recipes</button>
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">📋</span>Log</button>
+    <button class="nav-item" onclick="void 0"><span class="nav-icon">🥦</span>Pantry</button>
+    <button class="nav-item active" onclick="void 0"><span class="nav-icon">📅</span>History</button>
+  </nav>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DEV TOOLBAR
+════════════════════════════════════════════════════════════════ -->
+<div class="dev-bar">
+  <span>State:</span>
+  <button class="dev-btn active" id="devbtn-calendar" onclick="showScreen('screen-calendar')">① Calendar</button>
+  <button class="dev-btn" id="devbtn-day-detail" onclick="showScreen('screen-day-detail')">② Day detail</button>
+  <div class="dev-sep"></div>
+  <button class="dark-toggle" onclick="toggleDark()">🌙 Dark</button>
+</div>
+
+
+<script>
+  /* ── State ──────────────────────────────────────────────────── */
+  const TODAY = new Date(2026, 4, 16); // May 16 2026 (month is 0-indexed)
+  let displayYear  = TODAY.getFullYear();
+  let displayMonth = TODAY.getMonth(); // 0-indexed
+  let targetMode   = true; // true = show coloured statuses, false = neutral
+
+  /* Mock data: day → { kcal, status }
+     status: 'on-target' | 'over' | 'under' | 'no-log'
+     We only store past days. */
+  const LOG_DATA = {
+    // May 2026
+    '2026-05-01': { kcal: 1980, status: 'on-target' },
+    '2026-05-02': { kcal: 2420, status: 'over' },
+    '2026-05-03': { kcal: 1640, status: 'under' },
+    '2026-05-04': { kcal: 1870, status: 'on-target' },
+    '2026-05-05': { kcal: 1920, status: 'on-target' },
+    // 6: no log
+    '2026-05-07': { kcal: 1840, status: 'on-target' },
+    '2026-05-08': { kcal: 2260, status: 'over' },
+    '2026-05-09': { kcal: 1730, status: 'under' },
+    '2026-05-10': { kcal: 1990, status: 'on-target' },
+    '2026-05-11': { kcal: 2380, status: 'over' },
+    '2026-05-12': { kcal: 1880, status: 'on-target' },
+    '2026-05-13': { kcal: 1910, status: 'on-target' },
+    '2026-05-14': { kcal: 1660, status: 'under' },
+    '2026-05-15': { kcal: 2050, status: 'on-target' },
+    // 16 = today (no log yet)
+    // April 2026 (for prev month navigation)
+    '2026-04-01': { kcal: 1900, status: 'on-target' },
+    '2026-04-03': { kcal: 2500, status: 'over' },
+    '2026-04-05': { kcal: 1600, status: 'under' },
+    '2026-04-07': { kcal: 1850, status: 'on-target' },
+    '2026-04-09': { kcal: 1950, status: 'on-target' },
+    '2026-04-11': { kcal: 2200, status: 'over' },
+    '2026-04-13': { kcal: 1750, status: 'under' },
+    '2026-04-15': { kcal: 1880, status: 'on-target' },
+    '2026-04-17': { kcal: 1920, status: 'on-target' },
+    '2026-04-19': { kcal: 2400, status: 'over' },
+    '2026-04-20': { kcal: 1800, status: 'on-target' },
+    '2026-04-22': { kcal: 1700, status: 'under' },
+    '2026-04-24': { kcal: 1950, status: 'on-target' },
+    '2026-04-26': { kcal: 2100, status: 'over' },
+    '2026-04-28': { kcal: 1870, status: 'on-target' },
+    '2026-04-30': { kcal: 1930, status: 'on-target' },
+    // March 2026
+    '2026-03-15': { kcal: 2100, status: 'over' },
+    '2026-03-20': { kcal: 1800, status: 'on-target' },
+    '2026-03-28': { kcal: 1650, status: 'under' },
+  };
+
+  /* ── Helpers ─────────────────────────────────────────────────── */
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const DAYS_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const DAY_NAMES_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  function dateKey(year, month, day) {
+    return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
+
+  function isToday(year, month, day) {
+    return year === TODAY.getFullYear() && month === TODAY.getMonth() && day === TODAY.getDate();
+  }
+
+  function isFuture(year, month, day) {
+    const d = new Date(year, month, day);
+    const t = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+    return d > t;
+  }
+
+  function fmtKcal(kcal) {
+    return kcal >= 1000 ? (kcal/1000).toFixed(1).replace(/\.0$/,'') + 'k' : String(kcal);
+  }
+
+  /* Monday-first: 0=Mon … 6=Sun */
+  function firstDayOfWeekMonFirst(year, month) {
+    const jsDay = new Date(year, month, 1).getDay(); // 0=Sun
+    return (jsDay + 6) % 7; // convert to Mon=0
+  }
+
+  function daysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  /* ── Render Calendar ────────────────────────────────────────── */
+  function renderCalendar() {
+    const grid     = document.getElementById('calendar-grid');
+    const nameEl   = document.getElementById('month-name');
+    const yearEl   = document.getElementById('month-year');
+    const prevBtn  = document.getElementById('btn-prev');
+    const nextBtn  = document.getElementById('btn-next');
+
+    nameEl.textContent = MONTHS[displayMonth];
+    yearEl.textContent = displayYear;
+
+    // Disable next if we're at today's month (can't navigate into future months)
+    const isCurrentMonth = displayYear === TODAY.getFullYear() && displayMonth === TODAY.getMonth();
+    nextBtn.style.opacity  = isCurrentMonth ? '0.3' : '1';
+    nextBtn.style.pointerEvents = isCurrentMonth ? 'none' : 'auto';
+
+    grid.innerHTML = '';
+
+    const firstOffset = firstDayOfWeekMonFirst(displayYear, displayMonth);
+    const totalDays   = daysInMonth(displayYear, displayMonth);
+
+    // Empty leading cells
+    for (let i = 0; i < firstOffset; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'day-cell day-empty';
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= totalDays; d++) {
+      const key    = dateKey(displayYear, displayMonth, d);
+      const entry  = LOG_DATA[key];
+      const today  = isToday(displayYear, displayMonth, d);
+      const future = isFuture(displayYear, displayMonth, d);
+
+      const cell = document.createElement('button');
+      cell.setAttribute('type', 'button');
+
+      let classes = 'day-cell';
+      if (today)  classes += ' day-today';
+      if (future) classes += ' day-future';
+      cell.className = classes;
+
+      // Day number
+      const numEl = document.createElement('div');
+      numEl.className = 'day-num';
+      numEl.textContent = d;
+      cell.appendChild(numEl);
+
+      // Dot + kcal label (only for non-future days)
+      if (!future) {
+        const dotEl = document.createElement('div');
+        dotEl.className = 'day-dot';
+
+        if (today && !entry) {
+          dotEl.className += ' dot-today-nolog';
+        } else if (!entry) {
+          dotEl.className += ' dot-no-log';
+        } else if (targetMode) {
+          // coloured statuses
+          if (entry.status === 'on-target') dotEl.className += ' dot-on-target';
+          else if (entry.status === 'over')  dotEl.className += ' dot-over';
+          else if (entry.status === 'under') dotEl.className += ' dot-under';
+          else dotEl.className += ' dot-no-log';
+        } else {
+          // no-target: neutral if logged
+          dotEl.className += entry ? ' dot-neutral' : ' dot-no-log';
+        }
+        cell.appendChild(dotEl);
+
+        // kcal micro-label (only if logged, not today with no entry)
+        if (entry) {
+          const kcalEl = document.createElement('div');
+          kcalEl.className = 'day-kcal';
+          kcalEl.textContent = fmtKcal(entry.kcal);
+          cell.appendChild(kcalEl);
+        }
+
+        // Click handler for logged past days
+        if (entry && !today) {
+          cell.onclick = () => openDayDetail(displayYear, displayMonth, d, entry);
+        }
+      }
+
+      // ARIA
+      if (future) {
+        cell.setAttribute('aria-disabled', 'true');
+        cell.setAttribute('aria-label', `${d} ${MONTHS[displayMonth]} — future`);
+      } else if (entry) {
+        cell.setAttribute('aria-label', `${d} ${MONTHS[displayMonth]}: ${entry.kcal} kcal logged`);
+      } else {
+        cell.setAttribute('aria-label', `${d} ${MONTHS[displayMonth]}: no log`);
+      }
+
+      grid.appendChild(cell);
+    }
+  }
+
+  /* ── Month navigation ──────────────────────────────────────── */
+  function changeMonth(delta) {
+    displayMonth += delta;
+    if (displayMonth < 0)  { displayMonth = 11; displayYear--; }
+    if (displayMonth > 11) { displayMonth = 0;  displayYear++; }
+    renderCalendar();
+  }
+
+  /* ── Target mode toggle ─────────────────────────────────────── */
+  function setTargetMode(withTarget) {
+    targetMode = withTarget;
+
+    document.getElementById('btn-with-target').classList.toggle('active', withTarget);
+    document.getElementById('btn-no-target').classList.toggle('active', !withTarget);
+    document.getElementById('no-target-banner').style.display = withTarget ? 'none' : 'flex';
+    document.getElementById('legend-with-target').style.display = withTarget ? 'flex' : 'none';
+    document.getElementById('legend-no-target').style.display   = withTarget ? 'none' : 'flex';
+
+    renderCalendar();
+  }
+
+  /* ── Day detail ─────────────────────────────────────────────── */
+  function openDayDetail(year, month, day, entry) {
+    // Format date string
+    const jsDay = new Date(year, month, day).getDay(); // 0=Sun
+    const monFirstDay = (jsDay + 6) % 7; // 0=Mon
+    const dayName = DAY_NAMES_FULL[monFirstDay];
+    document.getElementById('detail-date-label').textContent =
+      `${dayName}, ${day} ${MONTHS[month]} ${year}`;
+
+    // Status badge
+    const badge    = document.getElementById('detail-status-badge');
+    const dotText  = document.getElementById('detail-status-dot');
+    const statusTx = document.getElementById('detail-status-text');
+
+    badge.className = 'detail-status-badge';
+    if (entry.status === 'on-target') {
+      badge.classList.add('badge-on-target');
+      statusTx.textContent = 'On target';
+    } else if (entry.status === 'over') {
+      badge.classList.add('badge-over');
+      statusTx.textContent = 'Over target';
+    } else {
+      badge.classList.add('badge-under');
+      statusTx.textContent = 'Under target';
+    }
+
+    // Macros (derived mock values from kcal)
+    const kcal = entry.kcal;
+    document.getElementById('detail-kcal').textContent    = kcal.toLocaleString();
+    document.getElementById('detail-protein').textContent = Math.round(kcal * 0.061) + 'g';
+    document.getElementById('detail-fat').textContent     = Math.round(kcal * 0.034) + 'g';
+    document.getElementById('detail-carbs').textContent   = Math.round(kcal * 0.101) + 'g';
+
+    // Progress bar
+    const TARGET = 2000;
+    const pct = Math.min((kcal / TARGET) * 100, 100);
+    document.getElementById('detail-progress-text').textContent = `${kcal.toLocaleString()} / ${TARGET.toLocaleString()} kcal`;
+    const fill = document.getElementById('detail-progress-fill');
+    fill.style.width = pct + '%';
+    fill.className = 'progress-bar-fill';
+    if (entry.status === 'on-target') fill.classList.add('fill-on-target');
+    else if (entry.status === 'over') fill.classList.add('fill-over');
+    else fill.classList.add('fill-under');
+
+    showScreen('screen-day-detail');
+  }
+
+  /* ── Screen management ──────────────────────────────────────── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+
+    // Update dev toolbar buttons
+    document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
+    const mapping = {
+      'screen-calendar':   'devbtn-calendar',
+      'screen-day-detail': 'devbtn-day-detail',
+    };
+    const btnId = mapping[id];
+    if (btnId) document.getElementById(btnId).classList.add('active');
+  }
+
+  /* ── Dark mode ──────────────────────────────────────────────── */
+  function toggleDark() {
+    document.documentElement.classList.toggle('dark');
+  }
+
+  /* ── Init ───────────────────────────────────────────────────── */
+  renderCalendar();
+</script>
+</body>
+</html>
