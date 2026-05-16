@@ -7,6 +7,8 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   searchIngredientsIngredientsSearchGet,
+  listSystemIngredientsAdminIngredientsGet,
+  getAnyIngredientAdminIngredientsIngredientIdGet,
   createSystemIngredientAdminIngredientsPost,
   updateAnyIngredientAdminIngredientsIngredientIdPatch,
   deleteAnyIngredientAdminIngredientsIngredientIdDelete,
@@ -116,12 +118,40 @@ export function AdminIngredientsTab() {
   const runSearch = useCallback(async (q: string) => {
     setSearchError(null);
     try {
-      const data = await searchIngredientsIngredientsSearchGet({
-        q: q || "a",
-        limit: 50,
-      });
-      // Cast: search returns IngredientSearchResult[] but fields overlap with IngredientDetail
-      setResults(data as unknown as IngredientDetail[]);
+      if (q) {
+        const data = await searchIngredientsIngredientsSearchGet({
+          q,
+          limit: 50,
+        });
+        // searchIngredientsIngredientsSearchGet returns IngredientSearchResult[].
+        // We only use name/icon/unit/kcal in the list view; full details are
+        // fetched via getAnyIngredientAdminIngredientsIngredientIdGet when editing.
+        setResults(
+          data.map(
+            (r) =>
+              ({
+                id: r.id,
+                name: r.name,
+                icon: r.icon ?? null,
+                unit: r.unit,
+                portion_size: r.portion_size,
+                kcal: r.kcal,
+                is_system: r.is_system,
+                protein: 0,
+                fat: 0,
+                carbohydrates: 0,
+                fiber: 0,
+                sodium: 0,
+                owner_id: null,
+                is_promotion_pending: false,
+                promotion_rejection_note: null,
+              }) satisfies IngredientDetail
+          )
+        );
+      } else {
+        const data = await listSystemIngredientsAdminIngredientsGet();
+        setResults(data);
+      }
     } catch {
       setSearchError("Search failed. Please try again.");
     } finally {
@@ -142,8 +172,16 @@ export function AdminIngredientsTab() {
     setFormMode("add");
   }
 
-  function openEdit(ing: IngredientDetail) {
-    setForm(ingredientToForm(ing));
+  async function openEdit(ing: IngredientDetail) {
+    try {
+      const full = await getAnyIngredientAdminIngredientsIngredientIdGet({
+        ingredientId: ing.id,
+      });
+      setForm(ingredientToForm(full));
+    } catch {
+      // Fall back to whatever we have in the list row
+      setForm(ingredientToForm(ing));
+    }
     setFormErrors({});
     setTouched({});
     setFormMode(ing.id);

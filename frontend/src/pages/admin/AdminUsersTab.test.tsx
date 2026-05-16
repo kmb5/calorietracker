@@ -22,14 +22,12 @@ jest.mock("../../hooks/useAuth");
 const mockToast = jest.fn();
 (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
 
-// Current user has id=1 (encoded in this mini JWT payload)
-const FAKE_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9." + btoa(JSON.stringify({ sub: "1", role: "admin" })) + ".sig";
-
-function mockAuth(token = FAKE_TOKEN) {
+// Current user has id=1
+function mockAuth() {
   (useAuth as jest.Mock).mockReturnValue({
-    accessToken: token,
+    accessToken: null,
     role: "admin",
+    userId: 1,
     loading: false,
     logout: jest.fn(),
     login: jest.fn(),

@@ -29,8 +29,11 @@ import type {
   ApprovePromotionAdminIngredientsPromotionsIngredientIdApprovePostResponse,
   RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostData,
   RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostResponse,
+  ListSystemIngredientsAdminIngredientsGetResponse,
   CreateSystemIngredientAdminIngredientsPostData,
   CreateSystemIngredientAdminIngredientsPostResponse,
+  GetAnyIngredientAdminIngredientsIngredientIdGetData,
+  GetAnyIngredientAdminIngredientsIngredientIdGetResponse,
   UpdateAnyIngredientAdminIngredientsIngredientIdPatchData,
   UpdateAnyIngredientAdminIngredientsIngredientIdPatchResponse,
   DeleteAnyIngredientAdminIngredientsIngredientIdDeleteData,
@@ -361,6 +364,20 @@ export const rejectPromotionAdminIngredientsPromotionsIngredientIdRejectPost = (
 };
 
 /**
+ * List System Ingredients
+ * Return all system ingredients with full nutrition detail.
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const listSystemIngredientsAdminIngredientsGet =
+  (): CancelablePromise<ListSystemIngredientsAdminIngredientsGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/admin/ingredients",
+    });
+  };
+
+/**
  * Create System Ingredient
  * Create a new system ingredient (``is_system=True``, ``owner_id=None``).
  * @param data The data for the request.
@@ -376,6 +393,29 @@ export const createSystemIngredientAdminIngredientsPost = (
     url: "/admin/ingredients",
     body: data.requestBody,
     mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Any Ingredient
+ * Return full detail for any ingredient by ID (admin-only).
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const getAnyIngredientAdminIngredientsIngredientIdGet = (
+  data: GetAnyIngredientAdminIngredientsIngredientIdGetData
+): CancelablePromise<GetAnyIngredientAdminIngredientsIngredientIdGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/admin/ingredients/{ingredient_id}",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
     errors: {
       422: "Validation Error",
     },

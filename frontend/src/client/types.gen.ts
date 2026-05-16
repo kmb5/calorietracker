@@ -210,11 +210,19 @@ export type RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostData 
 export type RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostResponse =
   IngredientDetail;
 
+export type ListSystemIngredientsAdminIngredientsGetResponse = Array<IngredientDetail>;
+
 export type CreateSystemIngredientAdminIngredientsPostData = {
   requestBody: IngredientCreate;
 };
 
 export type CreateSystemIngredientAdminIngredientsPostResponse = IngredientDetail;
+
+export type GetAnyIngredientAdminIngredientsIngredientIdGetData = {
+  ingredientId: number;
+};
+
+export type GetAnyIngredientAdminIngredientsIngredientIdGetResponse = IngredientDetail;
 
 export type UpdateAnyIngredientAdminIngredientsIngredientIdPatchData = {
   ingredientId: number;
@@ -445,6 +453,14 @@ export type $OpenApiTs = {
     };
   };
   "/admin/ingredients": {
+    get: {
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<IngredientDetail>;
+      };
+    };
     post: {
       req: CreateSystemIngredientAdminIngredientsPostData;
       res: {
@@ -460,6 +476,19 @@ export type $OpenApiTs = {
     };
   };
   "/admin/ingredients/{ingredient_id}": {
+    get: {
+      req: GetAnyIngredientAdminIngredientsIngredientIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: IngredientDetail;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     patch: {
       req: UpdateAnyIngredientAdminIngredientsIngredientIdPatchData;
       res: {

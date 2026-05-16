@@ -16,27 +16,13 @@ import { LoadingSkeleton, ErrorBanner } from "./AdminPromotionsTab";
 
 export function AdminUsersTab() {
   const { toast } = useToast();
-  // We need the current user's access token to determine their own ID (protect against self-modification)
-  const { accessToken } = useAuth();
+  const { userId: currentUserId } = useAuth();
 
   const [users, setUsers] = useState<UserAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<number | null>(null);
   const [search, setSearch] = useState("");
-
-  // Decode current user id from JWT (for "can't modify self" hint)
-  const currentUserId = (() => {
-    if (!accessToken) return null;
-    try {
-      const payload = JSON.parse(
-        atob(accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
-      ) as { sub?: string };
-      return payload.sub ? Number(payload.sub) : null;
-    } catch {
-      return null;
-    }
-  })();
 
   useEffect(() => {
     let cancelled = false;
