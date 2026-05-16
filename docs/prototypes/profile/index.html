@@ -581,53 +581,53 @@
         </div>
 
         <div class="field">
-          <label>
+          <label for="kcal-empty">
             <span>🔥 Calories</span>
             <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" placeholder="e.g. 2000" min="0" />
+          <input id="kcal-empty" type="number" placeholder="e.g. 2000" min="0" />
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="protein-empty">
               <span>🥩 Protein</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 150" min="0" />
+            <input id="protein-empty" type="number" placeholder="e.g. 150" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fat-empty">
               <span>🧈 Fat</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 65" min="0" />
+            <input id="fat-empty" type="number" placeholder="e.g. 65" min="0" />
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="carbs-empty">
               <span>🌾 Carbs</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 250" min="0" />
+            <input id="carbs-empty" type="number" placeholder="e.g. 250" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fiber-empty">
               <span>🌿 Fiber</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 30" min="0" />
+            <input id="fiber-empty" type="number" placeholder="e.g. 30" min="0" />
           </div>
         </div>
 
         <div class="field">
-          <label>
+          <label for="sodium-empty">
             <span>🧂 Sodium</span>
             <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" placeholder="e.g. 2300" min="0" />
+          <input id="sodium-empty" type="number" placeholder="e.g. 2300" min="0" />
         </div>
 
         <div style="height:20px;"></div>
@@ -684,7 +684,7 @@
           <div class="identity-badge">Member</div>
         </div>
 
-        <!-- Summary chips (existing targets at a glance) -->
+        <!-- Summary chips (existing targets at a glance) — all 6 macros -->
         <div class="targets-summary">
           <div class="target-chip">
             <div class="target-chip-icon">🔥</div>
@@ -706,6 +706,16 @@
             <div class="target-chip-val">210 g</div>
             <div class="target-chip-label">carbs</div>
           </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val">30 g</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val">2 300 mg</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
         </div>
 
         <div class="section-header">
@@ -714,53 +724,53 @@
         </div>
 
         <div class="field">
-          <label>
+          <label for="kcal-prefilled">
             <span>🔥 Calories</span>
             <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" value="1850" min="0" />
+          <input id="kcal-prefilled" type="number" value="1850" min="0" />
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="protein-prefilled">
               <span>🥩 Protein</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="140" min="0" />
+            <input id="protein-prefilled" type="number" value="140" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fat-prefilled">
               <span>🧈 Fat</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="60" min="0" />
+            <input id="fat-prefilled" type="number" value="60" min="0" />
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="carbs-prefilled">
               <span>🌾 Carbs</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="210" min="0" />
+            <input id="carbs-prefilled" type="number" value="210" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fiber-prefilled">
               <span>🌿 Fiber</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="30" min="0" />
+            <input id="fiber-prefilled" type="number" value="30" min="0" />
           </div>
         </div>
 
         <div class="field">
-          <label>
+          <label for="sodium-prefilled">
             <span>🧂 Sodium</span>
             <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" value="2300" min="0" />
+          <input id="sodium-prefilled" type="number" value="2300" min="0" />
         </div>
 
         <div class="section-divider"></div>
@@ -819,7 +829,7 @@
           <div class="identity-badge">Member</div>
         </div>
 
-        <!-- Summary chips — shows unset fields clearly -->
+        <!-- Summary chips — all 6 macros, showing unset fields clearly -->
         <div class="targets-summary">
           <div class="target-chip">
             <div class="target-chip-icon">🔥</div>
@@ -841,6 +851,16 @@
             <div class="target-chip-val unset">—</div>
             <div class="target-chip-label">carbs</div>
           </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
         </div>
 
         <!-- Partial note -->
@@ -855,53 +875,53 @@
         </div>
 
         <div class="field">
-          <label>
+          <label for="kcal-partial">
             <span>🔥 Calories</span>
             <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" value="2200" min="0" />
+          <input id="kcal-partial" type="number" value="2200" min="0" />
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="protein-partial">
               <span>🥩 Protein</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 150" min="0" />
+            <input id="protein-partial" type="number" placeholder="e.g. 150" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fat-partial">
               <span>🧈 Fat</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 65" min="0" />
+            <input id="fat-partial" type="number" placeholder="e.g. 65" min="0" />
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="carbs-partial">
               <span>🌾 Carbs</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 250" min="0" />
+            <input id="carbs-partial" type="number" placeholder="e.g. 250" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fiber-partial">
               <span>🌿 Fiber</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" placeholder="e.g. 30" min="0" />
+            <input id="fiber-partial" type="number" placeholder="e.g. 30" min="0" />
           </div>
         </div>
 
         <div class="field">
-          <label>
+          <label for="sodium-partial">
             <span>🧂 Sodium</span>
             <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" placeholder="e.g. 2300" min="0" />
+          <input id="sodium-partial" type="number" placeholder="e.g. 2300" min="0" />
         </div>
 
         <div style="height:20px;"></div>
@@ -964,7 +984,7 @@
           <span class="success-banner-text">Your daily targets have been saved successfully.</span>
         </div>
 
-        <!-- Summary chips -->
+        <!-- Summary chips — all 6 macros -->
         <div class="targets-summary">
           <div class="target-chip">
             <div class="target-chip-icon">🔥</div>
@@ -986,6 +1006,16 @@
             <div class="target-chip-val">210 g</div>
             <div class="target-chip-label">carbs</div>
           </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val">30 g</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val">2 300 mg</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
         </div>
 
         <div class="section-header">
@@ -994,53 +1024,53 @@
         </div>
 
         <div class="field">
-          <label>
+          <label for="kcal-saved">
             <span>🔥 Calories</span>
             <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" value="1850" min="0" />
+          <input id="kcal-saved" type="number" value="1850" min="0" />
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="protein-saved">
               <span>🥩 Protein</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="140" min="0" />
+            <input id="protein-saved" type="number" value="140" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fat-saved">
               <span>🧈 Fat</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="60" min="0" />
+            <input id="fat-saved" type="number" value="60" min="0" />
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>
+            <label for="carbs-saved">
               <span>🌾 Carbs</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="210" min="0" />
+            <input id="carbs-saved" type="number" value="210" min="0" />
           </div>
           <div class="field">
-            <label>
+            <label for="fiber-saved">
               <span>🌿 Fiber</span>
               <span class="unit-hint">g</span>
             </label>
-            <input type="number" value="30" min="0" />
+            <input id="fiber-saved" type="number" value="30" min="0" />
           </div>
         </div>
 
         <div class="field">
-          <label>
+          <label for="sodium-saved">
             <span>🧂 Sodium</span>
             <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
           </label>
-          <input type="number" value="2300" min="0" />
+          <input id="sodium-saved" type="number" value="2300" min="0" />
         </div>
 
         <div style="height:20px;"></div>
