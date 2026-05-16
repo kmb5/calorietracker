@@ -314,7 +314,7 @@ async def _build_nutrition_result(
         ing = ingredients_by_id.get(item.ingredient_id)
         if ing is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"Ingredient {item.ingredient_id} not found or not accessible",
             )
         pairs.append(
@@ -367,9 +367,7 @@ async def calculate_recipe(
 ) -> NutritionResult:
     """Stateless nutrition calculation — does NOT write to the DB."""
     # Verify recipe ownership (404 for other user's recipes)
-    result = await session.execute(
-        select(Recipe).where(Recipe.id == recipe_id)
-    )
+    result = await session.execute(select(Recipe).where(Recipe.id == recipe_id))
     recipe = result.scalar_one_or_none()
     if recipe is None or recipe.owner_id != current_user.id:
         raise HTTPException(
@@ -391,9 +389,7 @@ async def cook_recipe(
     session: AsyncSession = Depends(get_db),
 ) -> NutritionResult:
     """Calculate nutrition AND persist last_cooked_at + last_cooked_weight_g."""
-    result = await session.execute(
-        select(Recipe).where(Recipe.id == recipe_id)
-    )
+    result = await session.execute(select(Recipe).where(Recipe.id == recipe_id))
     recipe = result.scalar_one_or_none()
     if recipe is None or recipe.owner_id != current_user.id:
         raise HTTPException(
