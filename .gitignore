@@ -4,7 +4,7 @@
 .env.*.local
 
 # ── Python ────────────────────────────────────────────────────────────────────
-api/.venv/
+.venv/
 __pycache__/
 *.py[cod]
 *.pyo
@@ -24,9 +24,10 @@ htmlcov/
 coverage.xml
 
 # ── Node / pnpm ───────────────────────────────────────────────────────────────
-frontend/node_modules/
+node_modules/
 frontend/dist/
 frontend/.vite/
+.pnpm-store/
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 # local override files only — committed compose files are tracked above
@@ -38,3 +39,6 @@ docker-compose.override.yml
 *.swp
 *.swo
 .DS_Store
+
+# -- Sandcastle
+.sandcastle/
