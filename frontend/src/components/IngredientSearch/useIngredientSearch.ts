@@ -21,6 +21,7 @@ export type UseIngredientSearchReturn = {
   isDetailLoading: boolean;
   openDetail: (id: number) => void;
   closeDetail: () => void;
+  updateDetail: (d: IngredientDetail) => void;
   highlightedIndex: number;
   setHighlightedIndex: (i: number) => void;
 };
@@ -95,6 +96,10 @@ export function useIngredientSearch(): UseIngredientSearchReturn {
     }
   }, []);
 
+  const updateDetail = useCallback((d: IngredientDetail) => {
+    setDetail(d);
+  }, []);
+
   const closeDetail = useCallback(() => {
     detailAbortRef.current?.abort();
     setDetail(null);
@@ -122,6 +127,7 @@ export function useIngredientSearch(): UseIngredientSearchReturn {
     isDetailLoading,
     openDetail,
     closeDetail,
+    updateDetail,
     highlightedIndex,
     setHighlightedIndex,
   };
