@@ -94,6 +94,7 @@ async def create_test_tables():
 
 _TRUNCATE_TABLES = [
     "refresh_tokens",
+    "macro_targets",
     "recipe_ingredients",
     "recipes",
     "users",
