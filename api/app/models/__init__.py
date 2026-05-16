@@ -4,6 +4,7 @@
 # both continue to work without any callsite changes.
 
 from app.models.ingredient import Ingredient, UnitType
+from app.models.pantry import PantryItem, StorageLocation
 from app.models.user import RefreshToken, User, UserRole
 
 __all__ = [
@@ -12,4 +13,6 @@ __all__ = [
     "RefreshToken",
     "Ingredient",
     "UnitType",
+    "PantryItem",
+    "StorageLocation",
 ]
