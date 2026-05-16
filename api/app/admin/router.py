@@ -203,33 +203,37 @@ async def _check_ingredient_not_referenced(
 
     # Check recipe_ingredients table (added in a later issue)
     try:
-        count_result = await session.execute(
-            text("SELECT COUNT(*) FROM recipe_ingredients WHERE ingredient_id = :id"),
-            {"id": ingredient_id},
-        )
-        if (count_result.scalar() or 0) > 0:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Ingredient is referenced by one or more recipes",
+        async with session.begin_nested():  # SAVEPOINT — scopes any rollback here
+            count_result = await session.execute(
+                text(
+                    "SELECT COUNT(*) FROM recipe_ingredients WHERE ingredient_id = :id"
+                ),
+                {"id": ingredient_id},
             )
+            if (count_result.scalar() or 0) > 0:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Ingredient is referenced by one or more recipes",
+                )
     except OperationalError:
-        # Table does not exist yet — skip check
-        await session.rollback()
+        # Table does not exist yet; savepoint rolled back, outer transaction intact
+        pass
 
     # Check meal_log_entries table (added in a later issue)
     try:
-        count_result = await session.execute(
-            text("SELECT COUNT(*) FROM meal_log_entries WHERE ingredient_id = :id"),
-            {"id": ingredient_id},
-        )
-        if (count_result.scalar() or 0) > 0:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Ingredient is referenced by one or more meal log entries",
+        async with session.begin_nested():  # SAVEPOINT — scopes any rollback here
+            count_result = await session.execute(
+                text("SELECT COUNT(*) FROM meal_log_entries WHERE ingredient_id = :id"),
+                {"id": ingredient_id},
             )
+            if (count_result.scalar() or 0) > 0:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Ingredient is referenced by one or more meal log entries",
+                )
     except OperationalError:
-        # Table does not exist yet — skip check
-        await session.rollback()
+        # Table does not exist yet; savepoint rolled back, outer transaction intact
+        pass
 
 
 # ---------------------------------------------------------------------------
