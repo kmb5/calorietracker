@@ -1,11 +1,11 @@
 """Tests for /ingredients/* endpoints — search and detail."""
 
 import pytest
+from conftest import auth_headers, register_and_login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ingredient import Ingredient, UnitType
-from tests.conftest import auth_headers, register_and_login
 
 # ---------------------------------------------------------------------------
 # Helpers

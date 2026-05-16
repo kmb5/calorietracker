@@ -1,12 +1,12 @@
 """Tests for /ingredients write endpoints — create, update, delete, promote."""
 
 import pytest
+from conftest import auth_headers, register_and_login
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ingredient import Ingredient, UnitType
-from tests.conftest import auth_headers, register_and_login
 
 # ---------------------------------------------------------------------------
 # Shared payload
