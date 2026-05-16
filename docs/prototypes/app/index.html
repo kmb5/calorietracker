@@ -1337,42 +1337,160 @@
   .pmacro-chip.c-carbs   { background: var(--carbs-bg);   color: var(--carbs-color); }
 
   
-  /* ════ ADMIN ════ */
-  .admin-layout { display:flex; min-height:100vh; }
-  .admin-sidebar { width:220px; background:#1E100A; flex-shrink:0; padding:24px 0 0; }
-  .admin-sidebar-brand { padding:0 20px 20px; border-bottom:1px solid rgba(253,246,237,0.08); }
-  .admin-sidebar-brand h1 { font-family:var(--font-display); font-size:16px; font-weight:700; color:rgba(253,246,237,0.9); }
-  .admin-sidebar-brand span { color:var(--terra); }
-  .admin-sidebar-brand p { font-size:11px; color:rgba(253,246,237,0.35); margin-top:3px; }
-  .admin-nav { padding:16px 8px 0; }
-  .admin-nav-item { display:flex; align-items:center; gap:9px; padding:9px 12px; border-radius:8px; font-size:13px; font-weight:500; color:rgba(253,246,237,0.55); cursor:pointer; transition:all 0.15s; border:none; background:none; font-family:var(--font-body); width:100%; text-align:left; }
-  .admin-nav-item:hover { background:rgba(255,255,255,0.06); color:rgba(253,246,237,0.9); }
-  .admin-nav-item.active { background:rgba(201,86,43,0.18); color:#F2C4A8; }
-  .admin-nav-item svg { width:16px; height:16px; flex-shrink:0; }
-  .admin-content { flex:1; padding:32px; overflow-y:auto; min-width:0; }
-  .admin-page-title { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--ink); letter-spacing:-0.4px; margin-bottom:6px; }
-  .admin-page-sub { font-size:13px; color:var(--ink-soft); margin-bottom:24px; }
-  .admin-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
-  .admin-stat-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
-  .admin-stat-val { font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--ink); line-height:1; }
-  .admin-stat-label { font-size:12px; color:var(--ink-soft); margin-top:6px; }
-  .admin-stat-badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:8px; margin-top:6px; }
-  .admin-stat-badge.warn { background:var(--warn-bg); color:var(--warn); }
-  .admin-table { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-  .admin-table-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-  .admin-table-title { font-size:14px; font-weight:700; color:var(--ink); }
-  .admin-table-row { display:flex; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); gap:12px; }
-  .admin-table-row:last-child { border-bottom:none; }
-  .admin-table-row:hover { background:var(--cream); }
-  .admin-row-icon { width:36px; height:36px; border-radius:10px; background:var(--cream-dark); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-  .admin-row-body { flex:1; min-width:0; }
-  .admin-row-name { font-size:14px; font-weight:500; color:var(--ink); }
-  .admin-row-meta { font-size:12px; color:var(--ink-soft); margin-top:2px; }
-  .admin-row-actions { display:flex; gap:8px; flex-shrink:0; }
-  .admin-btn-approve { padding:6px 14px; background:var(--success); color:white; border:none; border-radius:6px; font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; }
-  .admin-btn-reject { padding:6px 14px; background:transparent; color:var(--danger); border:1.5px solid var(--error-border); border-radius:6px; font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; }
-  .admin-btn-reject:hover { background:var(--error-bg); }
+  /* ════ HISTORY ════ */
+  .month-nav { display:flex; align-items:center; justify-content:space-between; padding:8px 20px 4px; }
+  .month-nav-btn { width:40px; height:40px; border-radius:50%; border:1.5px solid var(--border); background:var(--white); color:var(--ink-mid); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:all 0.15s; }
+  .month-nav-btn:hover { background:var(--terra-light); border-color:var(--terra); color:var(--terra); }
+  .month-label-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--ink); letter-spacing:-0.2px; }
+  .month-label-year { font-size:12px; color:var(--ink-soft); display:block; margin-top:-1px; text-align:center; }
+  .calendar-wrapper { padding:12px 16px 8px; flex:1; }
+  .weekday-headers { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:6px; }
+  .weekday-header { text-align:center; font-size:11px; font-weight:600; color:var(--ink-soft); padding:4px 0; text-transform:uppercase; }
+  .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .day-cell { aspect-ratio:1; min-height:44px; border-radius:var(--radius-sm); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; touch-action:manipulation; transition:background 0.15s; border:none; background:transparent; padding:0; }
+  .day-cell:not(.day-empty):not(.day-future):hover { background:var(--cream-dark); }
+  .day-cell.day-empty,.day-cell.day-future { cursor:default; pointer-events:none; }
+  .day-cell.day-today { background:var(--terra-light); }
+  .day-cell.day-today::before { content:''; position:absolute; inset:2px; border-radius:var(--radius-xs); border:1.5px solid var(--terra); pointer-events:none; }
+  .day-cell { position:relative; }
+  .day-num { font-size:13px; font-weight:500; line-height:1; color:var(--ink); }
+  .day-cell.day-future .day-num { color:var(--status-future-text); }
+  .day-cell.day-today .day-num { color:var(--terra); font-weight:700; }
+  .day-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .dot-on-target { background:var(--status-on-target); }
+  .dot-over       { background:var(--status-over); }
+  .dot-under      { background:var(--status-under); }
+  .dot-no-log     { background:var(--status-no-log); opacity:0.4; }
+  .dot-neutral    { background:var(--status-neutral); }
+  .day-kcal { font-size:9px; font-weight:500; color:var(--ink-soft); line-height:1; }
+  .day-cell.day-future .day-kcal { display:none; }
+  .streak-banner { margin:12px 16px 0; background:linear-gradient(135deg, var(--terra-light) 0%, var(--cream-dark) 100%); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; display:flex; align-items:center; gap:14px; }
+  .streak-icon { font-size:28px; line-height:1; }
+  .streak-label { font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+  .streak-count { font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--terra); line-height:1.1; }
+  .history-legend { display:flex; gap:12px; flex-wrap:wrap; padding:12px 16px 8px; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); font-weight:500; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  /* weekly strip */
+  .weekly-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; margin:0 16px 14px; }
+  .weekly-card-header { padding:14px 16px 0; display:flex; align-items:baseline; justify-content:space-between; }
+  .weekly-card-title { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); }
+  .weekly-card-sub { font-size:12px; color:var(--terra); font-weight:500; }
+  .chart-wrap { padding:14px 16px 0; }
+  .chart-inner { position:relative; height:120px; }
+  .ref-line { position:absolute; left:0; right:0; height:1.5px; background:var(--terra); opacity:0.55; z-index:2; pointer-events:none; }
+  .bars-grid { position:absolute; bottom:0; left:0; right:0; height:100%; display:grid; grid-template-columns:repeat(7,1fr); align-items:flex-end; gap:6px; }
+  .bar-col { display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; gap:3px; }
+  .bar-kcal { font-size:8.5px; font-weight:600; color:var(--ink-soft); line-height:1; text-align:center; min-height:11px; }
+  .bar-rect { width:100%; border-radius:5px 5px 0 0; position:relative; min-height:4px; }
+  .bar-rect.on-target { background:var(--bar-on-target); }
+  .bar-rect.over      { background:var(--bar-over); }
+  .bar-rect.empty     { background:var(--bar-empty); border-radius:5px; min-height:6px; height:6px !important; }
+  .days-row { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; border-top:1px solid var(--border); margin-top:4px; padding:5px 0 10px; }
+  .bar-day { font-size:9.5px; font-weight:500; color:var(--ink-soft); text-align:center; }
+  .bar-day.today { color:var(--terra); font-weight:700; }
+  .avg-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border-top:1px solid var(--border); }
+  .avg-cell { background:var(--white); padding:10px 8px; text-align:center; }
+  .avg-val { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); }
+  .avg-label { font-size:10px; color:var(--ink-soft); margin-top:2px; }
+  .streak-fire-wrap { width:60px; height:60px; border-radius:16px; background:linear-gradient(135deg,#FF6B35,#E84B1A); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; box-shadow:0 4px 14px rgba(232,75,26,0.35); }
+  .streak-fire-wrap.zero { background:linear-gradient(135deg,#C0B0A0,#9A8070); box-shadow:0 4px 14px rgba(0,0,0,0.10); }
+  .streak-value { font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--streak-fire); line-height:1; margin-bottom:4px; }
+  .streak-value.zero { color:var(--ink-soft); }
+  .streak-encourage { font-size:13px; color:var(--ink-mid); line-height:1.4; }
 
+  /* ═════════════════════════════ RECIPES ═════════════════════════════ */
+  .brand-pill { display: flex; align-items: center; gap: 8px; }
+  .brand-dot { width: 30px; height: 30px; background: var(--terra); border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(201,86,43,0.30); flex-shrink: 0; }
+  .brand-dot svg { width: 16px; height: 16px; fill: white; }
+  .brand-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; }
+  .brand-name span { color: var(--terra); }
+
+  .list-meta-row { padding: 0 20px 14px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
+  .list-count { font-size: 12px; color: var(--ink-soft); font-weight: 500; }
+  .list-sort { font-size: 12px; color: var(--terra); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .list-sort svg { width: 13px; height: 13px; }
+
+  .recipe-list { flex: 1; padding: 0 20px 100px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 10; }
+
+  .recipe-card { background: var(--white); border-radius: var(--radius); padding: 16px 16px 14px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; position: relative; overflow: hidden; }
+  .recipe-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .recipe-card:active { transform: scale(0.985); }
+  .recipe-card-inner { display: flex; align-items: flex-start; gap: 12px; }
+  .recipe-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; line-height: 1; }
+  html.dark .recipe-icon { background: var(--cream-mid); }
+  .recipe-card-body { flex: 1; min-width: 0; }
+  .recipe-card-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recipe-card-meta { display: flex; align-items: center; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+  .recipe-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; }
+  .recipe-meta-item svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .recipe-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .recipe-meta-never { font-size: 11.5px; color: var(--ink-soft); font-style: italic; opacity: 0.7; }
+  .recipe-card-arrow { flex-shrink: 0; color: var(--border); margin-top: 2px; transition: color 0.15s; }
+  .recipe-card:hover .recipe-card-arrow { color: var(--terra); }
+  .recipe-card-arrow svg { width: 16px; height: 16px; }
+
+  .detail-hero { padding: 0 20px 20px; position: relative; z-index: 10; }
+  .detail-recipe-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+  .detail-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px; }
+  .detail-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 16px; }
+  .detail-meta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .detail-meta-chip { display: flex; align-items: center; gap: 6px; background: var(--cream-dark); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; color: var(--ink-mid); }
+  html.dark .detail-meta-chip { background: var(--cream-mid); }
+  .detail-meta-chip svg { width: 13px; height: 13px; color: var(--terra); }
+
+  .section-card { margin: 0 20px 16px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; position: relative; z-index: 10; }
+  .ingredient-row { display: flex; align-items: center; padding: 12px 16px; gap: 12px; border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  .ingredient-row:last-child { border-bottom: none; }
+  .ingredient-row:hover { background: var(--cream); }
+  html.dark .ingredient-row:hover { background: var(--cream-dark); }
+  .ingredient-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--terra); opacity: 0.5; flex-shrink: 0; }
+  .ingredient-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ingredient-amount { font-size: 13px; font-weight: 600; color: var(--ink-mid); flex-shrink: 0; }
+
+  .cooked-panel { margin: 0 20px 16px; background: var(--terra-light); border: 1px solid rgba(201,86,43,0.20); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 14px; position: relative; z-index: 10; }
+  .cooked-panel-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(201,86,43,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cooked-panel-icon svg { width: 18px; height: 18px; color: var(--terra); }
+  .cooked-panel-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--terra); margin-bottom: 3px; }
+  .cooked-panel-value { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+  .cooked-panel-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+
+  .detail-actions { padding: 0 20px 100px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 10; }
+
+  .form-body { flex: 1; padding: 0 20px 120px; display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10; }
+  .ingredient-form-rows { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .ingredient-form-row { display: flex; align-items: stretch; min-height: 52px; border-bottom: 1px solid var(--border); position: relative; }
+  .ingredient-form-row:last-child { border-bottom: none; }
+  .ingredient-row-handle { width: 32px; display: flex; align-items: center; justify-content: center; color: var(--border); flex-shrink: 0; cursor: grab; }
+  .ingredient-row-handle svg { width: 14px; height: 14px; }
+  .ingredient-search-input { flex: 1; border: none; outline: none; padding: 0 8px; font-family: var(--font-body); font-size: 14px; color: var(--ink); background: transparent; min-width: 0; }
+  .ingredient-search-input::placeholder { color: var(--ink-soft); opacity: 0.6; }
+  .ingredient-right-col { display: flex; align-items: center; align-self: stretch; flex-shrink: 0; border-left: 1px solid var(--border); background: var(--cream); }
+  html.dark .ingredient-right-col { background: var(--cream-dark); }
+  .ingredient-amount-input { width: 68px; border: none; outline: none; padding: 0 8px; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--ink); background: transparent; text-align: right; flex-shrink: 0; height: 100%; }
+  .ingredient-unit-label { padding: 0 6px 0 2px; font-size: 12px; font-weight: 600; color: var(--ink-soft); flex-shrink: 0; min-width: 22px; }
+  .ingredient-remove-btn { width: 36px; height: 100%; display: flex; align-items: center; justify-content: center; border: none; background: transparent; color: var(--border); cursor: pointer; transition: color 0.15s; flex-shrink: 0; }
+  .ingredient-remove-btn:hover { color: var(--danger); }
+  .ingredient-remove-btn svg { width: 16px; height: 16px; }
+  .add-ingredient-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); background: transparent; font-family: var(--font-body); font-size: 13.5px; font-weight: 600; color: var(--terra); cursor: pointer; transition: all 0.18s; margin-top: 8px; }
+  .add-ingredient-btn:hover { border-color: var(--terra); background: var(--terra-light); }
+  .add-ingredient-btn svg { width: 16px; height: 16px; }
+  .danger-zone { margin: 0 0 4px; padding: 16px; background: var(--error-bg); border: 1.5px solid rgba(184,50,50,0.18); border-radius: var(--radius); }
+  .danger-zone-title { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--error); margin-bottom: 10px; }
+  .form-actions { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 10; }
+
+  /* ── Cooked-mode macro chips ── */
+  .pmacro-chip {
+    display: inline-flex; align-items: baseline; gap: 2px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 13px; font-weight: 700;
+  }
+  .pmacro-chip-unit { font-size: 10.5px; font-weight: 500; margin-left: 1px; }
+  .pmacro-chip.c-protein { background: var(--protein-bg); color: var(--protein-color); }
+  .pmacro-chip.c-fat     { background: var(--fat-bg);     color: var(--fat-color); }
+  .pmacro-chip.c-carbs   { background: var(--carbs-bg);   color: var(--carbs-color); }
+
+  
 </style>
 </head>
 <body>
@@ -1439,11 +1557,6 @@
       <div class="sidebar-group-label">History</div>
       <button class="sidebar-btn" data-screen="s-history-cal" onclick="showScreen('s-history-cal')"><span class="dot"></span>Calendar</button>
       <button class="sidebar-btn" data-screen="s-history-weekly" onclick="showScreen('s-history-weekly')"><span class="dot"></span>Weekly Strip</button>
-    </div>
-
-    <div class="sidebar-group">
-      <div class="sidebar-group-label">Admin</div>
-      <button class="sidebar-btn" data-screen="s-admin" onclick="showScreen('s-admin')"><span class="dot"></span>Admin Dashboard</button>
     </div>
 
     <div class="sidebar-footer">
@@ -1845,7 +1958,7 @@
         </div>
       </div>
       <div class="detail-sheet-cta">
-        <button class="btn-primary" onclick="closeDetailSheet(); alert('Added to recipe')">Add to recipe</button>
+        <button class="btn-primary" onclick="closeDetailSheet(); showScreen('s-recipe-create')">Add to recipe</button>
         <button class="btn-secondary" onclick="closeDetailSheet()">Cancel</button>
       </div>
     </div>
@@ -1966,7 +2079,7 @@
           <button class="btn-promote" onclick="showScreen('s-ci-promote')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Submit for review</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button class="btn-secondary">Add to recipe</button>
+          <button class="btn-secondary" onclick="showScreen('s-recipe-create')">Add to recipe</button>
         </div>
       </div>
     </section>
@@ -2003,7 +2116,7 @@
           </div>
           <p style="font-size:12px;color:var(--ink-soft);">Review pending &middot; Submitted just now</p>
         </div>
-        <button class="btn-secondary">Add to recipe</button>
+        <button class="btn-secondary" onclick="showScreen('s-recipe-create')">Add to recipe</button>
       </div>
     </section>
 
@@ -2299,59 +2412,6 @@
       </nav>
     </section>
 
-    <!-- ADMIN -->
-    <div class="screen" id="s-admin" style="min-height:100vh;background:var(--cream);">
-      <div class="admin-layout">
-        <div class="admin-sidebar">
-          <div class="admin-sidebar-brand">
-            <h1>Calorie<span>Tracker</span></h1>
-            <p>Admin Panel</p>
-          </div>
-          <div class="admin-nav">
-            <button class="admin-nav-item active" id="admin-nav-promotions" onclick="adminNav('promotions')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="14" y1="2" x2="4" y2="9"/><polygon points="14 2 8 14 4 9 14 2"/></svg>Promotions <span style="background:rgba(201,86,43,0.3);color:#F2C4A8;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">3</span></button>
-            <button class="admin-nav-item" id="admin-nav-ingredients" onclick="adminNav('ingredients')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="9" r="7"/><path d="M9 6v6M6 9h6"/></svg>System Ingredients</button>
-            <button class="admin-nav-item" id="admin-nav-users" onclick="adminNav('users')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="6" r="3"/><path d="M2 16c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>Users</button>
-          </div>
-        </div>
-        <div class="admin-content">
-          <div id="admin-promotions-section">
-            <h1 class="admin-page-title">Promotion Queue</h1>
-            <p class="admin-page-sub">Custom ingredients submitted by users for promotion to system-level.</p>
-            <div class="admin-stat-row">
-              <div class="admin-stat-card"><div class="admin-stat-val">3</div><div class="admin-stat-label">Pending review</div><div class="admin-stat-badge warn">Action needed</div></div>
-              <div class="admin-stat-card"><div class="admin-stat-val">47</div><div class="admin-stat-label">Approved this month</div></div>
-              <div class="admin-stat-card"><div class="admin-stat-val">12</div><div class="admin-stat-label">Rejected</div></div>
-              <div class="admin-stat-card"><div class="admin-stat-val">3,847</div><div class="admin-stat-label">System ingredients</div></div>
-            </div>
-            <div class="admin-table">
-              <div class="admin-table-header"><span class="admin-table-title">Pending promotions</span><span class="badge badge-admin">3 items</span></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1F95E;</div><div class="admin-row-body"><div class="admin-row-name">Homemade Granola</div><div class="admin-row-meta">by sarahcooks &middot; 452 kcal/100g &middot; <span class="badge badge-custom">Custom</span></div></div><div class="admin-row-actions"><button class="admin-btn-approve" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Approve</button><button class="admin-btn-reject" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Reject</button></div></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1F343;</div><div class="admin-row-body"><div class="admin-row-name">Matcha Latte Powder</div><div class="admin-row-meta">by chef_marco &middot; 380 kcal/100g &middot; <span class="badge badge-custom">Custom</span></div></div><div class="admin-row-actions"><button class="admin-btn-approve" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Approve</button><button class="admin-btn-reject" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Reject</button></div></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1F9C1;</div><div class="admin-row-body"><div class="admin-row-name">Oat Milk Barista</div><div class="admin-row-meta">by markus_eats &middot; 54 kcal/100ml &middot; <span class="badge badge-custom">Custom</span></div></div><div class="admin-row-actions"><button class="admin-btn-approve" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Approve</button><button class="admin-btn-reject" onclick="this.closest('.admin-table-row').style.opacity='0.4'">Reject</button></div></div>
-            </div>
-          </div>
-          <div id="admin-ingredients-section" style="display:none;">
-            <h1 class="admin-page-title">System Ingredients</h1>
-            <p class="admin-page-sub">3,847 ingredients in the shared database.</p>
-            <div class="admin-table">
-              <div class="admin-table-header"><span class="admin-table-title">All system ingredients</span></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1F357;</div><div class="admin-row-body"><div class="admin-row-name">Chicken Breast, raw</div><div class="admin-row-meta">110 kcal/100g &middot; <span class="badge badge-system">System</span></div></div></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1F347;</div><div class="admin-row-body"><div class="admin-row-name">Concord Grapes</div><div class="admin-row-meta">69 kcal/100g &middot; <span class="badge badge-system">System</span></div></div></div>
-              <div class="admin-table-row"><div class="admin-row-icon">&#x1FAD8;</div><div class="admin-row-body"><div class="admin-row-name">Red Lentils, dry</div><div class="admin-row-meta">352 kcal/100g &middot; <span class="badge badge-system">System</span></div></div></div>
-            </div>
-          </div>
-          <div id="admin-users-section" style="display:none;">
-            <h1 class="admin-page-title">User Management</h1>
-            <p class="admin-page-sub">12 registered users.</p>
-            <div class="admin-table">
-              <div class="admin-table-header"><span class="admin-table-title">All users</span></div>
-              <div class="admin-table-row"><div class="admin-row-icon" style="font-size:14px;font-family:var(--font-display);font-weight:700;color:var(--terra);">S</div><div class="admin-row-body"><div class="admin-row-name">sarahcooks</div><div class="admin-row-meta">sarah@homekitchen.io &middot; <span class="badge badge-custom">Active</span></div></div></div>
-              <div class="admin-table-row"><div class="admin-row-icon" style="font-size:14px;font-family:var(--font-display);font-weight:700;color:var(--terra);">A</div><div class="admin-row-body"><div class="admin-row-name">admin</div><div class="admin-row-meta">admin@calorietracker.io &middot; <span class="badge badge-admin">Admin</span></div></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- AUTH REGISTER -->
     <section class="screen" id="s-auth-register">
@@ -2611,15 +2671,6 @@
   }
 
 
-  /* ════ ADMIN ════ */
-  function adminNav(section) {
-    ['promotions','ingredients','users'].forEach(s => {
-      const sec = document.getElementById('admin-' + s + '-section');
-      const btn = document.getElementById('admin-nav-' + s);
-      if (sec) sec.style.display = s === section ? '' : 'none';
-      if (btn) btn.classList.toggle('active', s === section);
-    });
-  }
   function fireProfileToast() {
     const t = document.getElementById('profile-toast');
     if (!t) return;
