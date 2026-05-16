@@ -232,6 +232,7 @@ async def test_detail_returns_all_fields(client: AsyncClient, db_session: AsyncS
         "owner_id",
         "icon",
         "is_promotion_pending",
+        "promotion_rejection_note",
     }
     assert set(data.keys()) == expected_keys
 

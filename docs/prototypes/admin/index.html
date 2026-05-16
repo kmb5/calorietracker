@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280" />
+  <title>CalorieTracker — Admin UI Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --border-focus:  #C9562B;
+      --white:         #FFFFFF;
+      --sidebar-bg:    #1E100A;
+      --sidebar-text:  rgba(253,246,237,0.75);
+      --sidebar-active:#C9562B;
+      --success:       #3D7A4A;
+      --success-bg:    #D6EDD9;
+      --success-border:rgba(61,122,74,0.3);
+      --error:         #B83232;
+      --error-bg:      #F9DEDE;
+      --error-border:  rgba(184,50,50,0.3);
+      --warn:          #8B6500;
+      --warn-bg:       #FEF5D4;
+      --warn-border:   rgba(139,101,0,0.25);
+      --badge-system:  #C9562B;
+      --badge-custom:  #5B7FA6;
+      --badge-sys-bg:  #F2E0D8;
+      --badge-cus-bg:  #DDE8F4;
+      --badge-admin:   #7B5EA7;
+      --badge-admin-bg:#EDE8F5;
+      --highlight:     rgba(201,86,43,0.09);
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        12px;
+      --radius-sm:     8px;
+      --radius-xs:     5px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+      --shadow-drop:   0 8px 40px rgba(26,18,8,0.14), 0 2px 8px rgba(26,18,8,0.07);
+      --sidebar-w:     240px;
+    }
+
+    html.dark {
+      color-scheme: dark;
+      --cream:         #1D1209;
+      --cream-dark:    #261810;
+      --cream-mid:     #301E12;
+      --terra:         #D4673A;
+      --terra-dark:    #B85A30;
+      --terra-light:   #2D1A0D;
+      --ink:           #FDF6ED;
+      --ink-mid:       #D4B89A;
+      --ink-soft:      #9C8270;
+      --border:        #3D2416;
+      --border-focus:  #D4673A;
+      --white:         #221508;
+      --sidebar-bg:    #110A05;
+      --success:       #4DAA62;
+      --success-bg:    #0E2314;
+      --success-border:rgba(77,170,98,0.25);
+      --error:         #D45252;
+      --error-bg:      #2A0E0E;
+      --error-border:  rgba(212,82,82,0.3);
+      --warn:          #CFA830;
+      --warn-bg:       #1E1600;
+      --warn-border:   rgba(207,168,48,0.25);
+      --badge-system:  #D4673A;
+      --badge-custom:  #7BAFD4;
+      --badge-sys-bg:  #2A1208;
+      --badge-cus-bg:  #0E1E2D;
+      --badge-admin:   #A68ED4;
+      --badge-admin-bg:#1A1228;
+      --shadow:        0 4px 24px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.25);
+      --shadow-sm:     0 2px 8px rgba(0,0,0,0.30);
+      --shadow-drop:   0 8px 40px rgba(0,0,0,0.50), 0 2px 8px rgba(0,0,0,0.30);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--cream-dark);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Prototype nav bar ─────────────────────────────────────────── */
+    .proto-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(30, 16, 10, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 24px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .proto-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: rgba(253,246,237,0.35);
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    .proto-btn {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid rgba(253,246,237,0.12);
+      background: rgba(253,246,237,0.06);
+      color: rgba(253,246,237,0.6);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .proto-btn:hover {
+      background: rgba(253,246,237,0.12);
+      color: rgba(253,246,237,0.9);
+    }
+
+    .proto-btn.active {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #FDF6ED;
+    }
+
+    .proto-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .proto-sep {
+      width: 1px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 6px;
+    }
+
+    .proto-theme {
+      margin-left: auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(253,246,237,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .proto-theme:hover { color: var(--terra); border-color: var(--terra); }
+    .proto-theme svg { width: 15px; height: 15px; }
+
+    /* ── Admin shell ────────────────────────────────────────────────── */
+    .admin-shell {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 44px;
+    }
+
+    /* ── Sidebar ────────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 44px;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      z-index: 100;
+      transition: background 0.3s;
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--terra);
+      margin-bottom: 10px;
+      box-shadow: 0 3px 10px rgba(201,86,43,0.35);
+    }
+
+    .brand-mark svg { width: 20px; height: 20px; fill: white; }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: #FDF6ED;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+
+    .brand-name span { color: var(--terra); }
+
+    .brand-role {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: rgba(253,246,237,0.3);
+      margin-top: 3px;
+    }
+
+    .sidebar-section {
+      padding: 20px 12px 4px;
+    }
+
+    .sidebar-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: rgba(253,246,237,0.25);
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--sidebar-text);
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.15s;
+      text-decoration: none;
+      position: relative;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: #FDF6ED;
+    }
+
+    .sidebar-item.active {
+      background: rgba(201,86,43,0.18);
+      color: #FDF6ED;
+    }
+
+    .sidebar-item.active .sidebar-icon { color: var(--terra); }
+
+    .sidebar-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-xs);
+      flex-shrink: 0;
+      color: rgba(253,246,237,0.5);
+      transition: color 0.15s;
+    }
+
+    .sidebar-icon svg { width: 16px; height: 16px; }
+
+    .sidebar-badge {
+      margin-left: auto;
+      background: var(--terra);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .sidebar-user:hover { background: rgba(255,255,255,0.06); }
+
+    .user-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--terra);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #FDF6ED;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-role {
+      font-size: 10.5px;
+      color: rgba(253,246,237,0.35);
+    }
+
+    /* ── Main content ───────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-height: calc(100vh - 44px);
+      background: var(--cream);
+      transition: background 0.3s;
+    }
+
+    /* ── Screen ─────────────────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Page header ────────────────────────────────────────────────── */
+    .page-header {
+      padding: 32px 36px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .page-header-left h1 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .page-header-left p {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .page-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-top: 4px;
+    }
+
+    /* ── Page body ──────────────────────────────────────────────────── */
+    .page-body {
+      padding: 28px 36px;
+    }
+
+    /* ── Stats row ──────────────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    .stat-accent { color: var(--terra); }
+
+    /* ── Table card ──────────────────────────────────────────────────── */
+    .table-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .table-toolbar {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-toolbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .table-toolbar-count {
+      font-size: 12px;
+      color: var(--ink-soft);
+      background: var(--cream-dark);
+      padding: 2px 9px;
+      border-radius: 99px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      flex: 1;
+      max-width: 320px;
+      transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within { border-color: var(--border-focus); }
+
+    .search-box svg { color: var(--ink-soft); flex-shrink: 0; width: 15px; height: 15px; }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search-box input::placeholder { color: var(--ink-soft); opacity: 0.7; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--cream-dark);
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      padding: 11px 20px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 13px 20px;
+      font-size: 13.5px;
+      color: var(--ink);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr {
+      transition: background 0.12s;
+    }
+
+    tbody tr:hover { background: var(--highlight); }
+
+    .td-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .td-soft { color: var(--ink-soft); }
+    .td-mono { font-family: monospace; font-size: 12.5px; color: var(--ink-mid); }
+
+    /* ── Badges ─────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .badge-system  { background: var(--badge-sys-bg);   color: var(--badge-system); }
+    .badge-custom  { background: var(--badge-cus-bg);   color: var(--badge-custom); }
+    .badge-admin   { background: var(--badge-admin-bg); color: var(--badge-admin); }
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-warn    { background: var(--warn-bg);    color: var(--warn); }
+    .badge-error   { background: var(--error-bg);   color: var(--error); }
+    .badge-neutral { background: var(--cream-dark); color: var(--ink-soft); }
+
+    /* ── Row actions ─────────────────────────────────────────────────── */
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      width: 30px; height: 30px;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-soft);
+      transition: all 0.15s;
+    }
+
+    .btn-icon svg { width: 14px; height: 14px; }
+
+    .btn-icon:hover { border-color: var(--ink-mid); color: var(--ink); background: var(--cream-dark); }
+    .btn-icon.danger:hover { border-color: var(--error); color: var(--error); background: var(--error-bg); }
+    .btn-icon.success:hover { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn-primary {
+      background: var(--terra);
+      color: #FDF6ED;
+      box-shadow: 0 2px 8px rgba(201,86,43,0.28);
+    }
+    .btn-primary:hover { background: var(--terra-dark); box-shadow: 0 3px 12px rgba(201,86,43,0.38); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--cream-dark); border-color: var(--ink-soft); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1.5px solid var(--error-border);
+    }
+    .btn-danger:hover { background: var(--error-bg); }
+
+    .btn-success {
+      background: var(--success);
+      color: #FDF6ED;
+    }
+    .btn-success:hover { filter: brightness(0.9); }
+
+    .btn-sm {
+      padding: 6px 13px;
+      font-size: 12.5px;
+    }
+
+    /* ── Approve / reject actions in promotions table ─────────────────── */
+    .approve-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      border-radius: var(--radius-xs);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.15s;
+    }
+
+    .approve-btn svg { width: 13px; height: 13px; }
+
+    .approve-btn.approve {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success-border);
+    }
+    .approve-btn.approve:hover { background: var(--success); color: white; }
+
+    .approve-btn.reject {
+      background: var(--error-bg);
+      color: var(--error);
+      border-color: var(--error-border);
+    }
+    .approve-btn.reject:hover { background: var(--error); color: white; }
+
+    /* Inline reject note */
+    .reject-note-row {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .reject-note-row.open { display: flex; gap: 8px; align-items: flex-start; }
+
+    .reject-note-row textarea {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      color: var(--ink);
+      background: var(--cream);
+      outline: none;
+      resize: none;
+      rows: 2;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    .reject-note-row textarea:focus { border-color: var(--border-focus); }
+    .reject-note-row textarea::placeholder { color: var(--ink-soft); opacity: 0.7; }
+
+    .reject-confirm-btn {
+      padding: 8px 14px;
+      border-radius: var(--radius-xs);
+      background: var(--error);
+      color: white;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter 0.15s;
+    }
+    .reject-confirm-btn:hover { filter: brightness(0.88); }
+
+    /* ── Empty state ─────────────────────────────────────────────────── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 40px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+      max-width: 360px;
+    }
+
+    /* ── Form layout ─────────────────────────────────────────────────── */
+    .form-shell {
+      max-width: 720px;
+    }
+
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .form-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--border-focus);
+      background: var(--white);
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--ink-soft);
+      opacity: 0.7;
+    }
+
+    .field.error input,
+    .field.error select { border-color: var(--error); background: var(--error-bg); }
+
+    .field-error-msg {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+    }
+
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .field-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 8px;
+    }
+
+    /* ── System badge note in form ────────────────────────────────────── */
+    .system-note {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--terra-light);
+      border: 1px solid rgba(201,86,43,0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--terra-dark);
+      line-height: 1.5;
+    }
+
+    html.dark .system-note {
+      background: #2D1A0D;
+      border-color: rgba(212,103,58,0.3);
+      color: var(--terra);
+    }
+
+    .system-note svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--terra); }
+
+    /* ── Bulk import ─────────────────────────────────────────────────── */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 52px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--cream);
+      position: relative;
+    }
+
+    .dropzone:hover,
+    .dropzone.over {
+      border-color: var(--terra);
+      background: var(--terra-light);
+    }
+
+    html.dark .dropzone:hover,
+    html.dark .dropzone.over {
+      background: #2D1A0D;
+    }
+
+    .dropzone-icon {
+      font-size: 40px;
+      margin-bottom: 14px;
+      opacity: 0.8;
+    }
+
+    .dropzone-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .dropzone-sub {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .import-file-selected {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: var(--cream-dark);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 16px;
+      margin-top: 14px;
+      transition: background 0.3s;
+    }
+
+    .import-file-selected.show { display: flex; }
+
+    .file-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+    .file-size { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+
+    .import-result {
+      display: none;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-top: 16px;
+    }
+
+    .import-result.show { display: block; }
+    .import-result.success { background: var(--success-bg); border: 1.5px solid var(--success-border); }
+    .import-result.error   { background: var(--error-bg);   border: 1.5px solid var(--error-border); }
+
+    .import-result-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .import-result.success .import-result-title { color: var(--success); }
+    .import-result.error   .import-result-title { color: var(--error); }
+
+    .import-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .import-stat { text-align: center; }
+    .import-stat-val {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .import-stat-lbl {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      margin-top: 3px;
+    }
+    .stat-added { color: var(--success); }
+    .stat-updated { color: var(--terra); }
+    .stat-errors { color: var(--error); }
+
+    /* ── User status toggle ──────────────────────────────────────────── */
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .status-dot::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-active::before   { background: var(--success); }
+    .status-inactive::before { background: var(--ink-soft); }
+
+    /* ── Alert banner ────────────────────────────────────────────────── */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+    .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .alert-warn    { background: var(--warn-bg);    color: var(--warn);    border: 1px solid var(--warn-border); }
+    .alert-info    { background: var(--terra-light); color: var(--terra-dark); border: 1px solid rgba(201,86,43,0.2); }
+
+    /* ── Responsive: mobile ─────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      :root { --sidebar-w: 0px; }
+
+      .sidebar { display: none; }
+
+      .main { margin-left: 0; }
+
+      .page-header { padding: 20px 18px 16px; flex-direction: column; gap: 14px; }
+      .page-header-left h1 { font-size: 20px; }
+
+      .page-body { padding: 16px 18px; }
+
+      .stats-row { grid-template-columns: 1fr; }
+
+      .field-row,
+      .field-row-2 { grid-template-columns: 1fr; }
+
+      .form-card { padding: 18px; }
+
+      th, td { padding: 10px 12px; }
+
+      .proto-nav { overflow-x: auto; padding: 0 12px; }
+      .proto-btn-group { flex-wrap: nowrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       PROTOTYPE NAV
+  ═══════════════════════════════════════════════════════════════════ -->
+  <nav class="proto-nav">
+    <span class="proto-label">Prototype</span>
+
+    <div class="proto-btn-group">
+      <button class="proto-btn active" onclick="showScreen('promotions-queue')">Promotions</button>
+      <button class="proto-btn"        onclick="showScreen('promotions-empty')">Promotions (empty)</button>
+    </div>
+
+    <div class="proto-sep"></div>
+
+    <div class="proto-btn-group">
+      <button class="proto-btn" onclick="showScreen('ingredients-list')">Ingredients</button>
+      <button class="proto-btn" onclick="showScreen('ingredient-add')">Add Ingredient</button>
+      <button class="proto-btn" onclick="showScreen('ingredient-edit')">Edit Ingredient</button>
+      <button class="proto-btn" onclick="showScreen('bulk-import')">Bulk Import</button>
+    </div>
+
+    <div class="proto-sep"></div>
+
+    <div class="proto-btn-group">
+      <button class="proto-btn" onclick="showScreen('users-list')">Users</button>
+    </div>
+
+    <button class="proto-theme" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode">
+      <svg id="theme-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       ADMIN SHELL
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="admin-shell">
+
+    <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/>
+            <circle cx="14" cy="12" r="3.5"/>
+          </svg>
+        </div>
+        <div class="brand-name">Calorie<span>Tracker</span></div>
+        <div class="brand-role">Admin Panel</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Moderation</div>
+        <a class="sidebar-item active" id="nav-promotions" onclick="showScreen('promotions-queue')">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          Promotions
+          <span class="sidebar-badge" id="sidebar-promo-count">3</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Database</div>
+        <a class="sidebar-item" id="nav-ingredients" onclick="showScreen('ingredients-list')">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </div>
+          System Ingredients
+        </a>
+        <a class="sidebar-item" id="nav-import" onclick="showScreen('bulk-import')">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          Bulk Import
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">People</div>
+        <a class="sidebar-item" id="nav-users" onclick="showScreen('users-list')">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          Users
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">A</div>
+          <div class="user-info">
+            <div class="user-name">admin</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main ────────────────────────────────────────────────────── -->
+    <main class="main">
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 1 — PROMOTIONS QUEUE
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen active" id="screen-promotions-queue">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Ingredient Promotions</h1>
+            <p>Review user-submitted ingredients for inclusion in the shared system database.</p>
+          </div>
+        </div>
+
+        <div class="page-body">
+
+          <div class="stats-row" style="grid-template-columns: repeat(3, 1fr); max-width: 640px;">
+            <div class="stat-card">
+              <div class="stat-label">Pending Review</div>
+              <div class="stat-value stat-accent">3</div>
+              <div class="stat-sub">Awaiting decision</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Approved (30d)</div>
+              <div class="stat-value">14</div>
+              <div class="stat-sub">Added to system DB</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Rejected (30d)</div>
+              <div class="stat-value">5</div>
+              <div class="stat-sub">Returned with note</div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-toolbar">
+              <span class="table-toolbar-title">Pending Promotions</span>
+              <span class="table-toolbar-count">3 items</span>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Ingredient</th>
+                  <th>Submitted by</th>
+                  <th>Date</th>
+                  <th>Nutrition (per 100g)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <!-- Row 1 -->
+                <tr>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span style="font-size:22px;">🥥</span>
+                      <div>
+                        <div class="td-name">Desiccated Coconut</div>
+                        <div class="td-soft" style="font-size:12px;">per 100 g · user-created</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="td-mono">maya_cooks</span></td>
+                  <td class="td-soft">2 May 2026</td>
+                  <td class="td-soft" style="font-size:13px;">660 kcal · P 6.9g · F 62g · C 23g</td>
+                  <td>
+                    <div>
+                      <div class="row-actions">
+                        <button class="approve-btn approve" onclick="approveRow(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          Approve
+                        </button>
+                        <button class="approve-btn reject" onclick="toggleRejectNote(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          Reject
+                        </button>
+                      </div>
+                      <div class="reject-note-row" id="reject-note-1">
+                        <textarea placeholder="Optional note to the submitter…" rows="2"></textarea>
+                        <button class="reject-confirm-btn" onclick="confirmReject(this)">Send &amp; Reject</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2 -->
+                <tr>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span style="font-size:22px;">🌾</span>
+                      <div>
+                        <div class="td-name">Amaranth Flour</div>
+                        <div class="td-soft" style="font-size:12px;">per 100 g · user-created</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="td-mono">chef_roberta</span></td>
+                  <td class="td-soft">5 May 2026</td>
+                  <td class="td-soft" style="font-size:13px;">371 kcal · P 14g · F 6.5g · C 65g</td>
+                  <td>
+                    <div>
+                      <div class="row-actions">
+                        <button class="approve-btn approve" onclick="approveRow(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          Approve
+                        </button>
+                        <button class="approve-btn reject" onclick="toggleRejectNote(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          Reject
+                        </button>
+                      </div>
+                      <div class="reject-note-row" id="reject-note-2">
+                        <textarea placeholder="Optional note to the submitter…" rows="2"></textarea>
+                        <button class="reject-confirm-btn" onclick="confirmReject(this)">Send &amp; Reject</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3 -->
+                <tr>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span style="font-size:22px;">🧆</span>
+                      <div>
+                        <div class="td-name">Homemade Falafel Mix</div>
+                        <div class="td-soft" style="font-size:12px;">per 100 g · user-created</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="td-mono">tamarind_tales</span></td>
+                  <td class="td-soft">9 May 2026</td>
+                  <td class="td-soft" style="font-size:13px;">333 kcal · P 13g · F 11g · C 46g</td>
+                  <td>
+                    <div>
+                      <div class="row-actions">
+                        <button class="approve-btn approve" onclick="approveRow(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          Approve
+                        </button>
+                        <button class="approve-btn reject" onclick="toggleRejectNote(this)">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          Reject
+                        </button>
+                      </div>
+                      <div class="reject-note-row" id="reject-note-3">
+                        <textarea placeholder="Optional note to the submitter…" rows="2"></textarea>
+                        <button class="reject-confirm-btn" onclick="confirmReject(this)">Send &amp; Reject</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /promotions-queue -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 2 — PROMOTIONS EMPTY
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-promotions-empty">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Ingredient Promotions</h1>
+            <p>Review user-submitted ingredients for inclusion in the shared system database.</p>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="table-card">
+            <div class="empty-state">
+              <div class="empty-icon">✅</div>
+              <div class="empty-title">No pending promotions</div>
+              <div class="empty-desc">You're all caught up. When users submit ingredients for review, they'll appear here.</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /promotions-empty -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 3 — SYSTEM INGREDIENTS LIST
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-ingredients-list">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>System Ingredients</h1>
+            <p>Manage the shared ingredient database visible to all users.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary" onclick="showScreen('bulk-import')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Bulk Import
+            </button>
+            <button class="btn btn-primary" onclick="showScreen('ingredient-add')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Ingredient
+            </button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="table-card">
+            <div class="table-toolbar">
+              <span class="table-toolbar-title">All System Ingredients</span>
+              <span class="table-toolbar-count">1,284 items</span>
+              <div style="margin-left: auto;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder="Search by name…" />
+                </div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Unit</th>
+                  <th>Kcal / 100g</th>
+                  <th>Protein</th>
+                  <th>Fat</th>
+                  <th>Carbs</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🍎</span><span class="td-name">Apple, raw</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>52</td>
+                  <td class="td-soft">0.3 g</td>
+                  <td class="td-soft">0.2 g</td>
+                  <td class="td-soft">14 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🥑</span><span class="td-name">Avocado</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>160</td>
+                  <td class="td-soft">2.0 g</td>
+                  <td class="td-soft">14.7 g</td>
+                  <td class="td-soft">8.5 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🥕</span><span class="td-name">Carrot, raw</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>41</td>
+                  <td class="td-soft">0.9 g</td>
+                  <td class="td-soft">0.2 g</td>
+                  <td class="td-soft">10 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🧀</span><span class="td-name">Cheddar Cheese</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>403</td>
+                  <td class="td-soft">25 g</td>
+                  <td class="td-soft">33 g</td>
+                  <td class="td-soft">1.3 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🥚</span><span class="td-name">Egg, whole, raw</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>143</td>
+                  <td class="td-soft">13 g</td>
+                  <td class="td-soft">10 g</td>
+                  <td class="td-soft">1.1 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🌾</span><span class="td-name">Oat Flour</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>404</td>
+                  <td class="td-soft">15 g</td>
+                  <td class="td-soft">7.5 g</td>
+                  <td class="td-soft">66 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🍅</span><span class="td-name">Tomato, raw</span></div></td>
+                  <td class="td-soft">g</td>
+                  <td>18</td>
+                  <td class="td-soft">0.9 g</td>
+                  <td class="td-soft">0.2 g</td>
+                  <td class="td-soft">3.9 g</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn-icon" onclick="showScreen('ingredient-edit')" title="Edit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteRow(this)" title="Delete">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /ingredients-list -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 4 — ADD SYSTEM INGREDIENT
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-ingredient-add">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Add System Ingredient</h1>
+            <p>New ingredient will be visible to all users immediately.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary" onclick="showScreen('ingredients-list')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="form-shell">
+
+            <div class="system-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              This ingredient will be saved as <strong>&nbsp;is_system = true&nbsp;</strong> and will appear in every user's ingredient search.
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-title">Identity</div>
+
+              <div class="field-row-2">
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label>Ingredient name *</label>
+                  <input type="text" placeholder="e.g. Whole Wheat Flour" />
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label>Unit *</label>
+                  <select>
+                    <option value="g">g — grams</option>
+                    <option value="ml">ml — millilitres</option>
+                    <option value="tablespoon">Tablespoon</option>
+                    <option value="piece">Piece</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Default portion size</label>
+                  <input type="number" value="100" min="0" step="1" />
+                  <div class="field-hint">Used as the default portion when logging.</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Icon (emoji)</label>
+                <input type="text" placeholder="🌾" maxlength="2" style="font-size:22px; width:80px;" />
+                <div class="field-hint">Optional. Single emoji character. Falls back to a unit default if empty.</div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-title">Nutrition per 100 g / 100 ml</div>
+
+              <div class="field">
+                <label>Calories (kcal) *</label>
+                <input type="number" placeholder="0" min="0" step="0.1" style="max-width:200px;" />
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Protein (g)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Fat (g)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Carbohydrates (g)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Fibre (g)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Sodium (mg)</label>
+                  <input type="number" placeholder="0" min="0" step="0.1" />
+                </div>
+                <div class="field"><!-- spacer --></div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="submitIngredientForm()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Save ingredient
+              </button>
+              <button class="btn btn-secondary" onclick="showScreen('ingredients-list')">Cancel</button>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /ingredient-add -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 5 — EDIT SYSTEM INGREDIENT
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-ingredient-edit">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Edit System Ingredient</h1>
+            <p>Changes will be reflected across all users' searches immediately.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteIngredient()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              Delete
+            </button>
+            <button class="btn btn-secondary" onclick="showScreen('ingredients-list')">Cancel</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="form-shell">
+
+            <div class="system-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Editing a system ingredient — <strong>is_system = true</strong>. Changes are applied globally.
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-title">Identity</div>
+
+              <div class="field-row-2">
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label>Ingredient name *</label>
+                  <input type="text" value="Apple, raw" />
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label>Unit *</label>
+                  <select>
+                    <option value="g" selected>g — grams</option>
+                    <option value="ml">ml — millilitres</option>
+                    <option value="tablespoon">Tablespoon</option>
+                    <option value="piece">Piece</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Default portion size</label>
+                  <input type="number" value="100" min="0" step="1" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Icon (emoji)</label>
+                <input type="text" value="🍎" maxlength="2" style="font-size:22px; width:80px;" />
+                <div class="field-hint">Optional. Single emoji character.</div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-title">Nutrition per 100 g</div>
+
+              <div class="field">
+                <label>Calories (kcal) *</label>
+                <input type="number" value="52" min="0" step="0.1" style="max-width:200px;" />
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Protein (g)</label>
+                  <input type="number" value="0.3" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Fat (g)</label>
+                  <input type="number" value="0.2" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Carbohydrates (g)</label>
+                  <input type="number" value="13.8" min="0" step="0.1" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Fibre (g)</label>
+                  <input type="number" value="2.4" min="0" step="0.1" />
+                </div>
+                <div class="field">
+                  <label>Sodium (mg)</label>
+                  <input type="number" value="1" min="0" step="0.1" />
+                </div>
+                <div class="field"><!-- spacer --></div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="submitEditForm()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Save changes
+              </button>
+              <button class="btn btn-secondary" onclick="showScreen('ingredients-list')">Cancel</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Delete confirm overlay -->
+        <div class="dialog-overlay" id="delete-ingredient-dialog" onclick="closeDeleteIngredient(event)">
+          <div class="dialog-sheet">
+            <div class="dialog-title">Delete system ingredient?</div>
+            <div class="dialog-body">
+              <strong>Apple, raw</strong> will be permanently removed from the system database. This cannot be undone. Users who have this ingredient in saved recipes will retain their snapshot.
+            </div>
+            <div class="dialog-actions">
+              <button class="btn btn-danger" onclick="closeDeleteIngredient(null, true)">Yes, delete permanently</button>
+              <button class="btn btn-secondary" onclick="closeDeleteIngredient(null)">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /ingredient-edit -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 6 — BULK IMPORT
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-bulk-import">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Bulk Import</h1>
+            <p>Upload a JSON file to add or update system ingredients in one operation.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary" onclick="showScreen('ingredients-list')">
+              ← Back to Ingredients
+            </button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="form-shell" style="max-width: 640px;">
+
+            <div class="form-card">
+              <div class="form-card-title">JSON File Upload</div>
+
+              <div class="alert alert-info" style="margin-bottom:18px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>Expected format: an array of ingredient objects. Each object must have <code style="font-family:monospace; font-size:12px; background:var(--terra-light); padding:1px 4px; border-radius:3px;">name</code>, <code style="font-family:monospace; font-size:12px; background:var(--terra-light); padding:1px 4px; border-radius:3px;">unit</code>, and <code style="font-family:monospace; font-size:12px; background:var(--terra-light); padding:1px 4px; border-radius:3px;">kcal_per_100</code> fields. Existing ingredients matched by name will be updated.</div>
+              </div>
+
+              <!-- Drop zone -->
+              <div class="dropzone" id="dropzone"
+                ondragover="event.preventDefault(); this.classList.add('over')"
+                ondragleave="this.classList.remove('over')"
+                ondrop="handleDrop(event)">
+                <input type="file" accept=".json" onchange="handleFileSelect(this)" />
+                <div class="dropzone-icon">📂</div>
+                <div class="dropzone-title">Drop a JSON file here</div>
+                <div class="dropzone-sub">or <u>click to browse</u> your computer<br />Accepts .json only</div>
+              </div>
+
+              <!-- Selected file -->
+              <div class="import-file-selected" id="import-file-selected">
+                <div class="file-icon">📄</div>
+                <div class="file-info">
+                  <div class="file-name" id="import-file-name">ingredients_batch_2026.json</div>
+                  <div class="file-size" id="import-file-size">48 KB · 312 items detected</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="clearFile()">Remove</button>
+              </div>
+
+              <!-- Import result — success state -->
+              <div class="import-result success" id="import-result-success">
+                <div class="import-result-title">✅ Import complete</div>
+                <div class="import-stats">
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-added">12</div>
+                    <div class="import-stat-lbl">Added</div>
+                  </div>
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-updated">3</div>
+                    <div class="import-stat-lbl">Updated</div>
+                  </div>
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-errors">0</div>
+                    <div class="import-stat-lbl">Errors</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Import result — error state (hidden by default) -->
+              <div class="import-result error" id="import-result-error" style="display:none;">
+                <div class="import-result-title">⚠ Import completed with errors</div>
+                <div class="import-stats">
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-added">8</div>
+                    <div class="import-stat-lbl">Added</div>
+                  </div>
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-updated">1</div>
+                    <div class="import-stat-lbl">Updated</div>
+                  </div>
+                  <div class="import-stat">
+                    <div class="import-stat-val stat-errors">3</div>
+                    <div class="import-stat-lbl">Errors</div>
+                  </div>
+                </div>
+                <div style="margin-top:14px; font-size:13px; color:var(--error); line-height:1.55;">
+                  Row 4: missing required field <code style="font-family:monospace;">kcal_per_100</code><br/>
+                  Row 11: <code style="font-family:monospace;">unit</code> value "cups" is not valid<br/>
+                  Row 18: duplicate name conflicts with existing system ingredient
+                </div>
+              </div>
+
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" id="import-btn" onclick="simulateImport()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import
+              </button>
+              <button class="btn btn-secondary" onclick="toggleImportError()">Toggle error state</button>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /bulk-import -->
+
+
+      <!-- ══════════════════════════════════════════════════════════
+           SCREEN 7 — USERS LIST
+      ══════════════════════════════════════════════════════════════ -->
+      <div class="screen" id="screen-users-list">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Users</h1>
+            <p>Manage user accounts, roles, and access status.</p>
+          </div>
+        </div>
+
+        <div class="page-body">
+
+          <div class="stats-row" style="grid-template-columns: repeat(3, 1fr); max-width: 640px;">
+            <div class="stat-card">
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value">247</div>
+              <div class="stat-sub">All registered</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Active</div>
+              <div class="stat-value stat-accent">241</div>
+              <div class="stat-sub">Can log in</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Admins</div>
+              <div class="stat-value">2</div>
+              <div class="stat-sub">Full access</div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-toolbar">
+              <span class="table-toolbar-title">All Users</span>
+              <span class="table-toolbar-count">247 accounts</span>
+              <div style="margin-left: auto;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder="Search users…" />
+                </div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">A</div>
+                      <span class="td-name">admin</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">admin@calorietracker.app</td>
+                  <td><span class="badge badge-admin">Admin</span></td>
+                  <td><span class="status-dot status-active">Active</span></td>
+                  <td class="td-soft">1 Jan 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <span style="font-size:12px;color:var(--ink-soft);font-style:italic;">—</span>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:#5B7FA6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">M</div>
+                      <span class="td-name">maya_cooks</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">maya@example.com</td>
+                  <td><span class="badge badge-neutral">User</span></td>
+                  <td><span class="status-dot status-active">Active</span></td>
+                  <td class="td-soft">3 Feb 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleUserStatus(this)">Deactivate</button>
+                    <button class="btn btn-sm" style="background:var(--badge-admin-bg);color:var(--badge-admin);border:1px solid rgba(123,94,167,0.25);" onclick="promoteUser(this)">Promote to Admin</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:#4A9B6B;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">C</div>
+                      <span class="td-name">chef_roberta</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">roberta@example.com</td>
+                  <td><span class="badge badge-neutral">User</span></td>
+                  <td><span class="status-dot status-active">Active</span></td>
+                  <td class="td-soft">14 Feb 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleUserStatus(this)">Deactivate</button>
+                    <button class="btn btn-sm" style="background:var(--badge-admin-bg);color:var(--badge-admin);border:1px solid rgba(123,94,167,0.25);" onclick="promoteUser(this)">Promote to Admin</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:#C9A060;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">T</div>
+                      <span class="td-name">tamarind_tales</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">tamarind@example.com</td>
+                  <td><span class="badge badge-neutral">User</span></td>
+                  <td><span class="status-dot status-active">Active</span></td>
+                  <td class="td-soft">28 Feb 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleUserStatus(this)">Deactivate</button>
+                    <button class="btn btn-sm" style="background:var(--badge-admin-bg);color:var(--badge-admin);border:1px solid rgba(123,94,167,0.25);" onclick="promoteUser(this)">Promote to Admin</button>
+                  </div></td>
+                </tr>
+                <!-- Deactivated user example -->
+                <tr style="opacity:0.6;">
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">S</div>
+                      <span class="td-name">spammy_user99</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">spam@example.com</td>
+                  <td><span class="badge badge-neutral">User</span></td>
+                  <td><span class="status-dot status-inactive">Inactive</span></td>
+                  <td class="td-soft">1 Mar 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn btn-sm btn-success" onclick="toggleUserStatus(this)">Activate</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:30px;height:30px;border-radius:50%;background:#7B5EA7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">K</div>
+                      <span class="td-name">kitchen_kai</span>
+                    </div>
+                  </td>
+                  <td class="td-soft">kai@example.com</td>
+                  <td><span class="badge badge-neutral">User</span></td>
+                  <td><span class="status-dot status-active">Active</span></td>
+                  <td class="td-soft">10 Apr 2026</td>
+                  <td><div class="row-actions" style="justify-content:flex-end;">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleUserStatus(this)">Deactivate</button>
+                    <button class="btn btn-sm" style="background:var(--badge-admin-bg);color:var(--badge-admin);border:1px solid rgba(123,94,167,0.25);" onclick="promoteUser(this)">Promote to Admin</button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /users-list -->
+
+    </main>
+  </div><!-- /admin-shell -->
+
+  <!-- ── Delete ingredient dialog ─────────────────────────────────── -->
+  <style>
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,18,8,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 500;
+    }
+    .dialog-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .dialog-sheet {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-drop);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .dialog-overlay.show .dialog-sheet {
+      transform: translateY(0) scale(1);
+    }
+    .dialog-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .dialog-body {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .dialog-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-drop);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 600;
+      max-width: 360px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-emoji { font-size: 20px; flex-shrink: 0; }
+  </style>
+
+  <div class="dialog-overlay" id="delete-ingredient-dialog" onclick="closeDeleteIngredient(event)">
+    <div class="dialog-sheet" onclick="event.stopPropagation()">
+      <div class="dialog-title">Delete system ingredient?</div>
+      <div class="dialog-body">
+        This ingredient will be permanently removed from the system database. Users who have this in saved recipes will retain their nutrition snapshot.
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" onclick="closeDeleteIngredient(null)">Cancel</button>
+        <button class="btn btn-danger" onclick="closeDeleteIngredient(null, true)">Yes, delete permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-emoji" id="toast-emoji">✅</span>
+    <span id="toast-text">Done</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       PROTOTYPE BANNER
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div style="
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(26,18,8,0.82);
+    backdrop-filter: blur(8px);
+    color: rgba(253,246,237,0.55);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+    z-index: 999;
+    pointer-events: none;
+  ">
+    <span style="background:var(--terra);color:white;font-size:9px;font-weight:700;letter-spacing:0.8px;padding:2px 7px;border-radius:10px;text-transform:uppercase;">Prototype</span>
+    No API calls · Static demo only · Issue #13
+  </div>
+
+
+  <script>
+    // ── Theme toggle ─────────────────────────────────────────────────
+    const SUN  = `<circle cx="9" cy="9" r="3.5"/><line x1="9" y1="1.5" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="16.5"/><line x1="1.5" y1="9" x2="3" y2="9"/><line x1="15" y1="9" x2="16.5" y2="9"/><line x1="3.7" y1="3.7" x2="4.76" y2="4.76"/><line x1="13.24" y1="13.24" x2="14.3" y2="14.3"/><line x1="14.3" y1="3.7" x2="13.24" y2="4.76"/><line x1="4.76" y1="13.24" x2="3.7" y2="14.3"/>`;
+    const MOON = `<path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>`;
+
+    function applyTheme(dark) {
+      document.documentElement.classList.toggle('dark', dark);
+      document.getElementById('theme-icon').innerHTML = dark ? SUN : MOON;
+    }
+
+    function toggleTheme() {
+      const dark = !document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      applyTheme(dark);
+    }
+
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(saved === 'dark' || (!saved && prefersDark));
+    })();
+
+    // ── Screen routing ───────────────────────────────────────────────
+    const NAV_MAP = {
+      'promotions-queue':  'nav-promotions',
+      'promotions-empty':  'nav-promotions',
+      'ingredients-list':  'nav-ingredients',
+      'ingredient-add':    'nav-ingredients',
+      'ingredient-edit':   'nav-ingredients',
+      'bulk-import':       'nav-import',
+      'users-list':        'nav-users',
+    };
+
+    function showScreen(id) {
+      // Hide all screens
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + id).classList.add('active');
+
+      // Proto nav pills
+      document.querySelectorAll('.proto-btn').forEach(b => b.classList.remove('active'));
+      const protoMap = {
+        'promotions-queue': 0,
+        'promotions-empty': 1,
+        'ingredients-list': 2,
+        'ingredient-add':   3,
+        'ingredient-edit':  4,
+        'bulk-import':      5,
+        'users-list':       6,
+      };
+      const pills = document.querySelectorAll('.proto-btn');
+      if (protoMap[id] !== undefined) pills[protoMap[id]].classList.add('active');
+
+      // Sidebar active state
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      const navId = NAV_MAP[id];
+      if (navId) {
+        const el = document.getElementById(navId);
+        if (el) el.classList.add('active');
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    // ── Promotions ───────────────────────────────────────────────────
+    let pendingCount = 3;
+
+    function approveRow(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.td-name').textContent;
+      row.style.transition = 'opacity 0.4s, transform 0.4s';
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(20px)';
+      setTimeout(() => { row.remove(); updatePendingCount(-1); }, 400);
+      showToast('✅', `"${name}" approved and added to system DB`);
+    }
+
+    function toggleRejectNote(btn) {
+      // Find this row's reject note container
+      const actionsCell = btn.closest('td');
+      const noteRow = actionsCell.querySelector('.reject-note-row');
+      noteRow.classList.toggle('open');
+      if (noteRow.classList.contains('open')) {
+        noteRow.querySelector('textarea').focus();
+      }
+    }
+
+    function confirmReject(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.td-name').textContent;
+      row.style.transition = 'opacity 0.4s, transform 0.4s';
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(-20px)';
+      setTimeout(() => { row.remove(); updatePendingCount(-1); }, 400);
+      showToast('❌', `"${name}" rejected and submitter notified`);
+    }
+
+    function updatePendingCount(delta) {
+      pendingCount = Math.max(0, pendingCount + delta);
+      const badge = document.getElementById('sidebar-promo-count');
+      if (badge) {
+        badge.textContent = pendingCount;
+        if (pendingCount === 0) badge.style.display = 'none';
+      }
+    }
+
+    // ── Ingredient table ─────────────────────────────────────────────
+    function deleteRow(btn) {
+      const row = btn.closest('tr');
+      const name = row.querySelector('.td-name').textContent;
+      if (confirm(`Delete "${name}" from the system database?`)) {
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 300);
+        showToast('🗑️', `"${name}" deleted`);
+      }
+    }
+
+    function submitIngredientForm() {
+      showScreen('ingredients-list');
+      showToast('✅', 'Ingredient saved to system database');
+    }
+
+    function submitEditForm() {
+      showScreen('ingredients-list');
+      showToast('✅', 'Ingredient updated successfully');
+    }
+
+    // ── Delete ingredient dialog ─────────────────────────────────────
+    function confirmDeleteIngredient() {
+      document.getElementById('delete-ingredient-dialog').classList.add('show');
+    }
+
+    function closeDeleteIngredient(event, confirmed) {
+      if (event && event.target !== document.getElementById('delete-ingredient-dialog')) return;
+      document.getElementById('delete-ingredient-dialog').classList.remove('show');
+      if (confirmed) {
+        showScreen('ingredients-list');
+        showToast('🗑️', 'Ingredient permanently deleted');
+      }
+    }
+
+    // ── Bulk import ──────────────────────────────────────────────────
+    function handleDrop(event) {
+      event.preventDefault();
+      document.getElementById('dropzone').classList.remove('over');
+      const file = event.dataTransfer.files[0];
+      if (file) showFileSelected(file);
+    }
+
+    function handleFileSelect(input) {
+      if (input.files[0]) showFileSelected(input.files[0]);
+    }
+
+    function showFileSelected(file) {
+      const el = document.getElementById('import-file-selected');
+      document.getElementById('import-file-name').textContent = file.name || 'ingredients.json';
+      const kb = file.size ? Math.round(file.size / 1024) + ' KB' : '~48 KB';
+      document.getElementById('import-file-size').textContent = kb + ' · ready to import';
+      el.classList.add('show');
+      // Reset results
+      document.getElementById('import-result-success').style.display = 'none';
+      document.getElementById('import-result-error').style.display   = 'none';
+    }
+
+    function clearFile() {
+      document.getElementById('import-file-selected').classList.remove('show');
+      document.getElementById('import-result-success').style.display = 'none';
+      document.getElementById('import-result-error').style.display   = 'none';
+    }
+
+    let importShowError = false;
+
+    function simulateImport() {
+      const btn = document.getElementById('import-btn');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Importing…';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = original;
+        if (importShowError) {
+          document.getElementById('import-result-success').style.display = 'none';
+          document.getElementById('import-result-error').style.display   = 'block';
+          showToast('⚠️', 'Import completed with 3 errors');
+        } else {
+          document.getElementById('import-result-error').style.display   = 'none';
+          document.getElementById('import-result-success').style.display = 'block';
+          showToast('✅', '12 added, 3 updated, 0 errors');
+        }
+      }, 1200);
+    }
+
+    function toggleImportError() {
+      importShowError = !importShowError;
+      showToast('🔄', 'Next import will show ' + (importShowError ? 'error' : 'success') + ' state');
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────
+    function toggleUserStatus(btn) {
+      const row = btn.closest('tr');
+      const isActive = btn.textContent.trim() === 'Deactivate';
+      const username = row.querySelector('.td-name').textContent;
+      const statusEl = row.querySelector('.status-dot');
+      const actionsEl = btn.closest('.row-actions');
+
+      if (isActive) {
+        // Deactivate
+        statusEl.className = 'status-dot status-inactive';
+        statusEl.textContent = 'Inactive';
+        row.style.opacity = '0.6';
+        btn.className = 'btn btn-sm btn-success';
+        btn.textContent = 'Activate';
+        btn.onclick = function() { toggleUserStatus(this); };
+        // Remove promote button
+        const promoteBtn = actionsEl.querySelector('[onclick*="promoteUser"]');
+        if (promoteBtn) promoteBtn.remove();
+        showToast('🔒', `${username} has been deactivated`);
+      } else {
+        // Activate
+        statusEl.className = 'status-dot status-active';
+        statusEl.textContent = 'Active';
+        row.style.opacity = '1';
+        btn.className = 'btn btn-sm btn-secondary';
+        btn.textContent = 'Deactivate';
+        btn.onclick = function() { toggleUserStatus(this); };
+        // Re-add promote button
+        const promote = document.createElement('button');
+        promote.className = 'btn btn-sm';
+        promote.style.cssText = 'background:var(--badge-admin-bg);color:var(--badge-admin);border:1px solid rgba(123,94,167,0.25);';
+        promote.textContent = 'Promote to Admin';
+        promote.onclick = function() { promoteUser(this); };
+        actionsEl.appendChild(promote);
+        showToast('✅', `${username} has been reactivated`);
+      }
+    }
+
+    function promoteUser(btn) {
+      const row = btn.closest('tr');
+      const username = row.querySelector('.td-name').textContent;
+      const badgeEl = row.querySelector('.badge');
+      badgeEl.className = 'badge badge-admin';
+      badgeEl.textContent = 'Admin';
+      btn.remove();
+      showToast('⬆️', `${username} has been promoted to Admin`);
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────────
+    let toastTimer = null;
+
+    function showToast(emoji, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-emoji').textContent = emoji;
+      document.getElementById('toast-text').textContent = message;
+      clearTimeout(toastTimer);
+      toast.classList.remove('show');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          toast.classList.add('show');
+          toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
