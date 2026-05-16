@@ -651,29 +651,114 @@
       border-color: var(--expired);
     }
 
-    /* ── Ingredient search row ────────────────────────────────────── */
-    .ingredient-search-box {
-      background: var(--cream-dark);
+    /* ── Ingredient search ────────────────────────────────────────── */
+    .ing-search-wrap {
+      position: relative;
+    }
+    .ing-search-input {
+      width: 100%;
+      padding: 11px 14px 11px 38px;
+      background: var(--white);
       border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 11px 14px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .ing-search-input:focus { border-color: var(--border-focus); }
+    .ing-search-input::placeholder { color: var(--ink-soft); }
+    .ing-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+      pointer-events: none;
+    }
+    .ing-results-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-drop);
+      z-index: 100;
+      overflow: hidden;
+      max-height: 210px;
+      overflow-y: auto;
+      display: none;
+    }
+    .ing-results-dropdown.open { display: block; }
+    .ing-result-item {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid var(--border);
+    }
+    .ing-result-item:last-child { border-bottom: none; }
+    .ing-result-item:hover, .ing-result-item.highlighted { background: var(--cream-dark); }
+    .ing-result-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+    .ing-result-unit {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      background: var(--cream-mid);
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .ing-result-empty {
+      padding: 16px 14px;
+      font-size: 14px;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+    /* Selected ingredient display */
+    .ing-selected {
       display: flex;
       align-items: center;
       gap: 10px;
-      cursor: pointer;
-      transition: border-color 0.15s;
+      padding: 11px 14px;
+      background: var(--cream-dark);
+      border: 1.5px solid var(--border-focus);
+      border-radius: var(--radius-sm);
     }
-    .ingredient-search-box:hover { border-color: var(--border-focus); }
-    .ingredient-search-box svg { color: var(--ink-soft); flex-shrink: 0; }
-    .ingredient-search-box span {
+    .ing-selected-name { font-size: 15px; font-weight: 500; color: var(--ink); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ing-clear-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.12s;
+      flex-shrink: 0;
+    }
+    .ing-clear-btn:hover { color: var(--terra); }
+    /* Read-only unit chip */
+    .unit-display {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--cream-dark);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
       font-size: 15px;
       color: var(--ink-soft);
-      flex: 1;
+      font-style: italic;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
     }
-    .ingredient-search-box .selected-name {
-      font-size: 15px;
+    .unit-display.has-value {
       color: var(--ink);
-      font-weight: 500;
+      font-style: normal;
+      font-weight: 600;
     }
 
     /* ── Dark mode toggle ─────────────────────────────────────────── */
@@ -983,26 +1068,25 @@
         </div>
         <div class="sheet-body">
 
-          <!-- Name mode toggle -->
-          <div class="toggle-group">
-            <div class="toggle-opt active" id="toggle-free" onclick="switchNameMode('free')">Free Text</div>
-            <div class="toggle-opt" id="toggle-search" onclick="switchNameMode('search')">Search Ingredient</div>
-          </div>
-
-          <!-- Free text name -->
-          <div class="field" id="name-free-field">
-            <label>Item name *</label>
-            <input type="text" placeholder="e.g. Whole Milk" />
-          </div>
-
-          <!-- Ingredient search (hidden by default) -->
-          <div class="field" id="name-search-field" style="display:none;">
-            <label>Search ingredient</label>
-            <div class="ingredient-search-box">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <span>Search ingredients…</span>
+          <!-- Ingredient search -->
+          <div class="field">
+            <label>Ingredient *</label>
+            <div class="ing-search-wrap" id="ing-wrap-add">
+              <!-- search state -->
+              <div id="ing-search-state-add">
+                <svg class="ing-search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="ing-search-input" id="ing-input-add" type="text" placeholder="Search ingredients…"
+                  oninput="filterIngredients('add')" onfocus="showDropdown('add')" autocomplete="off" />
+                <div class="ing-results-dropdown" id="ing-dropdown-add"></div>
+              </div>
+              <!-- selected state (hidden until ingredient picked) -->
+              <div id="ing-selected-state-add" style="display:none;">
+                <div class="ing-selected">
+                  <span class="ing-selected-name" id="ing-selected-name-add"></span>
+                  <button class="ing-clear-btn" onclick="clearIngredient('add')" title="Change ingredient">✕</button>
+                </div>
+              </div>
             </div>
-            <div class="field-hint">Link to an ingredient for nutrition tracking</div>
           </div>
 
           <!-- Quantity + unit -->
@@ -1013,15 +1097,7 @@
             </div>
             <div class="field">
               <label>Unit</label>
-              <select>
-                <option>g</option>
-                <option>ml</option>
-                <option>pieces</option>
-                <option>kg</option>
-                <option>L</option>
-                <option>tbsp</option>
-                <option>pkg</option>
-              </select>
+              <div class="unit-display" id="unit-display-add">—</div>
             </div>
           </div>
 
@@ -1066,9 +1142,23 @@
         </div>
         <div class="sheet-body">
 
+          <!-- Ingredient (pre-selected in edit mode) -->
           <div class="field">
-            <label>Item name *</label>
-            <input type="text" value="Whole Milk" />
+            <label>Ingredient *</label>
+            <div class="ing-search-wrap" id="ing-wrap-ov">
+              <div id="ing-search-state-ov" style="display:none;">
+                <svg class="ing-search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="ing-search-input" id="ing-input-ov" type="text" placeholder="Search ingredients…"
+                  oninput="filterIngredients('ov')" onfocus="showDropdown('ov')" autocomplete="off" />
+                <div class="ing-results-dropdown" id="ing-dropdown-ov"></div>
+              </div>
+              <div id="ing-selected-state-ov">
+                <div class="ing-selected">
+                  <span class="ing-selected-name" id="ing-selected-name-ov">Whole Milk</span>
+                  <button class="ing-clear-btn" onclick="clearIngredient('ov')" title="Change ingredient">✕</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="field-row">
@@ -1078,15 +1168,7 @@
             </div>
             <div class="field">
               <label>Unit</label>
-              <select>
-                <option>g</option>
-                <option selected>L</option>
-                <option>ml</option>
-                <option>pieces</option>
-                <option>kg</option>
-                <option>tbsp</option>
-                <option>pkg</option>
-              </select>
+              <div class="unit-display has-value" id="unit-display-ov">ml</div>
             </div>
           </div>
 
@@ -1206,22 +1288,23 @@
     </div>
     <div class="sheet-body" style="padding: 16px 20px 20px;">
 
-      <div class="toggle-group">
-        <div class="toggle-opt active" id="toggle-free-s3" onclick="switchNameMode3('free')">Free Text</div>
-        <div class="toggle-opt" id="toggle-search-s3" onclick="switchNameMode3('search')">Search Ingredient</div>
-      </div>
-
-      <div class="field" id="name-free-s3">
-        <label>Item name *</label>
-        <input type="text" placeholder="e.g. Whole Milk" />
-      </div>
-      <div class="field" id="name-search-s3" style="display:none;">
-        <label>Search ingredient</label>
-        <div class="ingredient-search-box">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span>Search ingredients…</span>
+      <!-- Ingredient search -->
+      <div class="field">
+        <label>Ingredient *</label>
+        <div class="ing-search-wrap" id="ing-wrap-s3">
+          <div id="ing-search-state-s3">
+            <svg class="ing-search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="ing-search-input" id="ing-input-s3" type="text" placeholder="Search ingredients…"
+              oninput="filterIngredients('s3')" onfocus="showDropdown('s3')" autocomplete="off" />
+            <div class="ing-results-dropdown" id="ing-dropdown-s3"></div>
+          </div>
+          <div id="ing-selected-state-s3" style="display:none;">
+            <div class="ing-selected">
+              <span class="ing-selected-name" id="ing-selected-name-s3"></span>
+              <button class="ing-clear-btn" onclick="clearIngredient('s3')" title="Change ingredient">✕</button>
+            </div>
+          </div>
         </div>
-        <div class="field-hint">Link to an ingredient for nutrition tracking</div>
       </div>
 
       <div class="field-row">
@@ -1231,15 +1314,7 @@
         </div>
         <div class="field">
           <label>Unit</label>
-          <select>
-            <option>g</option>
-            <option>ml</option>
-            <option>pieces</option>
-            <option>kg</option>
-            <option selected>L</option>
-            <option>tbsp</option>
-            <option>pkg</option>
-          </select>
+          <div class="unit-display" id="unit-display-s3">—</div>
         </div>
       </div>
 
@@ -1285,9 +1360,23 @@
     </div>
     <div class="sheet-body" style="padding: 16px 20px 20px;">
 
+      <!-- Ingredient (pre-selected in edit mode) -->
       <div class="field">
-        <label>Item name *</label>
-        <input type="text" value="Free Range Eggs" />
+        <label>Ingredient *</label>
+        <div class="ing-search-wrap" id="ing-wrap-edit">
+          <div id="ing-search-state-edit" style="display:none;">
+            <svg class="ing-search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="ing-search-input" id="ing-input-edit" type="text" placeholder="Search ingredients…"
+              oninput="filterIngredients('edit')" onfocus="showDropdown('edit')" autocomplete="off" />
+            <div class="ing-results-dropdown" id="ing-dropdown-edit"></div>
+          </div>
+          <div id="ing-selected-state-edit">
+            <div class="ing-selected">
+              <span class="ing-selected-name" id="ing-selected-name-edit">Free Range Eggs</span>
+              <button class="ing-clear-btn" onclick="clearIngredient('edit')" title="Change ingredient">✕</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="field-row">
@@ -1297,15 +1386,7 @@
         </div>
         <div class="field">
           <label>Unit</label>
-          <select>
-            <option>g</option>
-            <option>ml</option>
-            <option selected>pieces</option>
-            <option>kg</option>
-            <option>L</option>
-            <option>tbsp</option>
-            <option>pkg</option>
-          </select>
+          <div class="unit-display has-value" id="unit-display-edit">pieces</div>
         </div>
       </div>
 
@@ -1508,19 +1589,97 @@
     }
   }
 
-  function switchNameMode(mode) {
-    document.getElementById('toggle-free').classList.toggle('active', mode === 'free');
-    document.getElementById('toggle-search').classList.toggle('active', mode === 'search');
-    document.getElementById('name-free-field').style.display = mode === 'free' ? '' : 'none';
-    document.getElementById('name-search-field').style.display = mode === 'search' ? '' : 'none';
+  /* ── Ingredient search ─────────────────────────────────── */
+  const INGREDIENTS = [
+    { name: 'Basmati Rice',        unit: 'g'      },
+    { name: 'Broccoli',            unit: 'g'      },
+    { name: 'Butter',              unit: 'g'      },
+    { name: 'Cheddar Cheese',      unit: 'g'      },
+    { name: 'Chicken Breast',      unit: 'g'      },
+    { name: 'Coconut Milk',        unit: 'ml'     },
+    { name: 'Free Range Eggs',     unit: 'pieces' },
+    { name: 'Greek Yogurt',        unit: 'g'      },
+    { name: 'Ground Beef (20%)',   unit: 'g'      },
+    { name: 'Oat Milk',            unit: 'ml'     },
+    { name: 'Olive Oil',           unit: 'ml'     },
+    { name: 'Onion',               unit: 'g'      },
+    { name: 'Pasta (dry)',         unit: 'g'      },
+    { name: 'Salmon Fillet',       unit: 'g'      },
+    { name: 'Sea Salt',            unit: 'g'      },
+    { name: 'Spinach',             unit: 'g'      },
+    { name: 'Sweet Potato',        unit: 'g'      },
+    { name: 'Tomato (tinned)',     unit: 'g'      },
+    { name: 'Whole Milk',          unit: 'ml'     },
+    { name: 'Wholegrain Bread',    unit: 'g'      },
+  ];
+
+  const ingState = {}; // keyed by scope ('add', 's3', 'edit')
+
+  function showDropdown(scope) {
+    renderDropdown(scope, document.getElementById('ing-input-' + scope).value);
+    document.getElementById('ing-dropdown-' + scope).classList.add('open');
   }
 
-  function switchNameMode3(mode) {
-    document.getElementById('toggle-free-s3').classList.toggle('active', mode === 'free');
-    document.getElementById('toggle-search-s3').classList.toggle('active', mode === 'search');
-    document.getElementById('name-free-s3').style.display = mode === 'free' ? '' : 'none';
-    document.getElementById('name-search-s3').style.display = mode === 'search' ? '' : 'none';
+  function filterIngredients(scope) {
+    const q = document.getElementById('ing-input-' + scope).value;
+    renderDropdown(scope, q);
+    document.getElementById('ing-dropdown-' + scope).classList.add('open');
   }
+
+  function renderDropdown(scope, query) {
+    const dropdown = document.getElementById('ing-dropdown-' + scope);
+    const q = query.trim().toLowerCase();
+    const results = q
+      ? INGREDIENTS.filter(i => i.name.toLowerCase().includes(q))
+      : INGREDIENTS;
+    if (results.length === 0) {
+      dropdown.innerHTML = '<div class="ing-result-empty">No ingredients found</div>';
+    } else {
+      dropdown.innerHTML = results.map(i =>
+        `<div class="ing-result-item" onmousedown="selectIngredient('${scope}', '${i.name}', '${i.unit}')">
+          <span class="ing-result-name">${i.name}</span>
+          <span class="ing-result-unit">${i.unit}</span>
+        </div>`
+      ).join('');
+    }
+  }
+
+  function selectIngredient(scope, name, unit) {
+    ingState[scope] = { name, unit };
+    // switch to selected state
+    document.getElementById('ing-search-state-' + scope).style.display = 'none';
+    document.getElementById('ing-selected-state-' + scope).style.display = '';
+    document.getElementById('ing-selected-name-' + scope).textContent = name;
+    // set unit chip
+    const chip = document.getElementById('unit-display-' + scope);
+    chip.textContent = unit;
+    chip.classList.add('has-value');
+    // close dropdown
+    document.getElementById('ing-dropdown-' + scope).classList.remove('open');
+  }
+
+  function clearIngredient(scope) {
+    ingState[scope] = null;
+    document.getElementById('ing-selected-state-' + scope).style.display = 'none';
+    document.getElementById('ing-search-state-' + scope).style.display = '';
+    document.getElementById('ing-input-' + scope).value = '';
+    document.getElementById('ing-dropdown-' + scope).classList.remove('open');
+    const chip = document.getElementById('unit-display-' + scope);
+    chip.textContent = '—';
+    chip.classList.remove('has-value');
+    document.getElementById('ing-input-' + scope).focus();
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    ['add', 's3', 'edit'].forEach(scope => {
+      const wrap = document.getElementById('ing-wrap-' + scope);
+      if (wrap && !wrap.contains(e.target)) {
+        const dd = document.getElementById('ing-dropdown-' + scope);
+        if (dd) dd.classList.remove('open');
+      }
+    });
+  });
 
   function selectLocation(el) {
     const pills = el.closest('.location-pills').querySelectorAll('.location-pill');
