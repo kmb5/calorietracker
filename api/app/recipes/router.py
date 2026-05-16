@@ -1,5 +1,7 @@
 """Recipe CRUD endpoints."""
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +12,11 @@ from app.deps import get_current_user
 from app.models.ingredient import Ingredient
 from app.models.recipe import Recipe, RecipeIngredient
 from app.models.user import User
+from app.nutrition import IngredientNutrition, calculate_nutrition
 from app.schemas.recipe import (
+    CookRequest,
+    MacroValues,
+    NutritionResult,
     RecipeCreate,
     RecipeDetail,
     RecipeDuplicateResponse,
@@ -275,3 +281,130 @@ async def duplicate_recipe(
 
     await session.commit()
     return {"id": new_recipe.id}
+
+
+# ---------------------------------------------------------------------------
+# Shared cooking logic
+# ---------------------------------------------------------------------------
+
+
+async def _build_nutrition_result(
+    body: CookRequest,
+    current_user: User,
+    session: AsyncSession,
+) -> NutritionResult:
+    """Resolve ingredient_amounts against the DB and call calculate_nutrition.
+
+    Only ingredients that are system-wide OR owned by current_user are
+    accessible — prevents leaking another user's private ingredient data.
+    """
+    ingredient_ids = [item.ingredient_id for item in body.ingredient_amounts]
+    result = await session.execute(
+        select(Ingredient).where(
+            Ingredient.id.in_(ingredient_ids),
+            (Ingredient.is_system == True) | (Ingredient.owner_id == current_user.id),  # noqa: E712
+        )
+    )
+    ingredients_by_id: dict[int, Ingredient] = {
+        ing.id: ing for ing in result.scalars().all()
+    }
+
+    pairs: list[tuple[IngredientNutrition, float]] = []
+    for item in body.ingredient_amounts:
+        ing = ingredients_by_id.get(item.ingredient_id)
+        if ing is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Ingredient {item.ingredient_id} not found or not accessible",
+            )
+        pairs.append(
+            (
+                IngredientNutrition(
+                    portion_size=ing.portion_size,
+                    kcal=ing.kcal,
+                    protein=ing.protein,
+                    fat=ing.fat,
+                    carbohydrates=ing.carbohydrates,
+                    fiber=ing.fiber,
+                    sodium=ing.sodium,
+                ),
+                item.amount,
+            )
+        )
+
+    calc = calculate_nutrition(pairs, body.extra_kcal, body.cooked_weight_g)
+    return NutritionResult(
+        totals=MacroValues(
+            kcal=calc.totals.kcal,
+            protein=calc.totals.protein,
+            fat=calc.totals.fat,
+            carbohydrates=calc.totals.carbohydrates,
+            fiber=calc.totals.fiber,
+            sodium=calc.totals.sodium,
+        ),
+        per_100g=MacroValues(
+            kcal=calc.per_100g.kcal,
+            protein=calc.per_100g.protein,
+            fat=calc.per_100g.fat,
+            carbohydrates=calc.per_100g.carbohydrates,
+            fiber=calc.per_100g.fiber,
+            sodium=calc.per_100g.sodium,
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# POST /recipes/{id}/calculate
+# ---------------------------------------------------------------------------
+
+
+@router.post("/{recipe_id}/calculate", response_model=NutritionResult)
+async def calculate_recipe(
+    recipe_id: int,
+    body: CookRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> NutritionResult:
+    """Stateless nutrition calculation — does NOT write to the DB."""
+    # Verify recipe ownership (404 for other user's recipes)
+    result = await session.execute(
+        select(Recipe).where(Recipe.id == recipe_id)
+    )
+    recipe = result.scalar_one_or_none()
+    if recipe is None or recipe.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found"
+        )
+    return await _build_nutrition_result(body, current_user, session)
+
+
+# ---------------------------------------------------------------------------
+# POST /recipes/{id}/cook
+# ---------------------------------------------------------------------------
+
+
+@router.post("/{recipe_id}/cook", response_model=NutritionResult)
+async def cook_recipe(
+    recipe_id: int,
+    body: CookRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> NutritionResult:
+    """Calculate nutrition AND persist last_cooked_at + last_cooked_weight_g."""
+    result = await session.execute(
+        select(Recipe).where(Recipe.id == recipe_id)
+    )
+    recipe = result.scalar_one_or_none()
+    if recipe is None or recipe.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found"
+        )
+
+    nutrition = await _build_nutrition_result(body, current_user, session)
+
+    # Persist cook metadata
+    recipe.last_cooked_at = datetime.now(tz=UTC)
+    recipe.last_cooked_weight_g = body.cooked_weight_g
+    await session.commit()
+
+    return nutrition
