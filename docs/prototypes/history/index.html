@@ -134,7 +134,7 @@
     /* ── Dev toolbar ─────────────────────────────────────────────── */
     .dev-bar {
       position: fixed;
-      bottom: 0;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       width: 375px;
@@ -547,10 +547,23 @@
       margin-bottom: 6px;
     }
     .progress-bar-track {
+      position: relative;
       height: 8px;
       background: var(--cream-mid);
       border-radius: 4px;
-      overflow: hidden;
+      overflow: visible; /* allow fill to extend past 100% for over-target days */
+    }
+    /* Target-line marker: a vertical tick at the right edge of the track (= 100% goal) */
+    .progress-bar-track::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      background: var(--ink-soft);
+      border-radius: 1px;
+      pointer-events: none;
     }
     .progress-bar-fill {
       height: 100%;
@@ -630,8 +643,9 @@
     .nav-item svg { width: 22px; height: 22px; }
     .nav-item .nav-icon { font-size: 22px; line-height: 1; }
 
-    /* Main screen needs padding for bottom nav */
+    /* Main screen needs padding for bottom nav + dev toolbar */
     .screen-with-nav {
+      padding-top: 40px;
       padding-bottom: 72px;
     }
 
@@ -1120,9 +1134,9 @@
     document.getElementById('detail-fat').textContent     = Math.round(kcal * 0.034) + 'g';
     document.getElementById('detail-carbs').textContent   = Math.round(kcal * 0.101) + 'g';
 
-    // Progress bar
+    // Progress bar — no Math.min cap so over-target days visually overflow the track
     const TARGET = 2000;
-    const pct = Math.min((kcal / TARGET) * 100, 100);
+    const pct = Math.min((kcal / TARGET) * 100, 118); // cap at 118% for visual sanity
     document.getElementById('detail-progress-text').textContent = `${kcal.toLocaleString()} / ${TARGET.toLocaleString()} kcal`;
     const fill = document.getElementById('detail-progress-fill');
     fill.style.width = pct + '%';
