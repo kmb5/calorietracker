@@ -56,12 +56,10 @@ const ZERO_MACROS: MacroValues = {
 export function calculateNutrition(
   ingredients: IngredientAmountPair[],
   extraKcal: number,
-  cookedWeightG: number,
+  cookedWeightG: number
 ): NutritionResult {
   if (cookedWeightG <= 0) {
-    throw new Error(
-      `cookedWeightG must be positive, got ${cookedWeightG}`,
-    );
+    throw new Error(`cookedWeightG must be positive, got ${cookedWeightG}`);
   }
 
   const totals: MacroValues = { ...ZERO_MACROS };

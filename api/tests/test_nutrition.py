@@ -30,7 +30,9 @@ class TestCalculateNutrition:
     def test_single_ingredient_exact_portion(self) -> None:
         """Single ingredient at exactly portion_size amount → totals == ingredient values."""
         ing = make_ingredient(portion_size=100.0, kcal=200.0, protein=20.0, fat=10.0)
-        result = calculate_nutrition([(ing, 100.0)], extra_kcal=0.0, cooked_weight_g=100.0)
+        result = calculate_nutrition(
+            [(ing, 100.0)], extra_kcal=0.0, cooked_weight_g=100.0
+        )
         assert result.totals.kcal == pytest.approx(200.0)
         assert result.totals.protein == pytest.approx(20.0)
         assert result.totals.fat == pytest.approx(10.0)
@@ -38,7 +40,9 @@ class TestCalculateNutrition:
     def test_single_ingredient_half_portion(self) -> None:
         """Using half the portion_size halves all macros."""
         ing = make_ingredient(portion_size=100.0, kcal=200.0, protein=20.0)
-        result = calculate_nutrition([(ing, 50.0)], extra_kcal=0.0, cooked_weight_g=50.0)
+        result = calculate_nutrition(
+            [(ing, 50.0)], extra_kcal=0.0, cooked_weight_g=50.0
+        )
         assert result.totals.kcal == pytest.approx(100.0)
         assert result.totals.protein == pytest.approx(10.0)
 
@@ -46,18 +50,33 @@ class TestCalculateNutrition:
         """Known 3-ingredient recipe — verify against manual calculation."""
         # Chicken breast: 165 kcal / 100 g, 31 g protein, 3.6 g fat
         chicken = IngredientNutrition(
-            portion_size=100.0, kcal=165.0, protein=31.0, fat=3.6,
-            carbohydrates=0.0, fiber=0.0, sodium=0.074,
+            portion_size=100.0,
+            kcal=165.0,
+            protein=31.0,
+            fat=3.6,
+            carbohydrates=0.0,
+            fiber=0.0,
+            sodium=0.074,
         )
         # Olive oil: 884 kcal / 100 g, 100 g fat
         olive_oil = IngredientNutrition(
-            portion_size=100.0, kcal=884.0, protein=0.0, fat=100.0,
-            carbohydrates=0.0, fiber=0.0, sodium=0.002,
+            portion_size=100.0,
+            kcal=884.0,
+            protein=0.0,
+            fat=100.0,
+            carbohydrates=0.0,
+            fiber=0.0,
+            sodium=0.002,
         )
         # Rice: 130 kcal / 100 g, 2.7 g protein, 0.3 g fat, 28 g carbs
         rice = IngredientNutrition(
-            portion_size=100.0, kcal=130.0, protein=2.7, fat=0.3,
-            carbohydrates=28.0, fiber=0.4, sodium=0.001,
+            portion_size=100.0,
+            kcal=130.0,
+            protein=2.7,
+            fat=0.3,
+            carbohydrates=28.0,
+            fiber=0.4,
+            sodium=0.001,
         )
         # Use: 200 g chicken, 10 g oil, 150 g rice → cooked weight 320 g
         result = calculate_nutrition(
@@ -80,9 +99,18 @@ class TestCalculateNutrition:
 
     def test_extra_kcal_added_before_per_100g(self) -> None:
         """extra_kcal is added to total kcal before the per-100g division."""
-        ing = make_ingredient(portion_size=100.0, kcal=100.0, protein=0.0, fat=0.0,
-                              carbohydrates=0.0, fiber=0.0, sodium=0.0)
-        result = calculate_nutrition([(ing, 100.0)], extra_kcal=50.0, cooked_weight_g=100.0)
+        ing = make_ingredient(
+            portion_size=100.0,
+            kcal=100.0,
+            protein=0.0,
+            fat=0.0,
+            carbohydrates=0.0,
+            fiber=0.0,
+            sodium=0.0,
+        )
+        result = calculate_nutrition(
+            [(ing, 100.0)], extra_kcal=50.0, cooked_weight_g=100.0
+        )
         assert result.totals.kcal == pytest.approx(150.0)
         assert result.per_100g.kcal == pytest.approx(150.0)  # 150/100*100
 
@@ -90,7 +118,9 @@ class TestCalculateNutrition:
         """Weight lost during cooking produces correct per-100g values."""
         ing = make_ingredient(portion_size=100.0, kcal=200.0, protein=30.0)
         # 300 g raw → only 200 g cooked (water lost)
-        result = calculate_nutrition([(ing, 300.0)], extra_kcal=0.0, cooked_weight_g=200.0)
+        result = calculate_nutrition(
+            [(ing, 300.0)], extra_kcal=0.0, cooked_weight_g=200.0
+        )
         assert result.totals.kcal == pytest.approx(600.0)
         assert result.per_100g.kcal == pytest.approx(300.0)  # 600/200*100
         assert result.per_100g.protein == pytest.approx(45.0)  # 90/200*100
@@ -115,5 +145,7 @@ class TestCalculateNutrition:
 
     def test_result_type(self) -> None:
         ing = make_ingredient()
-        result = calculate_nutrition([(ing, 100.0)], extra_kcal=0.0, cooked_weight_g=100.0)
+        result = calculate_nutrition(
+            [(ing, 100.0)], extra_kcal=0.0, cooked_weight_g=100.0
+        )
         assert isinstance(result, NutritionResult)

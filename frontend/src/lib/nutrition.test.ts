@@ -6,7 +6,9 @@
  */
 import { calculateNutrition, IngredientNutrition } from "./nutrition";
 
-function makeIngredient(overrides: Partial<IngredientNutrition> = {}): IngredientNutrition {
+function makeIngredient(
+  overrides: Partial<IngredientNutrition> = {}
+): IngredientNutrition {
   return {
     portion_size: 100,
     kcal: 100,
@@ -38,22 +40,41 @@ describe("calculateNutrition", () => {
   it("three-ingredient recipe — manual calculation verification", () => {
     // Same test vectors as Python test_three_ingredient_recipe
     const chicken: IngredientNutrition = {
-      portion_size: 100, kcal: 165, protein: 31, fat: 3.6,
-      carbohydrates: 0, fiber: 0, sodium: 0.074,
+      portion_size: 100,
+      kcal: 165,
+      protein: 31,
+      fat: 3.6,
+      carbohydrates: 0,
+      fiber: 0,
+      sodium: 0.074,
     };
     const oliveOil: IngredientNutrition = {
-      portion_size: 100, kcal: 884, protein: 0, fat: 100,
-      carbohydrates: 0, fiber: 0, sodium: 0.002,
+      portion_size: 100,
+      kcal: 884,
+      protein: 0,
+      fat: 100,
+      carbohydrates: 0,
+      fiber: 0,
+      sodium: 0.002,
     };
     const rice: IngredientNutrition = {
-      portion_size: 100, kcal: 130, protein: 2.7, fat: 0.3,
-      carbohydrates: 28, fiber: 0.4, sodium: 0.001,
+      portion_size: 100,
+      kcal: 130,
+      protein: 2.7,
+      fat: 0.3,
+      carbohydrates: 28,
+      fiber: 0.4,
+      sodium: 0.001,
     };
     // 200g chicken, 10g oil, 150g rice → cooked 320g
     const result = calculateNutrition(
-      [[chicken, 200], [oliveOil, 10], [rice, 150]],
+      [
+        [chicken, 200],
+        [oliveOil, 10],
+        [rice, 150],
+      ],
       0,
-      320,
+      320
     );
     // kcal = 165*2 + 884*0.1 + 130*1.5 = 330 + 88.4 + 195 = 613.4
     expect(result.totals.kcal).toBeCloseTo(613.4);
@@ -65,7 +86,14 @@ describe("calculateNutrition", () => {
   });
 
   it("extra_kcal is added to total kcal before per-100g division", () => {
-    const ing = makeIngredient({ kcal: 100, protein: 0, fat: 0, carbohydrates: 0, fiber: 0, sodium: 0 });
+    const ing = makeIngredient({
+      kcal: 100,
+      protein: 0,
+      fat: 0,
+      carbohydrates: 0,
+      fiber: 0,
+      sodium: 0,
+    });
     const result = calculateNutrition([[ing, 100]], 50, 100);
     expect(result.totals.kcal).toBeCloseTo(150);
     expect(result.per_100g.kcal).toBeCloseTo(150); // 150/100*100
@@ -83,7 +111,7 @@ describe("calculateNutrition", () => {
   it("cooked_weight_g = 0 throws an error", () => {
     const ing = makeIngredient();
     expect(() => calculateNutrition([[ing, 100]], 0, 0)).toThrow(
-      /cookedWeightG must be positive/,
+      /cookedWeightG must be positive/
     );
   });
 
