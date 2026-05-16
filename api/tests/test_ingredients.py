@@ -212,6 +212,7 @@ async def test_search_result_fields(client: AsyncClient, db_session: AsyncSessio
         "portion_size",
         "kcal",
         "is_system",
+        "icon",
     }
 
 
@@ -249,6 +250,8 @@ async def test_detail_returns_all_fields(client: AsyncClient, db_session: AsyncS
         "sodium",
         "is_system",
         "owner_id",
+        "icon",
+        "is_promotion_pending",
     }
     assert set(data.keys()) == expected_keys
 
