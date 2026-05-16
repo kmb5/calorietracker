@@ -26,23 +26,6 @@ router = APIRouter(prefix="/recipes", tags=["recipes"])
 # ---------------------------------------------------------------------------
 
 
-async def _get_recipe_or_404(
-    recipe_id: int, user: User, session: AsyncSession
-) -> Recipe:
-    """Load a recipe with its ingredients or raise 404."""
-    result = await session.execute(
-        select(Recipe)
-        .where(Recipe.id == recipe_id)
-        .options(selectinload(Recipe.ingredients).selectinload(RecipeIngredient.recipe))
-    )
-    recipe = result.scalar_one_or_none()
-    if recipe is None or recipe.owner_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found"
-        )
-    return recipe
-
-
 async def _load_recipe_with_ingredients(
     recipe_id: int, session: AsyncSession
 ) -> Recipe:
@@ -196,7 +179,7 @@ async def update_recipe(
 
     if body.name is not None:
         recipe.name = body.name
-    if body.description is not None:
+    if "description" in body.model_fields_set:
         recipe.description = body.description
 
     if body.ingredients is not None:

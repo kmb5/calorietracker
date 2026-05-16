@@ -92,7 +92,13 @@ async def create_test_tables():
 # Function-scoped: truncate tables + reset rate limiter between tests
 # ---------------------------------------------------------------------------
 
-_TRUNCATE_TABLES = ["refresh_tokens", "recipe_ingredients", "recipes", "users", "ingredients"]
+_TRUNCATE_TABLES = [
+    "refresh_tokens",
+    "recipe_ingredients",
+    "recipes",
+    "users",
+    "ingredients",
+]
 
 
 @pytest_asyncio.fixture(autouse=True)

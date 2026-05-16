@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Profile & Macro Targets Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --border-focus:  #C9562B;
+      --white:         #FFFFFF;
+      --success:       #3D7A4A;
+      --success-bg:    #D6EDD9;
+      --error:         #B83232;
+      --error-bg:      #F9DEDE;
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #2D1E10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+      color: var(--ink);
+    }
+
+    /* ── Page header ──────────────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 20px;
+      color: rgba(253,246,237,0.85);
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .page-header p {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    /* ── Screen nav ───────────────────────────────────────────────── */
+    .screen-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+    .screen-nav button {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(253,246,237,0.2);
+      background: rgba(253,246,237,0.07);
+      color: rgba(253,246,237,0.7);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .screen-nav button:hover {
+      background: rgba(253,246,237,0.14);
+      color: #FDF6ED;
+    }
+    .screen-nav button.active {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #FDF6ED;
+    }
+
+    /* ── Dark mode toggle ─────────────────────────────────────────── */
+    .dark-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      font-size: 20px;
+      cursor: pointer;
+      background: rgba(253,246,237,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Phone shell ──────────────────────────────────────────────── */
+    .phone {
+      width: 375px;
+      background: var(--cream);
+      border-radius: 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Screen ───────────────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ── Status bar ───────────────────────────────────────────────── */
+    .status-bar {
+      background: var(--cream);
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-mid);
+    }
+
+    /* ── Nav bar ──────────────────────────────────────────────────── */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      padding: 6px 20px 12px;
+      background: var(--cream);
+      gap: 12px;
+    }
+    .nav-back {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-mid);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .nav-back:hover { background: var(--cream-dark); }
+    .nav-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    /* ── Scroll body ──────────────────────────────────────────────── */
+    .scroll-body {
+      overflow-y: auto;
+      max-height: 700px;
+      padding: 0 20px 40px;
+    }
+
+    /* ── Avatar / identity block ──────────────────────────────────── */
+    .identity-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+    }
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--terra-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--terra);
+      flex-shrink: 0;
+    }
+    .identity-info { flex: 1; }
+    .identity-username {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .identity-email {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    .identity-badge {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      background: var(--cream-dark);
+      border-radius: 99px;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Form sections ────────────────────────────────────────────── */
+    .section-header {
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* ── Field styles ─────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 12px;
+    }
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      margin-bottom: 5px;
+    }
+    .field label .unit-hint {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink-soft);
+    }
+    .field label .optional-tag {
+      font-size: 10.5px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+    .field input[type="number"],
+    .field input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    .field input[type="number"]::-webkit-inner-spin-button,
+    .field input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+    .field input:focus { border-color: var(--border-focus); }
+    .field input::placeholder { color: #C8B8A8; }
+    .field input[readonly] {
+      background: var(--cream);
+      color: var(--ink-soft);
+      cursor: default;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .field-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ── Macro icon chips ─────────────────────────────────────────── */
+    .macro-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .macro-kcal  { background: #FDE8D0; }
+    .macro-pro   { background: #D6EDD9; }
+    .macro-fat   { background: #FDF2CF; }
+    .macro-carbs { background: #D6E8F0; }
+    .macro-fiber { background: #EBD9F7; }
+    .macro-sodium{ background: #F5E0E0; }
+
+    /* ── Progress ring ────────────────────────────────────────────── */
+    .targets-summary {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .target-chip {
+      flex: 1;
+      min-width: 70px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 10px 8px;
+      text-align: center;
+    }
+    .target-chip-icon { font-size: 18px; margin-bottom: 3px; }
+    .target-chip-val {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .target-chip-val.unset {
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 400;
+    }
+    .target-chip-label {
+      font-size: 10px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+    }
+    .btn-primary {
+      background: var(--terra);
+      color: #FDF6ED;
+    }
+    .btn-primary:hover { background: var(--terra-dark); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--cream-dark); }
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1.5px solid #F0C8C8;
+      font-size: 13px;
+      padding: 10px;
+    }
+    .btn-danger:hover { background: var(--error-bg); }
+
+    /* ── Toast ────────────────────────────────────────────────────── */
+    .toast {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: 99px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 100;
+    }
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast-icon { color: #6FCF97; font-size: 16px; }
+
+    /* ── Inline success banner ────────────────────────────────────── */
+    .success-banner {
+      background: var(--success-bg);
+      border: 1.5px solid #A8D8B0;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .success-banner-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .success-banner-text {
+      font-size: 13px;
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    /* ── Info note ────────────────────────────────────────────────── */
+    .info-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: #EEF4FF;
+      border: 1.5px solid #C3D7F5;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #3A5A8C;
+      line-height: 1.5;
+    }
+    .info-note-icon { flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Bottom tab bar ───────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      background: var(--white);
+      border-top: 1.5px solid var(--border);
+      padding: 8px 0 20px;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 0;
+      cursor: pointer;
+      color: var(--ink-soft);
+      transition: color 0.15s;
+    }
+    .tab-item.active { color: var(--terra); }
+    .tab-item svg { width: 22px; height: 22px; }
+    .tab-label { font-size: 10px; font-weight: 500; }
+
+    /* ── Partial state note ───────────────────────────────────────── */
+    .partial-note {
+      background: #FFFBE8;
+      border: 1.5px solid #EDD97E;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: #7A6020;
+      line-height: 1.5;
+    }
+
+    /* ── Dark mode ────────────────────────────────────────────────── */
+    body.dark {
+      background: #1A1208;
+    }
+    body.dark .phone {
+      background: #2A1E14;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    body.dark .status-bar,
+    body.dark .nav-bar,
+    body.dark .tab-bar { background: #2A1E14; border-color: #3A2A1E; }
+    body.dark .scroll-body { background: #2A1E14; }
+    body.dark .field input,
+    body.dark .identity-block,
+    body.dark .target-chip { background: #1E1510; border-color: #3A2A1E; color: var(--cream); }
+    body.dark .field input { color: var(--cream); }
+    body.dark .nav-title { color: var(--cream); }
+  </style>
+</head>
+<body>
+
+  <button class="dark-toggle" onclick="document.body.classList.toggle('dark')" title="Toggle dark mode">🌙</button>
+
+  <header class="page-header">
+    <h1>Profile & Macro Targets</h1>
+    <p>Prototype — 375 px mobile-first · 4 states</p>
+  </header>
+
+  <!-- ── Screen nav ─────────────────────────────────────────────── -->
+  <nav class="screen-nav">
+    <button class="active" onclick="showScreen('empty')">① Empty / new user</button>
+    <button onclick="showScreen('prefilled')">② Pre-filled</button>
+    <button onclick="showScreen('partial')">③ Partially filled</button>
+    <button onclick="showScreen('saved')">④ Saved state</button>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       PHONE SHELL
+  ════════════════════════════════════════════════════════════════ -->
+  <div class="phone">
+
+    <!-- Toast (shared across screens) -->
+    <div class="toast" id="toast">
+      <span class="toast-icon">✓</span>
+      Targets saved!
+    </div>
+
+    <!-- ── Screen 1: Empty / new user ──────────────────────────── -->
+    <div class="screen active" id="screen-empty">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>●●●●● WiFi 🔋</span>
+      </div>
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="nav-title">Profile &amp; Targets</span>
+      </div>
+
+      <div class="scroll-body">
+
+        <!-- Identity -->
+        <div class="identity-block">
+          <div class="avatar">J</div>
+          <div class="identity-info">
+            <div class="identity-username">johndoe</div>
+            <div class="identity-email">john@example.com</div>
+          </div>
+          <div class="identity-badge">Member</div>
+        </div>
+
+        <!-- Info -->
+        <div class="info-note">
+          <span class="info-note-icon">ℹ️</span>
+          Set your daily nutrition targets below. All fields are optional — leave blank if you don't want to track that macro.
+        </div>
+
+        <!-- Section: Daily targets -->
+        <div class="section-header">
+          <div class="section-title">Daily Targets</div>
+          <div class="section-subtitle">Used to show progress bars in your diary</div>
+        </div>
+
+        <div class="field">
+          <label for="kcal-empty">
+            <span>🔥 Calories</span>
+            <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="kcal-empty" type="number" placeholder="e.g. 2000" min="0" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="protein-empty">
+              <span>🥩 Protein</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="protein-empty" type="number" placeholder="e.g. 150" min="0" />
+          </div>
+          <div class="field">
+            <label for="fat-empty">
+              <span>🧈 Fat</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fat-empty" type="number" placeholder="e.g. 65" min="0" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="carbs-empty">
+              <span>🌾 Carbs</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="carbs-empty" type="number" placeholder="e.g. 250" min="0" />
+          </div>
+          <div class="field">
+            <label for="fiber-empty">
+              <span>🌿 Fiber</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fiber-empty" type="number" placeholder="e.g. 30" min="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="sodium-empty">
+            <span>🧂 Sodium</span>
+            <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="sodium-empty" type="number" placeholder="e.g. 2300" min="0" />
+        </div>
+
+        <div style="height:20px;"></div>
+        <button class="btn btn-primary" onclick="fireToast()">Save targets</button>
+        <div style="height:12px;"></div>
+        <button class="btn btn-secondary">Reset to defaults</button>
+
+      </div><!-- /scroll-body -->
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Log</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+          <span class="tab-label">Recipes</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+          <span class="tab-label">Pantry</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span class="tab-label">Profile</span>
+        </div>
+      </div>
+    </div><!-- /screen-empty -->
+
+
+    <!-- ── Screen 2: Pre-filled (returning user) ───────────────── -->
+    <div class="screen" id="screen-prefilled">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>●●●●● WiFi 🔋</span>
+      </div>
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="nav-title">Profile &amp; Targets</span>
+      </div>
+
+      <div class="scroll-body">
+
+        <div class="identity-block">
+          <div class="avatar">S</div>
+          <div class="identity-info">
+            <div class="identity-username">sarahcooks</div>
+            <div class="identity-email">sarah@homekitchen.io</div>
+          </div>
+          <div class="identity-badge">Member</div>
+        </div>
+
+        <!-- Summary chips (existing targets at a glance) — all 6 macros -->
+        <div class="targets-summary">
+          <div class="target-chip">
+            <div class="target-chip-icon">🔥</div>
+            <div class="target-chip-val">1 850</div>
+            <div class="target-chip-label">kcal</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🥩</div>
+            <div class="target-chip-val">140 g</div>
+            <div class="target-chip-label">protein</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧈</div>
+            <div class="target-chip-val">60 g</div>
+            <div class="target-chip-label">fat</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌾</div>
+            <div class="target-chip-val">210 g</div>
+            <div class="target-chip-label">carbs</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val">30 g</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val">2 300 mg</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Daily Targets</div>
+          <div class="section-subtitle">Edit any field and tap Save to update</div>
+        </div>
+
+        <div class="field">
+          <label for="kcal-prefilled">
+            <span>🔥 Calories</span>
+            <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="kcal-prefilled" type="number" value="1850" min="0" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="protein-prefilled">
+              <span>🥩 Protein</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="protein-prefilled" type="number" value="140" min="0" />
+          </div>
+          <div class="field">
+            <label for="fat-prefilled">
+              <span>🧈 Fat</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fat-prefilled" type="number" value="60" min="0" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="carbs-prefilled">
+              <span>🌾 Carbs</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="carbs-prefilled" type="number" value="210" min="0" />
+          </div>
+          <div class="field">
+            <label for="fiber-prefilled">
+              <span>🌿 Fiber</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fiber-prefilled" type="number" value="30" min="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="sodium-prefilled">
+            <span>🧂 Sodium</span>
+            <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="sodium-prefilled" type="number" value="2300" min="0" />
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div style="height:4px;"></div>
+        <button class="btn btn-primary" onclick="fireToast()">Save targets</button>
+        <div style="height:12px;"></div>
+        <button class="btn btn-danger">Clear all targets</button>
+
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Log</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+          <span class="tab-label">Recipes</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+          <span class="tab-label">Pantry</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span class="tab-label">Profile</span>
+        </div>
+      </div>
+    </div><!-- /screen-prefilled -->
+
+
+    <!-- ── Screen 3: Partially filled (only kcal set) ──────────── -->
+    <div class="screen" id="screen-partial">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>●●●●● WiFi 🔋</span>
+      </div>
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="nav-title">Profile &amp; Targets</span>
+      </div>
+
+      <div class="scroll-body">
+
+        <div class="identity-block">
+          <div class="avatar">M</div>
+          <div class="identity-info">
+            <div class="identity-username">markus_eats</div>
+            <div class="identity-email">markus@dietplan.de</div>
+          </div>
+          <div class="identity-badge">Member</div>
+        </div>
+
+        <!-- Summary chips — all 6 macros, showing unset fields clearly -->
+        <div class="targets-summary">
+          <div class="target-chip">
+            <div class="target-chip-icon">🔥</div>
+            <div class="target-chip-val">2 200</div>
+            <div class="target-chip-label">kcal</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🥩</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">protein</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧈</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">fat</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌾</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">carbs</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val unset">—</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
+        </div>
+
+        <!-- Partial note -->
+        <div class="partial-note">
+          <span>💡</span>
+          <span>Only your calorie target is set. Macro fields are empty — progress bars for those macros won't show in your diary.</span>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Daily Targets</div>
+          <div class="section-subtitle">All fields are optional</div>
+        </div>
+
+        <div class="field">
+          <label for="kcal-partial">
+            <span>🔥 Calories</span>
+            <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="kcal-partial" type="number" value="2200" min="0" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="protein-partial">
+              <span>🥩 Protein</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="protein-partial" type="number" placeholder="e.g. 150" min="0" />
+          </div>
+          <div class="field">
+            <label for="fat-partial">
+              <span>🧈 Fat</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fat-partial" type="number" placeholder="e.g. 65" min="0" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="carbs-partial">
+              <span>🌾 Carbs</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="carbs-partial" type="number" placeholder="e.g. 250" min="0" />
+          </div>
+          <div class="field">
+            <label for="fiber-partial">
+              <span>🌿 Fiber</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fiber-partial" type="number" placeholder="e.g. 30" min="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="sodium-partial">
+            <span>🧂 Sodium</span>
+            <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="sodium-partial" type="number" placeholder="e.g. 2300" min="0" />
+        </div>
+
+        <div style="height:20px;"></div>
+        <button class="btn btn-primary" onclick="fireToast()">Save targets</button>
+        <div style="height:12px;"></div>
+        <button class="btn btn-secondary">Reset to defaults</button>
+
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Log</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+          <span class="tab-label">Recipes</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+          <span class="tab-label">Pantry</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span class="tab-label">Profile</span>
+        </div>
+      </div>
+    </div><!-- /screen-partial -->
+
+
+    <!-- ── Screen 4: Saved state (after successful save) ───────── -->
+    <div class="screen" id="screen-saved">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>●●●●● WiFi 🔋</span>
+      </div>
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="nav-title">Profile &amp; Targets</span>
+      </div>
+
+      <div class="scroll-body">
+
+        <div class="identity-block">
+          <div class="avatar">S</div>
+          <div class="identity-info">
+            <div class="identity-username">sarahcooks</div>
+            <div class="identity-email">sarah@homekitchen.io</div>
+          </div>
+          <div class="identity-badge">Member</div>
+        </div>
+
+        <!-- Success banner (inline alternative to toast) -->
+        <div class="success-banner">
+          <span class="success-banner-icon">✅</span>
+          <span class="success-banner-text">Your daily targets have been saved successfully.</span>
+        </div>
+
+        <!-- Summary chips — all 6 macros -->
+        <div class="targets-summary">
+          <div class="target-chip">
+            <div class="target-chip-icon">🔥</div>
+            <div class="target-chip-val">1 850</div>
+            <div class="target-chip-label">kcal</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🥩</div>
+            <div class="target-chip-val">140 g</div>
+            <div class="target-chip-label">protein</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧈</div>
+            <div class="target-chip-val">60 g</div>
+            <div class="target-chip-label">fat</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌾</div>
+            <div class="target-chip-val">210 g</div>
+            <div class="target-chip-label">carbs</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🌿</div>
+            <div class="target-chip-val">30 g</div>
+            <div class="target-chip-label">fiber</div>
+          </div>
+          <div class="target-chip">
+            <div class="target-chip-icon">🧂</div>
+            <div class="target-chip-val">2 300 mg</div>
+            <div class="target-chip-label">sodium</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Daily Targets</div>
+          <div class="section-subtitle">Last updated just now</div>
+        </div>
+
+        <div class="field">
+          <label for="kcal-saved">
+            <span>🔥 Calories</span>
+            <span class="unit-hint">kcal &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="kcal-saved" type="number" value="1850" min="0" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="protein-saved">
+              <span>🥩 Protein</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="protein-saved" type="number" value="140" min="0" />
+          </div>
+          <div class="field">
+            <label for="fat-saved">
+              <span>🧈 Fat</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fat-saved" type="number" value="60" min="0" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="carbs-saved">
+              <span>🌾 Carbs</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="carbs-saved" type="number" value="210" min="0" />
+          </div>
+          <div class="field">
+            <label for="fiber-saved">
+              <span>🌿 Fiber</span>
+              <span class="unit-hint">g</span>
+            </label>
+            <input id="fiber-saved" type="number" value="30" min="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="sodium-saved">
+            <span>🧂 Sodium</span>
+            <span class="unit-hint">mg &nbsp;·&nbsp; <span class="optional-tag">optional</span></span>
+          </label>
+          <input id="sodium-saved" type="number" value="2300" min="0" />
+        </div>
+
+        <div style="height:20px;"></div>
+        <button class="btn btn-primary" onclick="fireToast()">Save targets</button>
+        <div style="height:12px;"></div>
+        <button class="btn btn-danger">Clear all targets</button>
+
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Log</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+          <span class="tab-label">Recipes</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+          <span class="tab-label">Pantry</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span class="tab-label">Profile</span>
+        </div>
+      </div>
+    </div><!-- /screen-saved -->
+
+  </div><!-- /phone -->
+
+  <script>
+    // ── Screen switching ───────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + id).classList.add('active');
+      document.querySelectorAll('.screen-nav button').forEach((btn, i) => {
+        btn.classList.toggle('active', btn.textContent.trim().startsWith(
+          { empty: '①', prefilled: '②', partial: '③', saved: '④' }[id]
+        ));
+      });
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────
+    let toastTimer = null;
+    function fireToast() {
+      const toast = document.getElementById('toast');
+      if (toastTimer) clearTimeout(toastTimer);
+      toast.classList.add('visible');
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 3500);
+    }
+  </script>
+</body>
+</html>

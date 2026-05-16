@@ -107,6 +107,23 @@ pnpm --prefix frontend run gen:api      # regenerate API client
 pre-commit run --all-files
 ```
 
+### Previewing HTML prototypes on mobile
+
+Prototypes live in `docs/prototypes/`. To check one on a phone:
+
+```bash
+# 1. Serve the prototype directory on all network interfaces
+cd docs/prototypes/<name> && python3 -m http.server 8888 --bind 0.0.0.0
+
+# 2. Find your local IP
+ipconfig getifaddr en0
+
+# 3. Open on phone (must be on same WiFi)
+#    http://<your-local-ip>:8888
+```
+
+> **VPN note:** if the browser has a VPN extension active, local IPs (`192.168.x.x`) may not be reachable — disable it temporarily.
+
 ---
 
 ## Working with Issues

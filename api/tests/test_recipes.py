@@ -1,12 +1,12 @@
 """Tests for Recipe CRUD endpoints."""
 
+from datetime import UTC
+
 import pytest
 import pytest_asyncio
+from conftest import auth_headers, register_and_login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from conftest import auth_headers, register_and_login
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -274,7 +274,7 @@ async def test_list_recipes_sorted_by_last_cooked_desc_nulls_last(
     alice_token: str,
     db_session: AsyncSession,
 ) -> None:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from sqlalchemy import select
 
@@ -287,19 +287,23 @@ async def test_list_recipes_sorted_by_last_cooked_desc_nulls_last(
     r2 = await client.post(
         "/recipes", json={"name": "Apple pie"}, headers=auth_headers(alice_token)
     )
-    r3 = await client.post(
+    r3 = await client.post(  # noqa: F841
         "/recipes", json={"name": "Beef stew"}, headers=auth_headers(alice_token)
     )
 
     # Manually set last_cooked_at for r1
-    result = await db_session.execute(select(Recipe).where(Recipe.id == r1.json()["id"]))
+    result = await db_session.execute(
+        select(Recipe).where(Recipe.id == r1.json()["id"])
+    )
     recipe = result.scalar_one()
-    recipe.last_cooked_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    recipe.last_cooked_at = datetime(2024, 1, 1, tzinfo=UTC)
     await db_session.commit()
 
-    result2 = await db_session.execute(select(Recipe).where(Recipe.id == r2.json()["id"]))
+    result2 = await db_session.execute(
+        select(Recipe).where(Recipe.id == r2.json()["id"])
+    )
     recipe2 = result2.scalar_one()
-    recipe2.last_cooked_at = datetime(2024, 6, 1, tzinfo=timezone.utc)
+    recipe2.last_cooked_at = datetime(2024, 6, 1, tzinfo=UTC)
     await db_session.commit()
 
     resp = await client.get("/recipes", headers=auth_headers(alice_token))
@@ -317,9 +321,7 @@ async def test_list_recipes_sorted_by_last_cooked_desc_nulls_last(
 
 
 @pytest.mark.asyncio
-async def test_patch_recipe_name(
-    client: AsyncClient, alice_token: str
-) -> None:
+async def test_patch_recipe_name(client: AsyncClient, alice_token: str) -> None:
     create_resp = await client.post(
         "/recipes", json={"name": "Old name"}, headers=auth_headers(alice_token)
     )
@@ -347,7 +349,9 @@ async def test_patch_recipe_replaces_ingredient_list(
         "/recipes",
         json={
             "name": "Update test",
-            "ingredients": [{"ingredient_id": ing1, "amount": 100.0, "display_order": 0}],
+            "ingredients": [
+                {"ingredient_id": ing1, "amount": 100.0, "display_order": 0}
+            ],
         },
         headers=auth_headers(alice_token),
     )
@@ -367,6 +371,48 @@ async def test_patch_recipe_replaces_ingredient_list(
     ings = resp.json()["ingredients"]
     assert len(ings) == 1
     assert ings[0]["ingredient_id"] == ing2
+
+
+@pytest.mark.asyncio
+async def test_patch_recipe_omitting_description_leaves_it_unchanged(
+    client: AsyncClient, alice_token: str
+) -> None:
+    """Omitting description in PATCH must not change an existing description."""
+    create_resp = await client.post(
+        "/recipes",
+        json={"name": "With desc", "description": "Keep me"},
+        headers=auth_headers(alice_token),
+    )
+    recipe_id = create_resp.json()["id"]
+
+    resp = await client.patch(
+        f"/recipes/{recipe_id}",
+        json={"name": "New name"},
+        headers=auth_headers(alice_token),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["description"] == "Keep me"
+
+
+@pytest.mark.asyncio
+async def test_patch_recipe_explicit_null_clears_description(
+    client: AsyncClient, alice_token: str
+) -> None:
+    """Explicitly passing description=null must clear the description."""
+    create_resp = await client.post(
+        "/recipes",
+        json={"name": "With desc", "description": "Clear me"},
+        headers=auth_headers(alice_token),
+    )
+    recipe_id = create_resp.json()["id"]
+
+    resp = await client.patch(
+        f"/recipes/{recipe_id}",
+        json={"description": None},
+        headers=auth_headers(alice_token),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["description"] is None
 
 
 @pytest.mark.asyncio
@@ -433,9 +479,7 @@ async def test_delete_recipe_another_users_returns_404(
     )
     recipe_id = create_resp.json()["id"]
 
-    resp = await client.delete(
-        f"/recipes/{recipe_id}", headers=auth_headers(bob_token)
-    )
+    resp = await client.delete(f"/recipes/{recipe_id}", headers=auth_headers(bob_token))
     assert resp.status_code == 404
 
 
@@ -456,7 +500,9 @@ async def test_duplicate_recipe(
         json={
             "name": "Original",
             "description": "Desc",
-            "ingredients": [{"ingredient_id": ing_id, "amount": 100.0, "display_order": 0}],
+            "ingredients": [
+                {"ingredient_id": ing_id, "amount": 100.0, "display_order": 0}
+            ],
         },
         headers=auth_headers(alice_token),
     )
@@ -470,7 +516,9 @@ async def test_duplicate_recipe(
     assert new_id != original_id
 
     # Original unchanged
-    orig = await client.get(f"/recipes/{original_id}", headers=auth_headers(alice_token))
+    orig = await client.get(
+        f"/recipes/{original_id}", headers=auth_headers(alice_token)
+    )
     assert orig.json()["name"] == "Original"
 
     # Duplicate has correct name and ingredients

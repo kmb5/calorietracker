@@ -35,6 +35,7 @@ class IngredientDetail(BaseModel):
     owner_id: int | None
     icon: str | None
     is_promotion_pending: bool
+    promotion_rejection_note: str | None
 
     model_config = {"from_attributes": True}
 
