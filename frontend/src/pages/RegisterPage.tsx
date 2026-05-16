@@ -302,18 +302,18 @@ function EyeIcon() {
 function EyeOffIcon() {
   return (
     <svg
-      viewBox="0 0 18 18"
+      viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path
-        d="M13.5 6.5C12.3 7.7 10.7 8.5 9 8.5 5.9 8.5 3 6 3 6M3 6s-.7-.8-1-1.5M15 6s.7-.8 1-1.5M6 10.5 4.5 12M12 10.5l1.5 1.5M9 9v2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line x1="2" y1="2" x2="16" y2="16" strokeLinecap="round" />
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <path d="M10.73 10.73A2 2 0 0 0 12 14a2 2 0 0 0 1.27-3.27" />
+      <line x1="2" y1="2" x2="22" y2="22" />
     </svg>
   );
 }

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useEffect, useState } from "react";
+import { OpenAPI } from "../client/core/OpenAPI";
 import { authApi, type LoginRequest, type RegisterRequest } from "../services/auth";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -32,10 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const setAccessToken = useCallback((accessToken: string) => {
+    OpenAPI.TOKEN = accessToken;
     setState({ accessToken, loading: false });
   }, []);
 
   const clearAccessToken = useCallback(() => {
+    OpenAPI.TOKEN = undefined;
     setState({ accessToken: null, loading: false });
   }, []);
 

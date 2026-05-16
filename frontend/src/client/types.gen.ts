@@ -4,6 +4,30 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type IngredientDetail = {
+  id: number;
+  name: string;
+  unit: UnitType;
+  portion_size: number;
+  kcal: number;
+  protein: number;
+  fat: number;
+  carbohydrates: number;
+  fiber: number;
+  sodium: number;
+  is_system: boolean;
+  owner_id: number | null;
+};
+
+export type IngredientSearchResult = {
+  id: number;
+  name: string;
+  unit: UnitType;
+  portion_size: number;
+  kcal: number;
+  is_system: boolean;
+};
+
 export type LoginRequest = {
   username: string;
   password: string;
@@ -19,6 +43,8 @@ export type TokenResponse = {
   access_token: string;
   token_type?: string;
 };
+
+export type UnitType = "g" | "ml" | "tablespoon" | "piece";
 
 export type ValidationError = {
   loc: Array<string | number>;
@@ -42,9 +68,32 @@ export type LoginAuthLoginPostData = {
 
 export type LoginAuthLoginPostResponse = TokenResponse;
 
+export type RefreshAuthRefreshPostData = {
+  refreshToken?: string | null;
+};
+
 export type RefreshAuthRefreshPostResponse = TokenResponse;
 
+export type LogoutAuthLogoutPostData = {
+  refreshToken?: string | null;
+};
+
 export type LogoutAuthLogoutPostResponse = void;
+
+export type SearchIngredientsIngredientsSearchGetData = {
+  limit?: number;
+  q: string;
+  unit?: UnitType | null;
+};
+
+export type SearchIngredientsIngredientsSearchGetResponse =
+  Array<IngredientSearchResult>;
+
+export type GetIngredientIngredientsIngredientIdGetData = {
+  ingredientId: number;
+};
+
+export type GetIngredientIngredientsIngredientIdGetResponse = IngredientDetail;
 
 export type HealthHealthGetResponse = {
   [key: string]: string;
@@ -83,6 +132,7 @@ export type $OpenApiTs = {
   };
   "/auth/refresh": {
     post: {
+      req: RefreshAuthRefreshPostData;
       res: {
         /**
          * Successful Response
@@ -97,11 +147,42 @@ export type $OpenApiTs = {
   };
   "/auth/logout": {
     post: {
+      req: LogoutAuthLogoutPostData;
       res: {
         /**
          * Successful Response
          */
         204: void;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/ingredients/search": {
+    get: {
+      req: SearchIngredientsIngredientsSearchGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: Array<IngredientSearchResult>;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/ingredients/{ingredient_id}": {
+    get: {
+      req: GetIngredientIngredientsIngredientIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: IngredientDetail;
         /**
          * Validation Error
          */

@@ -205,7 +205,14 @@ async def test_search_result_fields(client: AsyncClient, db_session: AsyncSessio
     )
     assert resp.status_code == 200
     item = resp.json()[0]
-    assert set(item.keys()) == {"id", "name", "unit", "portion_size", "kcal"}
+    assert set(item.keys()) == {
+        "id",
+        "name",
+        "unit",
+        "portion_size",
+        "kcal",
+        "is_system",
+    }
 
 
 # ---------------------------------------------------------------------------
