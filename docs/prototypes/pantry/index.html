@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Pantry Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --border-focus:  #C9562B;
+      --white:         #FFFFFF;
+
+      /* expiry status colours */
+      --expired:       #B83232;
+      --expired-bg:    #FDEAEA;
+      --expired-border:#F5BCBC;
+      --warn:          #B86D10;
+      --warn-bg:       #FEF3E2;
+      --warn-border:   #F5D79F;
+      --ok:            #3D7A4A;
+      --ok-bg:         #EAF5EC;
+      --ok-border:     #A8DAAF;
+      --no-expiry:     #7A6555;
+      --no-expiry-bg:  #F2EAE0;
+      --no-expiry-border: #D8C9B8;
+
+      --success:       #3D7A4A;
+      --success-bg:    #D6EDD9;
+      --error:         #B83232;
+      --error-bg:      #F9DEDE;
+
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --radius-xs:     6px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+      --shadow-drop:   0 8px 40px rgba(26,18,8,0.16), 0 2px 8px rgba(26,18,8,0.08);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #2D1E10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+      color: var(--ink);
+    }
+
+    h1.proto-title {
+      font-family: var(--font-display);
+      color: rgba(253,246,237,0.85);
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* ── Screen nav ───────────────────────────────────────────────── */
+    .screen-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+    .screen-nav button {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(253,246,237,0.2);
+      background: rgba(253,246,237,0.07);
+      color: rgba(253,246,237,0.7);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .screen-nav button:hover {
+      background: rgba(253,246,237,0.14);
+      color: #FDF6ED;
+    }
+    .screen-nav button.active {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #FDF6ED;
+    }
+
+    /* ── Phone shell ──────────────────────────────────────────────── */
+    .phone {
+      width: 375px;
+      background: var(--cream);
+      border-radius: 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Screens ──────────────────────────────────────────────────── */
+    .screen { display: none; flex-direction: column; min-height: 780px; }
+    .screen.active { display: flex; }
+
+    /* ── Status bar ───────────────────────────────────────────────── */
+    .status-bar {
+      background: var(--cream);
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      flex-shrink: 0;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────── */
+    .top-bar {
+      background: var(--cream);
+      padding: 8px 20px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .top-bar-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .top-bar-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .count-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+    .warn-badge {
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--warn-bg);
+      color: var(--warn);
+      border: 1px solid var(--warn-border);
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+    .add-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--terra);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      font-size: 20px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .add-btn:hover { background: var(--terra-dark); }
+
+    /* ── Search bar ───────────────────────────────────────────────── */
+    .search-bar {
+      padding: 0 20px 12px;
+      flex-shrink: 0;
+    }
+    .search-input-wrap {
+      position: relative;
+    }
+    .search-input-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+    }
+    .search-input-wrap input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input-wrap input:focus { border-color: var(--border-focus); }
+    .search-input-wrap input::placeholder { color: var(--ink-soft); }
+
+    /* ── Scroll body ──────────────────────────────────────────────── */
+    .scroll-body {
+      overflow-y: auto;
+      flex: 1;
+      padding: 4px 16px 80px;
+    }
+
+    /* ── Pantry cards ─────────────────────────────────────────────── */
+    .pantry-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      padding: 8px 4px 6px;
+      margin-top: 4px;
+    }
+
+    .pantry-card {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .pantry-card:hover { border-color: var(--terra-light); box-shadow: var(--shadow-sm); }
+    .pantry-card:active { transform: scale(0.99); }
+
+    /* expiry status colour variants */
+    .pantry-card.expired {
+      border-color: var(--expired-border);
+      background: var(--expired-bg);
+    }
+    .pantry-card.expiring-soon {
+      border-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+    .pantry-card.ok {
+      border-color: var(--ok-border);
+      background: var(--ok-bg);
+    }
+    .pantry-card.no-expiry {
+      border-color: var(--no-expiry-border);
+      background: var(--no-expiry-bg);
+      opacity: 0.85;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .pantry-card.expired .card-icon { background: rgba(184,50,50,0.12); }
+    .pantry-card.expiring-soon .card-icon { background: rgba(184,109,16,0.12); }
+    .pantry-card.ok .card-icon { background: rgba(61,122,74,0.12); }
+
+    .card-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .card-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-qty {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    .card-location {
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-top: 1px;
+    }
+
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .expiry-chip {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .pantry-card.expired .expiry-chip {
+      background: var(--expired);
+      color: white;
+    }
+    .pantry-card.expiring-soon .expiry-chip {
+      background: var(--warn);
+      color: white;
+    }
+    .pantry-card.ok .expiry-chip {
+      background: var(--ok);
+      color: white;
+    }
+    .pantry-card.no-expiry .expiry-chip {
+      background: var(--no-expiry-bg);
+      color: var(--no-expiry);
+      border: 1px solid var(--no-expiry-border);
+    }
+    .card-chevron {
+      color: var(--ink-soft);
+      opacity: 0.5;
+      font-size: 14px;
+    }
+
+    /* ── Swipe-to-delete card ─────────────────────────────────────── */
+    .swipe-card-wrap {
+      position: relative;
+      margin-bottom: 8px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .swipe-delete-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--expired);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 16px;
+      border-radius: var(--radius-sm);
+    }
+    .swipe-delete-bg span {
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .swipe-card-inner {
+      transform: translateX(-80px);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .swipe-card-inner .pantry-card {
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+
+    /* ── Empty state ──────────────────────────────────────────────── */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px;
+      text-align: center;
+      gap: 16px;
+    }
+    .empty-icon {
+      font-size: 64px;
+      line-height: 1;
+    }
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .empty-subtitle {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--terra);
+      color: white;
+      border: none;
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 28px;
+      cursor: pointer;
+      transition: background 0.15s;
+      width: 100%;
+    }
+    .btn-primary:hover { background: var(--terra-dark); }
+
+    /* ── Bottom tab bar ───────────────────────────────────────────── */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--cream);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding: 8px 0 16px;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.15s;
+    }
+    .tab-item.active { color: var(--terra); }
+    .tab-item svg { width: 20px; height: 20px; }
+
+    /* ── Bottom sheet overlay ─────────────────────────────────────── */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,18,8,0.5);
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+      z-index: 10;
+    }
+    .sheet-overlay.open { display: flex; }
+
+    .bottom-sheet {
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 0 0 40px;
+      max-height: 92%;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin: 12px auto 0;
+      flex-shrink: 0;
+    }
+
+    .sheet-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .sheet-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .sheet-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-mid);
+      font-size: 16px;
+      transition: background 0.15s;
+    }
+    .sheet-close:hover { background: var(--cream-dark); }
+
+    .sheet-body {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0 20px 20px;
+    }
+
+    /* ── Form elements ────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      margin-bottom: 5px;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { border-color: var(--border-focus); }
+    .field input::placeholder,
+    .field textarea::placeholder { color: var(--ink-soft); }
+    .field textarea { resize: none; min-height: 72px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+    }
+    .field-row-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ── Toggle switch ────────────────────────────────────────────── */
+    .toggle-group {
+      display: flex;
+      background: var(--cream-dark);
+      border-radius: 99px;
+      padding: 3px;
+      margin-bottom: 14px;
+    }
+    .toggle-opt {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 0;
+      border-radius: 99px;
+      cursor: pointer;
+      color: var(--ink-soft);
+      transition: all 0.18s;
+    }
+    .toggle-opt.active {
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 1px 4px rgba(26,18,8,0.1);
+      font-weight: 600;
+    }
+
+    /* storage location pills */
+    .location-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .location-pill {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .location-pill.active {
+      border-color: var(--terra);
+      background: var(--terra-light);
+      color: var(--terra-dark);
+      font-weight: 600;
+    }
+    .location-pill:hover:not(.active) { border-color: var(--ink-soft); }
+
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    /* sheet footer */
+    .sheet-footer {
+      padding: 12px 20px 0;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--expired);
+      border: 1.5px solid var(--expired-border);
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .btn-danger:hover {
+      background: var(--expired-bg);
+      border-color: var(--expired);
+    }
+
+    /* ── Ingredient search row ────────────────────────────────────── */
+    .ingredient-search-box {
+      background: var(--cream-dark);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .ingredient-search-box:hover { border-color: var(--border-focus); }
+    .ingredient-search-box svg { color: var(--ink-soft); flex-shrink: 0; }
+    .ingredient-search-box span {
+      font-size: 15px;
+      color: var(--ink-soft);
+      flex: 1;
+    }
+    .ingredient-search-box .selected-name {
+      font-size: 15px;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* ── Dark mode toggle ─────────────────────────────────────────── */
+    .dark-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(253,246,237,0.12);
+      border: 1.5px solid rgba(253,246,237,0.2);
+      border-radius: 99px;
+      padding: 7px 14px;
+      color: rgba(253,246,237,0.7);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .dark-toggle:hover { background: rgba(253,246,237,0.2); color: #FDF6ED; }
+
+    /* ── Confirm dialog ───────────────────────────────────────────── */
+    .confirm-sheet {
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 40px;
+      animation: slideUp 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .confirm-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .confirm-body {
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .confirm-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .btn-secondary:hover { background: var(--cream-dark); }
+
+    /* ── Toast ────────────────────────────────────────────────────── */
+    .toast {
+      position: absolute;
+      bottom: 90px;
+      left: 16px;
+      right: 16px;
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 20;
+      animation: fadeIn 0.2s ease;
+    }
+    .toast.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .toast-icon { font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1 class="proto-title">🥫 Pantry Prototype</h1>
+
+<div class="screen-nav">
+  <button class="active" onclick="showScreen('list-populated')">1 · List (Populated)</button>
+  <button onclick="showScreen('list-empty')">2 · Empty State</button>
+  <button onclick="showScreen('add-item')">3 · Add Item Sheet</button>
+  <button onclick="showScreen('edit-item')">4 · Edit Item Sheet</button>
+  <button onclick="showScreen('swipe-delete')">5 · Swipe-to-Delete</button>
+  <button onclick="showScreen('confirm-delete')">6 · Confirm Delete</button>
+</div>
+
+<div class="phone">
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 1: Populated List                                      -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-list-populated">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>●●●</span>
+    </div>
+
+    <!-- Header -->
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Pantry</div>
+        <div class="top-bar-meta" style="margin-top:4px;">
+          <span class="count-badge">12 items</span>
+          <span class="warn-badge">⚠ 3 expiring soon</span>
+        </div>
+      </div>
+      <button class="add-btn" onclick="openSheet('add')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="Search pantry…" />
+      </div>
+    </div>
+
+    <!-- Item list -->
+    <div class="scroll-body">
+
+      <!-- Expired items -->
+      <div class="pantry-section-label">🔴 Expired</div>
+
+      <div class="pantry-card expired" onclick="openSheet('edit')">
+        <div class="card-icon">🥛</div>
+        <div class="card-body">
+          <div class="card-name">Whole Milk</div>
+          <div class="card-qty">1.2 L remaining</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expired May 13</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- Expiring soon items -->
+      <div class="pantry-section-label">🟡 Expiring Soon</div>
+
+      <div class="pantry-card expiring-soon" onclick="openSheet('edit')">
+        <div class="card-icon">🥚</div>
+        <div class="card-body">
+          <div class="card-name">Free Range Eggs</div>
+          <div class="card-qty">6 remaining</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expires May 18</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card expiring-soon" onclick="openSheet('edit')">
+        <div class="card-icon">🧀</div>
+        <div class="card-body">
+          <div class="card-name">Cheddar Cheese</div>
+          <div class="card-qty">250 g remaining</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expires May 19</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card expiring-soon" onclick="openSheet('edit')">
+        <div class="card-icon">🍗</div>
+        <div class="card-body">
+          <div class="card-name">Chicken Breast</div>
+          <div class="card-qty">400 g</div>
+          <div class="card-location">📍 Freezer</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expires May 19</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- OK items -->
+      <div class="pantry-section-label">🟢 Good</div>
+
+      <div class="pantry-card ok" onclick="openSheet('edit')">
+        <div class="card-icon">🫙</div>
+        <div class="card-body">
+          <div class="card-name">Greek Yogurt</div>
+          <div class="card-qty">500 g</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">May 25</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card ok" onclick="openSheet('edit')">
+        <div class="card-icon">🥩</div>
+        <div class="card-body">
+          <div class="card-name">Ground Beef (20%)</div>
+          <div class="card-qty">500 g</div>
+          <div class="card-location">📍 Freezer</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Jun 2</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card ok" onclick="openSheet('edit')">
+        <div class="card-icon">🥦</div>
+        <div class="card-body">
+          <div class="card-name">Broccoli</div>
+          <div class="card-qty">1 head</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">May 21</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- No expiry -->
+      <div class="pantry-section-label">⚪ No Expiry Date</div>
+
+      <div class="pantry-card no-expiry" onclick="openSheet('edit')">
+        <div class="card-icon">🧂</div>
+        <div class="card-body">
+          <div class="card-name">Sea Salt</div>
+          <div class="card-qty">500 g</div>
+          <div class="card-location">📍 Pantry</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">No expiry</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card no-expiry" onclick="openSheet('edit')">
+        <div class="card-icon">🫒</div>
+        <div class="card-body">
+          <div class="card-name">Olive Oil</div>
+          <div class="card-qty">750 ml</div>
+          <div class="card-location">📍 Pantry</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">No expiry</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card no-expiry" onclick="openSheet('edit')">
+        <div class="card-icon">🍚</div>
+        <div class="card-body">
+          <div class="card-name">Basmati Rice</div>
+          <div class="card-qty">2 kg</div>
+          <div class="card-location">📍 Pantry</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">No expiry</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('list-populated')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Diary
+      </div>
+      <div class="tab-item" onclick="showScreen('list-populated')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Recipes
+      </div>
+      <div class="tab-item active" onclick="showScreen('list-populated')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
+        Pantry
+      </div>
+      <div class="tab-item" onclick="showScreen('list-populated')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </div>
+    </div>
+
+    <!-- Add item sheet -->
+    <div class="sheet-overlay" id="add-sheet-overlay" onclick="closeSheet('add')">
+      <div class="bottom-sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-title">Add Item</div>
+          <button class="sheet-close" onclick="closeSheet('add')">✕</button>
+        </div>
+        <div class="sheet-body">
+
+          <!-- Name mode toggle -->
+          <div class="toggle-group">
+            <div class="toggle-opt active" id="toggle-free" onclick="switchNameMode('free')">Free Text</div>
+            <div class="toggle-opt" id="toggle-search" onclick="switchNameMode('search')">Search Ingredient</div>
+          </div>
+
+          <!-- Free text name -->
+          <div class="field" id="name-free-field">
+            <label>Item name *</label>
+            <input type="text" placeholder="e.g. Whole Milk" />
+          </div>
+
+          <!-- Ingredient search (hidden by default) -->
+          <div class="field" id="name-search-field" style="display:none;">
+            <label>Search ingredient</label>
+            <div class="ingredient-search-box">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span>Search ingredients…</span>
+            </div>
+            <div class="field-hint">Link to an ingredient for nutrition tracking</div>
+          </div>
+
+          <!-- Quantity + unit -->
+          <div class="field-row">
+            <div class="field">
+              <label>Quantity *</label>
+              <input type="number" placeholder="1.0" />
+            </div>
+            <div class="field">
+              <label>Unit</label>
+              <select>
+                <option>g</option>
+                <option>ml</option>
+                <option>pieces</option>
+                <option>kg</option>
+                <option>L</option>
+                <option>tbsp</option>
+                <option>pkg</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Expiry date -->
+          <div class="field">
+            <label>Expiry date</label>
+            <input type="date" />
+            <div class="field-hint">Leave empty if the item has no expiry date</div>
+          </div>
+
+          <!-- Storage location -->
+          <div class="field">
+            <label>Storage location</label>
+            <div class="location-pills">
+              <div class="location-pill active" onclick="selectLocation(this)">🧊 Fridge</div>
+              <div class="location-pill" onclick="selectLocation(this)">❄️ Freezer</div>
+              <div class="location-pill" onclick="selectLocation(this)">🗄️ Pantry</div>
+              <div class="location-pill" onclick="selectLocation(this)">📦 Other</div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="field">
+            <label>Notes</label>
+            <textarea placeholder="e.g. Opened, half used…"></textarea>
+          </div>
+
+        </div>
+        <div class="sheet-footer">
+          <button class="btn-primary" onclick="saveItem()">Save &amp; Add Another</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit item sheet -->
+    <div class="sheet-overlay" id="edit-sheet-overlay" onclick="closeSheet('edit')">
+      <div class="bottom-sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-title">Edit Item</div>
+          <button class="sheet-close" onclick="closeSheet('edit')">✕</button>
+        </div>
+        <div class="sheet-body">
+
+          <div class="field">
+            <label>Item name *</label>
+            <input type="text" value="Whole Milk" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Quantity *</label>
+              <input type="number" value="1.2" />
+            </div>
+            <div class="field">
+              <label>Unit</label>
+              <select>
+                <option>g</option>
+                <option selected>L</option>
+                <option>ml</option>
+                <option>pieces</option>
+                <option>kg</option>
+                <option>tbsp</option>
+                <option>pkg</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Expiry date</label>
+            <input type="date" value="2026-05-13" />
+          </div>
+
+          <div class="field">
+            <label>Storage location</label>
+            <div class="location-pills">
+              <div class="location-pill active" onclick="selectLocation(this)">🧊 Fridge</div>
+              <div class="location-pill" onclick="selectLocation(this)">❄️ Freezer</div>
+              <div class="location-pill" onclick="selectLocation(this)">🗄️ Pantry</div>
+              <div class="location-pill" onclick="selectLocation(this)">📦 Other</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Notes</label>
+            <textarea placeholder="e.g. Opened, half used…"></textarea>
+          </div>
+
+        </div>
+        <div class="sheet-footer">
+          <button class="btn-primary" onclick="closeSheet('edit'); showToast('Changes saved')">Save Changes</button>
+          <button class="btn-danger" onclick="openSheet('confirm')">🗑 Remove Item</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm delete sheet -->
+    <div class="sheet-overlay" id="confirm-sheet-overlay" onclick="closeSheet('confirm')">
+      <div class="confirm-sheet" onclick="event.stopPropagation()">
+        <div class="confirm-title">Remove item?</div>
+        <div class="confirm-body">
+          <strong>Whole Milk</strong> will be removed from your pantry. This cannot be undone.
+        </div>
+        <div class="confirm-actions">
+          <button class="btn-danger" onclick="closeSheet('confirm'); closeSheet('edit'); showToast('Item removed')">Remove Item</button>
+          <button class="btn-secondary" onclick="closeSheet('confirm')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast-populated">
+      <span class="toast-icon">✓</span>
+      <span id="toast-msg-populated">Item saved</span>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 2: Empty State                                         -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-list-empty">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>●●●</span>
+    </div>
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Pantry</div>
+        <div class="top-bar-meta" style="margin-top:4px;">
+          <span class="count-badge">0 items</span>
+        </div>
+      </div>
+      <button class="add-btn" onclick="showScreen('add-item')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <div class="empty-state">
+      <div class="empty-icon">🥫</div>
+      <div class="empty-title">Your pantry is empty</div>
+      <div class="empty-subtitle">
+        Track what's in your fridge, freezer, and cupboards. Get notified before things expire.
+      </div>
+      <button class="btn-primary" onclick="showScreen('add-item')">
+        + Add your first item
+      </button>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Diary
+      </div>
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Recipes
+      </div>
+      <div class="tab-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
+        Pantry
+      </div>
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 3: Add Item (standalone sheet view)                   -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-add-item" style="background: var(--white);">
+    <div class="status-bar" style="background: var(--white);">
+      <span>9:41</span>
+      <span>●●●</span>
+    </div>
+    <div class="sheet-header" style="border-bottom: 1px solid var(--border);">
+      <div class="sheet-title">Add Item</div>
+      <button class="sheet-close" onclick="showScreen('list-populated')">✕</button>
+    </div>
+    <div class="sheet-body" style="padding: 16px 20px 20px;">
+
+      <div class="toggle-group">
+        <div class="toggle-opt active" id="toggle-free-s3" onclick="switchNameMode3('free')">Free Text</div>
+        <div class="toggle-opt" id="toggle-search-s3" onclick="switchNameMode3('search')">Search Ingredient</div>
+      </div>
+
+      <div class="field" id="name-free-s3">
+        <label>Item name *</label>
+        <input type="text" placeholder="e.g. Whole Milk" />
+      </div>
+      <div class="field" id="name-search-s3" style="display:none;">
+        <label>Search ingredient</label>
+        <div class="ingredient-search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Search ingredients…</span>
+        </div>
+        <div class="field-hint">Link to an ingredient for nutrition tracking</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Quantity *</label>
+          <input type="number" placeholder="1.0" />
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <select>
+            <option>g</option>
+            <option>ml</option>
+            <option>pieces</option>
+            <option>kg</option>
+            <option selected>L</option>
+            <option>tbsp</option>
+            <option>pkg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Expiry date</label>
+        <input type="date" />
+        <div class="field-hint">Leave empty if the item has no expiry date</div>
+      </div>
+
+      <div class="field">
+        <label>Storage location</label>
+        <div class="location-pills">
+          <div class="location-pill active" onclick="selectLocation(this)">🧊 Fridge</div>
+          <div class="location-pill" onclick="selectLocation(this)">❄️ Freezer</div>
+          <div class="location-pill" onclick="selectLocation(this)">🗄️ Pantry</div>
+          <div class="location-pill" onclick="selectLocation(this)">📦 Other</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea placeholder="e.g. Opened, half used…"></textarea>
+      </div>
+
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-primary" onclick="showScreen('list-populated')">Save &amp; Add Another</button>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 4: Edit Item (standalone sheet view)                  -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-edit-item" style="background: var(--white);">
+    <div class="status-bar" style="background: var(--white);">
+      <span>9:41</span>
+      <span>●●●</span>
+    </div>
+    <div class="sheet-header" style="border-bottom: 1px solid var(--border);">
+      <div class="sheet-title">Edit Item</div>
+      <button class="sheet-close" onclick="showScreen('list-populated')">✕</button>
+    </div>
+    <div class="sheet-body" style="padding: 16px 20px 20px;">
+
+      <div class="field">
+        <label>Item name *</label>
+        <input type="text" value="Free Range Eggs" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Quantity *</label>
+          <input type="number" value="6" />
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <select>
+            <option>g</option>
+            <option>ml</option>
+            <option selected>pieces</option>
+            <option>kg</option>
+            <option>L</option>
+            <option>tbsp</option>
+            <option>pkg</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Expiry date</label>
+        <input type="date" value="2026-05-18" />
+      </div>
+
+      <div class="field">
+        <label>Storage location</label>
+        <div class="location-pills">
+          <div class="location-pill active" onclick="selectLocation(this)">🧊 Fridge</div>
+          <div class="location-pill" onclick="selectLocation(this)">❄️ Freezer</div>
+          <div class="location-pill" onclick="selectLocation(this)">🗄️ Pantry</div>
+          <div class="location-pill" onclick="selectLocation(this)">📦 Other</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea placeholder="e.g. Opened, half used…">Bought from farmers market</textarea>
+      </div>
+
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-primary" onclick="showScreen('list-populated')">Save Changes</button>
+      <button class="btn-danger" onclick="showScreen('confirm-delete')">🗑 Remove Item</button>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 5: Swipe-to-Delete Hint                              -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-swipe-delete">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>●●●</span>
+    </div>
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Pantry</div>
+        <div class="top-bar-meta" style="margin-top:4px;">
+          <span class="count-badge">12 items</span>
+          <span class="warn-badge">⚠ 3 expiring soon</span>
+        </div>
+      </div>
+      <button class="add-btn" onclick="showScreen('add-item')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <div class="scroll-body">
+
+      <div class="pantry-section-label">🔴 Expired</div>
+
+      <!-- Normal card above -->
+      <div class="pantry-card expired">
+        <div class="card-icon">🥛</div>
+        <div class="card-body">
+          <div class="card-name">Whole Milk</div>
+          <div class="card-qty">1.2 L remaining</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expired May 13</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- Swipe hint: card swiped to reveal delete action -->
+      <div style="margin-bottom: 8px;">
+        <div style="font-size: 11px; font-weight: 600; color: var(--ink-soft); text-align: center; padding: 4px 0 8px; letter-spacing: 0.04em;">← swipe to delete</div>
+        <div class="swipe-card-wrap">
+          <div class="swipe-delete-bg">
+            <span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              Delete
+            </span>
+          </div>
+          <div class="swipe-card-inner">
+            <div class="pantry-card expiring-soon" style="border-radius: var(--radius-sm);">
+              <div class="card-icon">🥚</div>
+              <div class="card-body">
+                <div class="card-name">Free Range Eggs</div>
+                <div class="card-qty">6 remaining</div>
+                <div class="card-location">📍 Fridge</div>
+              </div>
+              <div class="card-right">
+                <span class="expiry-chip">Expires May 18</span>
+                <span class="card-chevron">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pantry-section-label">🟡 Expiring Soon</div>
+
+      <div class="pantry-card expiring-soon">
+        <div class="card-icon">🧀</div>
+        <div class="card-body">
+          <div class="card-name">Cheddar Cheese</div>
+          <div class="card-qty">250 g remaining</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">Expires May 19</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="pantry-card ok">
+        <div class="card-icon">🫙</div>
+        <div class="card-body">
+          <div class="card-name">Greek Yogurt</div>
+          <div class="card-qty">500 g</div>
+          <div class="card-location">📍 Fridge</div>
+        </div>
+        <div class="card-right">
+          <span class="expiry-chip">May 25</span>
+          <span class="card-chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Diary
+      </div>
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Recipes
+      </div>
+      <div class="tab-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
+        Pantry
+      </div>
+      <div class="tab-item">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 6: Confirm Delete                                      -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-confirm-delete" style="background: rgba(26,18,8,0.5);">
+    <div style="flex:1; display:flex; flex-direction:column; justify-content: flex-end;">
+      <!-- Dimmed pantry list behind -->
+      <div style="position:absolute; inset:0; background: var(--cream); z-index:0; opacity:0.6;"></div>
+      <div style="position:relative; z-index:1;">
+        <div class="confirm-sheet">
+          <div class="confirm-title">Remove item?</div>
+          <div class="confirm-body">
+            <strong>Free Range Eggs</strong> will be removed from your pantry. This cannot be undone.
+          </div>
+          <div class="confirm-actions">
+            <button class="btn-danger" onclick="showScreen('list-populated')">🗑 Remove Item</button>
+            <button class="btn-secondary" onclick="showScreen('edit-item')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.screen-nav button').forEach((b, i) => {
+      const map = ['list-populated','list-empty','add-item','edit-item','swipe-delete','confirm-delete'];
+      b.classList.toggle('active', map[i] === name);
+    });
+  }
+
+  function openSheet(type) {
+    if (type === 'add') {
+      document.getElementById('add-sheet-overlay').classList.add('open');
+    } else if (type === 'edit') {
+      document.getElementById('edit-sheet-overlay').classList.add('open');
+    } else if (type === 'confirm') {
+      document.getElementById('confirm-sheet-overlay').classList.add('open');
+    }
+  }
+
+  function closeSheet(type) {
+    if (type === 'add') {
+      document.getElementById('add-sheet-overlay').classList.remove('open');
+    } else if (type === 'edit') {
+      document.getElementById('edit-sheet-overlay').classList.remove('open');
+    } else if (type === 'confirm') {
+      document.getElementById('confirm-sheet-overlay').classList.remove('open');
+    }
+  }
+
+  function switchNameMode(mode) {
+    document.getElementById('toggle-free').classList.toggle('active', mode === 'free');
+    document.getElementById('toggle-search').classList.toggle('active', mode === 'search');
+    document.getElementById('name-free-field').style.display = mode === 'free' ? '' : 'none';
+    document.getElementById('name-search-field').style.display = mode === 'search' ? '' : 'none';
+  }
+
+  function switchNameMode3(mode) {
+    document.getElementById('toggle-free-s3').classList.toggle('active', mode === 'free');
+    document.getElementById('toggle-search-s3').classList.toggle('active', mode === 'search');
+    document.getElementById('name-free-s3').style.display = mode === 'free' ? '' : 'none';
+    document.getElementById('name-search-s3').style.display = mode === 'search' ? '' : 'none';
+  }
+
+  function selectLocation(el) {
+    const pills = el.closest('.location-pills').querySelectorAll('.location-pill');
+    pills.forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function saveItem() {
+    closeSheet('add');
+    showToast('Item saved');
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast-populated');
+    const msgEl = document.getElementById('toast-msg-populated');
+    msgEl.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
