@@ -246,8 +246,21 @@
     }
 
     /* ── Scroll Area ── */
+    .scroll-container {
+      flex: 1; position: relative; min-height: 0; overflow: hidden;
+    }
+    /* Gradient fade at bottom — scroll affordance */
+    .scroll-container::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--cream));
+      pointer-events: none; z-index: 3;
+    }
+    html.dark .scroll-container::after {
+      background: linear-gradient(to bottom, transparent, var(--cream));
+    }
     .ingredient-scroll {
-      flex: 1; overflow-y: auto; overflow-x: hidden;
+      height: 100%; overflow-y: auto; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       padding: 4px 0 8px;
     }
@@ -298,7 +311,7 @@
     .amount-input::-webkit-inner-spin-button,
     .amount-input::-webkit-outer-spin-button { -webkit-appearance: none; }
     .amount-input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(201,86,43,0.10); }
-    .ing-unit { font-size: 11.5px; font-weight: 500; color: var(--ink-soft); }
+    .ing-unit { font-size: 11.5px; font-weight: 500; color: var(--ink-soft); min-width: 30px; }
 
     /* ── Extra Kcal Row ── */
     .extra-kcal-row {
@@ -410,32 +423,35 @@
 
     /* Per-100g — compact reference strip */
     .per100g-strip {
-      display: flex; align-items: center;
-      padding: 8px 16px 7px;
-      gap: 6px; border-bottom: 1px solid var(--border);
-      min-height: 36px;
+      display: flex; align-items: flex-start;
+      padding: 10px 16px 9px;
+      gap: 8px; border-bottom: 1px solid var(--border);
+      min-height: 44px; flex-wrap: wrap;
     }
     .per100g-strip-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
       color: var(--ink-soft); flex-shrink: 0; margin-right: 2px;
+      padding-top: 2px; /* align baseline with values */
     }
     .per100g-strip-values {
-      display: flex; align-items: baseline; gap: 0; flex-wrap: wrap;
+      display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; row-gap: 2px;
     }
     .p100-val {
-      font-size: 12.5px; font-weight: 700;
+      font-size: 14px; font-weight: 700;
       transition: color 0.2s;
     }
-    .p100-val.v-kcal  { color: var(--terra); }
+    .p100-val.v-kcal    { color: var(--terra); }
     .p100-val.v-protein { color: var(--protein-color); }
-    .p100-val.v-fat   { color: var(--fat-color); }
-    .p100-val.v-carbs { color: var(--carbs-color); }
+    .p100-val.v-fat     { color: var(--fat-color); }
+    .p100-val.v-carbs   { color: var(--carbs-color); }
+    .p100-val.v-fiber   { color: var(--ink-mid); }
+    .p100-val.v-sodium  { color: var(--ink-soft); }
     .p100-lbl {
-      font-size: 10.5px; font-weight: 400; color: var(--ink-soft); margin-right: 5px;
+      font-size: 11.5px; font-weight: 400; color: var(--ink-soft); margin-right: 6px;
     }
     .p100-dot {
       width: 2px; height: 2px; border-radius: 50%;
-      background: var(--border); margin: 0 5px 2px; flex-shrink: 0;
+      background: var(--border); margin: 0 5px 3px; flex-shrink: 0;
     }
     .per100g-strip.disabled .p100-val { color: var(--ink-soft) !important; opacity: 0.45; }
     .per100g-strip.disabled .p100-lbl { opacity: 0.45; }
@@ -449,11 +465,11 @@
     .warn-icon-sm { font-size: 14px; }
 
     /* ── Portion section ── */
-    .portion-section { padding: 10px 16px 0; }
+    .portion-section { padding: 8px 16px 0; }
 
     .portion-section-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.7px;
-      text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px;
+      font-size: 12.5px; font-weight: 500; letter-spacing: 0;
+      text-transform: none; color: var(--ink-mid); margin-bottom: 6px;
     }
 
     /* Mode toggle — segmented pill */
@@ -484,7 +500,7 @@
 
     /* Portion input row */
     .portion-input-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
     }
     .portion-input {
       flex: 1; min-width: 0; height: 50px;
@@ -524,7 +540,7 @@
       background: linear-gradient(135deg, var(--terra-xlight) 0%, var(--cream) 100%);
       border-radius: var(--radius-sm);
       border: 1.5px solid rgba(201,86,43,0.18);
-      margin-bottom: 10px;
+      margin-bottom: 7px;
       position: relative;
     }
     .portion-result::before {
@@ -574,11 +590,10 @@
 
     /* ── CTAs ── */
     .cta-row {
-      display: flex; align-items: stretch; gap: 7px;
       padding: 0 16px 12px;
     }
     .btn-log {
-      flex: 1; height: 50px;
+      width: 100%; height: 50px;
       background: var(--terra); color: white; border: none;
       border-radius: var(--radius-sm);
       font-family: var(--font-body); font-size: 14.5px; font-weight: 600;
@@ -599,14 +614,7 @@
     }
     .btn-log.shake { animation: logShake 0.45s ease; }
 
-    .btn-save {
-      height: 50px; padding: 0 12px;
-      background: var(--white); color: var(--ink-mid);
-      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-      font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
-      cursor: pointer; transition: background 0.15s; white-space: nowrap; text-align: center; line-height: 1.3;
-    }
-    .btn-save:hover { background: var(--cream-dark); border-color: var(--ink-soft); }
+
 
     .log-hint {
       font-size: 10.5px; color: var(--ink-soft); font-style: italic;
@@ -707,6 +715,7 @@
       </div>
 
       <!-- Ingredient scroll -->
+      <div class="scroll-container">
       <div class="ingredient-scroll" id="ingredient-scroll">
         <div class="scroll-section-label">Ingredients</div>
         <div id="ingredient-list"></div>
@@ -742,6 +751,7 @@
 
         <div style="height:28px;"></div>
       </div>
+      </div><!-- /scroll-container -->
 
       <!-- ════ BOTTOM PANEL ════ -->
       <div class="bottom-panel">
@@ -763,6 +773,10 @@
             <span class="p100-val v-fat" id="p100-fat">—</span><span class="p100-lbl">g F</span>
             <span class="p100-dot"></span>
             <span class="p100-val v-carbs" id="p100-carbs">—</span><span class="p100-lbl">g C</span>
+            <span class="p100-dot"></span>
+            <span class="p100-val v-fiber" id="p100-fiber">—</span><span class="p100-lbl">g fiber</span>
+            <span class="p100-dot"></span>
+            <span class="p100-val v-sodium" id="p100-sodium">—</span><span class="p100-lbl">mg Na</span>
           </div>
         </div>
 
@@ -790,7 +804,7 @@
           <!-- Input + unit -->
           <div class="portion-input-row">
             <input type="number" inputmode="decimal" class="portion-input" id="portion-input"
-              value="" min="0" placeholder="0"
+              value="" min="0" placeholder=""
               oninput="calculate()" onchange="calculate()" />
             <span class="portion-input-unit" id="portion-unit-label">g</span>
           </div>
@@ -827,7 +841,6 @@
         <!-- CTAs -->
         <div class="cta-row">
           <button class="btn-log" id="btn-log" disabled onclick="handleLog()">Log this portion</button>
-          <button class="btn-save" onclick="handleSave()">Save cook<br>result</button>
         </div>
       </div>
 
@@ -844,6 +857,7 @@
         <div class="sanity-item"><span class="sanity-label">Cooked</span><span class="sanity-value">—</span><span class="sanity-unit">g</span></div>
       </div>
 
+      <div class="scroll-container">
       <div class="ingredient-scroll">
         <div class="scroll-section-label">Ingredients</div>
         <div class="empty-ing-hint">
@@ -887,6 +901,7 @@
         </div>
         <div style="height:28px;"></div>
       </div>
+      </div><!-- /scroll-container adhoc -->
 
       <div class="bottom-panel">
         <div class="per100g-strip">
@@ -910,7 +925,6 @@
         </div>
         <div class="cta-row">
           <button class="btn-log" disabled style="opacity:0.4; cursor:not-allowed;">Log this portion</button>
-          <button class="btn-save" style="opacity:0.4; cursor:not-allowed;">Save cook<br>result</button>
         </div>
       </div>
     </div><!-- /screen-adhoc -->
@@ -971,7 +985,7 @@
       const input = document.getElementById('portion-input');
       const unit  = document.getElementById('portion-unit-label');
       unit.textContent = mode === 'weight' ? 'g' : 'kcal';
-      input.placeholder = '0';
+      input.placeholder = '';
       input.value = '';
       input.classList.remove('has-value');
       calculate();
@@ -1043,7 +1057,7 @@
         strip?.classList.add('disabled');
         zeroWarn?.classList.add('visible');
         if (p100vals) p100vals.style.display = 'none';
-        ['p100-kcal','p100-protein','p100-fat','p100-carbs'].forEach(id => {
+        ['p100-kcal','p100-protein','p100-fat','p100-carbs','p100-fiber','p100-sodium'].forEach(id => {
           const el = document.getElementById(id); if (el) el.textContent = '—';
         });
       } else {
@@ -1055,6 +1069,8 @@
         setVal('p100-protein',  fmt(per_100g.protein, 1));
         setVal('p100-fat',      fmt(per_100g.fat, 1));
         setVal('p100-carbs',    fmt(per_100g.carbohydrates, 1));
+        setVal('p100-fiber',    fmt(per_100g.fiber, 1));
+        setVal('p100-sodium',   fmt(per_100g.sodium, 0));
       }
 
       // Portion calculation — bidirectional
@@ -1197,11 +1213,8 @@
       const mode = portionMode;
       const kcalShown = document.getElementById('result-kcal')?.textContent;
       const derived   = document.getElementById('portion-derived')?.textContent;
-      alert(`✅ Logged!\n\nInput: ${portionVal} ${mode === 'weight' ? 'g' : 'kcal'}${derived ? '\n' + derived : ''}\nServing: ${kcalShown} kcal\n\n→ Calls POST /recipes/{id}/cook then adds to daily meal log`);
-    }
-    function handleSave() {
       const cw = document.getElementById('cooked-weight-input')?.value;
-      alert(`💾 Cook result saved\nCooked weight: ${cw}g\n\n→ Calls POST /recipes/{id}/cook\nPersists last_cooked_at + last_cooked_weight_g`);
+      alert(`✅ Logged!\n\nInput: ${portionVal} ${mode === 'weight' ? 'g' : 'kcal'}${derived ? '\n' + derived : ''}\nServing: ${kcalShown} kcal\n\n→ POST /recipes/{id}/cook (saves last_cooked_at + last_cooked_weight_g: ${cw}g)\n→ Adds portion to daily meal log`);
     }
 
     /* ════════════════════════════════════════════════════
