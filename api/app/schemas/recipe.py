@@ -77,3 +77,33 @@ class RecipeUpdate(BaseModel):
 
 class RecipeDuplicateResponse(BaseModel):
     id: int
+
+
+# ── Cooking mode schemas ──────────────────────────────────────────────────────
+
+
+class MacroValues(BaseModel):
+    kcal: float
+    protein: float
+    fat: float
+    carbohydrates: float
+    fiber: float
+    sodium: float
+
+
+class NutritionResult(BaseModel):
+    totals: MacroValues
+    per_100g: MacroValues
+
+
+class RecipeIngredientIn(BaseModel):
+    """Ingredient amount submitted for a cooking session."""
+
+    ingredient_id: int
+    amount: float = Field(gt=0)
+
+
+class CookRequest(BaseModel):
+    ingredient_amounts: list[RecipeIngredientIn]
+    extra_kcal: float = Field(default=0.0, ge=0.0)
+    cooked_weight_g: float = Field(gt=0)
