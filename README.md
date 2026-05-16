@@ -37,6 +37,16 @@ pnpm --prefix frontend run gen:api
 pre-commit run --all-files
 ```
 
+> **Note — bootstrapping the first admin user:** There is no admin account created
+> automatically. All `/admin/*` endpoints require an existing admin, so the first
+> admin must be promoted directly in the database:
+> ```bash
+> docker compose exec db psql -U postgres -d calorietracker \
+>   -c "UPDATE users SET role = 'admin' WHERE email = 'you@example.com';"
+> ```
+> Then log out and back in — the `role` claim is baked into the JWT at login time,
+> so a fresh token is required before the admin endpoints will accept you.
+
 > **Note — volume wipes and seed data:** `docker compose down -v` destroys the
 > `postgres_data` volume and with it all seed data. Run the two commands below
 > to restore from scratch (the JSON source is committed to the repo, so nothing
