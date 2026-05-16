@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from app.admin.router import router as admin_router
 from app.auth.router import router as auth_router
 from app.config import get_settings
 from app.ingredients.router import router as ingredients_router
@@ -28,6 +29,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(ingredients_router)
+app.include_router(admin_router)
 
 
 @app.get("/health")

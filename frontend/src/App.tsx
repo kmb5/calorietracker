@@ -1,26 +1,35 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute";
+import { ToastProvider } from "./components/ui/toast";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
+import { CustomIngredientFormPage } from "./pages/CustomIngredientFormPage";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public-only: redirect to / when already logged in */}
-          <Route element={<PublicOnlyRoute />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-          </Route>
+        <ToastProvider>
+          <Routes>
+            {/* Public-only: redirect to / when already logged in */}
+            <Route element={<PublicOnlyRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
 
-          {/* Protected: redirect to /login when not authenticated */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<HomePage />} />
-          </Route>
-        </Routes>
+            {/* Protected: redirect to /login when not authenticated */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/ingredients/new" element={<CustomIngredientFormPage />} />
+              <Route
+                path="/ingredients/:id/edit"
+                element={<CustomIngredientFormPage />}
+              />
+            </Route>
+          </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );
