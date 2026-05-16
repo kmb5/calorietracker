@@ -295,7 +295,7 @@
 
     /* ── Bar chart ──────────────────────────────────────────────── */
     .chart-wrap {
-      padding: 14px 16px 10px;
+      padding: 14px 16px 0;
       position: relative;
     }
 
@@ -347,7 +347,7 @@
       align-items: center;
       height: 100%;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 3px;
     }
 
     .bar-kcal {
@@ -372,14 +372,22 @@
     .bar-rect.empty      { background: var(--bar-empty); border-radius: 5px; min-height: 6px; height: 6px !important; }
     .bar-rect.no-target  { background: var(--terra); opacity: 0.75; }
 
+    /* Day labels live OUTSIDE chart-inner in a separate .days-row so they don't
+       distort bar heights or the reference line position. */
+    .days-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+      padding: 5px 0 10px;
+    }
+
     .bar-day {
       font-size: 9.5px;
       font-weight: 500;
       color: var(--ink-soft);
       text-align: center;
-      padding-top: 6px;
-      border-top: 1px solid var(--border);
-      width: 100%;
     }
 
     .bar-day.today {
@@ -930,7 +938,8 @@
     }
 
     // Bars grid
-    html += '<div class="bars-grid">';
+    let barsHtml = '<div class="bars-grid">';
+    let daysHtml  = '<div class="days-row">';
     for (const d of data) {
       const barPct = d.kcal > 0 ? Math.min((d.kcal / maxKcal) * 100, 100) : 0;
       let barClass = 'bar-rect';
@@ -946,16 +955,21 @@
 
       const kcalLabel = d.kcal > 0 ? (d.kcal >= 1000 ? (d.kcal / 1000).toFixed(1) + 'k' : d.kcal) : '';
 
-      html += `
+      barsHtml += `
         <div class="bar-col">
           <div class="bar-kcal">${kcalLabel}</div>
           <div class="${barClass}" style="height:${barPct}%"></div>
-          <div class="bar-day${d.isToday ? ' today' : ''}">${d.day}</div>
         </div>`;
+      daysHtml += `<div class="bar-day${d.isToday ? ' today' : ''}">${d.day}</div>`;
     }
-    html += '</div>';
+    barsHtml += '</div>';
+    daysHtml  += '</div>';
 
-    container.innerHTML = html;
+    container.innerHTML = html + barsHtml;
+    // Days row goes OUTSIDE chart-inner (sibling, inside chart-wrap)
+    const daysEl = document.createElement('div');
+    daysEl.innerHTML = daysHtml;
+    container.parentElement.appendChild(daysEl.firstChild);
   }
 
   /* ── Data sets ─────────────────────────────────────────────────── */
