@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ingredient import Ingredient, UnitType
-from app.models.user import User, UserRole
+from app.models.user import User
 
 # ---------------------------------------------------------------------------
 # Shared ingredient payload
@@ -30,9 +30,7 @@ _BASE = dict(
 # ---------------------------------------------------------------------------
 
 
-async def _create_pending_ingredient(
-    client: AsyncClient, token: str, name: str
-) -> int:
+async def _create_pending_ingredient(client: AsyncClient, token: str, name: str) -> int:
     create_resp = await client.post(
         "/ingredients",
         json={"name": name, **_BASE},
@@ -72,7 +70,9 @@ async def test_admin_endpoints_require_admin_role(client: AsyncClient):
         if method not in ("GET", "DELETE"):
             kwargs["json"] = {}
         resp = await getattr(client, method.lower())(url, **kwargs)
-        assert resp.status_code == 403, f"{method} {url} expected 403, got {resp.status_code}"
+        assert resp.status_code == 403, (
+            f"{method} {url} expected 403, got {resp.status_code}"
+        )
 
 
 @pytest.mark.asyncio
@@ -83,7 +83,9 @@ async def test_admin_endpoints_require_auth(client: AsyncClient):
     ]
     for method, url in endpoints:
         resp = await getattr(client, method.lower())(url)
-        assert resp.status_code == 401, f"{method} {url} expected 401, got {resp.status_code}"
+        assert resp.status_code == 401, (
+            f"{method} {url} expected 401, got {resp.status_code}"
+        )
 
 
 # ===========================================================================
@@ -92,9 +94,7 @@ async def test_admin_endpoints_require_auth(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_list_pending_promotions(
-    client: AsyncClient, db_session: AsyncSession
-):
+async def test_list_pending_promotions(client: AsyncClient, db_session: AsyncSession):
     token_user = await register_and_login(client, "prom_list_user")
     token_admin = await register_and_login(
         client, "prom_list_admin", make_admin=True, db_session=db_session
@@ -358,9 +358,7 @@ async def test_admin_delete_any_ingredient(
     assert resp.status_code == 204
 
     # Confirm gone
-    result = await db_session.execute(
-        select(Ingredient).where(Ingredient.id == ing_id)
-    )
+    result = await db_session.execute(select(Ingredient).where(Ingredient.id == ing_id))
     assert result.scalar_one_or_none() is None
 
 
@@ -436,9 +434,7 @@ async def test_bulk_import_creates_system_ingredients(
 
 
 @pytest.mark.asyncio
-async def test_bulk_import_is_idempotent(
-    client: AsyncClient, db_session: AsyncSession
-):
+async def test_bulk_import_is_idempotent(client: AsyncClient, db_session: AsyncSession):
     token_admin = await register_and_login(
         client, "bulk_idem_admin", make_admin=True, db_session=db_session
     )
