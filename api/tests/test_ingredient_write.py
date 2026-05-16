@@ -6,43 +6,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ingredient import Ingredient, UnitType
-from app.models.user import User, UserRole
+from tests.conftest import auth_headers, register_and_login
 
 # ---------------------------------------------------------------------------
-# Helpers (shared with read tests but redefined here for isolation)
+# Shared payload
 # ---------------------------------------------------------------------------
-
-
-async def register_and_login(
-    client: AsyncClient,
-    username: str = "alice",
-    password: str = "s3cr3t!1",
-    *,
-    make_admin: bool = False,
-    db_session: AsyncSession | None = None,
-) -> str:
-    await client.post(
-        "/auth/register",
-        json={
-            "username": username,
-            "email": f"{username}@example.com",
-            "password": password,
-        },
-    )
-    if make_admin and db_session is not None:
-        result = await db_session.execute(select(User).where(User.username == username))
-        user = result.scalar_one()
-        user.role = UserRole.admin
-        await db_session.commit()
-    resp = await client.post(
-        "/auth/login", json={"username": username, "password": password}
-    )
-    return resp.json()["access_token"]
-
-
-def auth_headers(token: str) -> dict[str, str]:
-    return {"Authorization": f"Bearer {token}"}
-
 
 _BASE_FIELDS = dict(
     unit="g",
@@ -64,6 +32,18 @@ _BASE_FIELDS = dict(
 @pytest.mark.asyncio
 async def test_create_requires_auth(client: AsyncClient):
     resp = await client.post("/ingredients", json={"name": "Test", **_BASE_FIELDS})
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_update_requires_auth(client: AsyncClient):
+    resp = await client.patch("/ingredients/1", json={"name": "Ghost"})
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_delete_requires_auth(client: AsyncClient):
+    resp = await client.delete("/ingredients/1")
     assert resp.status_code == 401
 
 

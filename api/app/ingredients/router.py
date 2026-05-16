@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.deps import get_current_user
 from app.models.ingredient import Ingredient, UnitType
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.ingredient import (
     IngredientCreate,
     IngredientDetail,
@@ -147,7 +147,7 @@ async def update_ingredient(
     )
     ingredient = result.scalar_one_or_none()
 
-    is_admin = current_user.role.value == "admin"
+    is_admin = current_user.role == UserRole.admin
 
     if ingredient is None:
         raise HTTPException(
@@ -189,7 +189,7 @@ async def delete_ingredient(
     )
     ingredient = result.scalar_one_or_none()
 
-    is_admin = current_user.role.value == "admin"
+    is_admin = current_user.role == UserRole.admin
 
     if ingredient is None:
         raise HTTPException(
@@ -234,6 +234,12 @@ async def promote_ingredient(
     if ingredient.owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    if ingredient.is_system:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="System ingredients cannot be promoted",
         )
 
     ingredient.is_promotion_pending = True
