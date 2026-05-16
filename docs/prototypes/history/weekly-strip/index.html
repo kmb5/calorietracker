@@ -222,8 +222,8 @@
 
     .card-subtitle {
       font-size: 12px;
-      color: var(--ink-soft);
-      font-weight: 400;
+      color: var(--terra);
+      font-weight: 500;
     }
 
     /* ── Streak banner ──────────────────────────────────────────── */
@@ -934,7 +934,7 @@
     // Reference line
     if (refPct !== null) {
       html += `<div class="ref-line" style="bottom:${refPct}%"></div>`;
-      html += `<div class="ref-label" style="bottom:${refPct}%">target</div>`;
+      // label removed — card-subtitle "Target: X kcal" is coloured terra to pair with the line
     }
 
     // Bars grid
