@@ -113,6 +113,38 @@ async def _get_pending_ingredient(
 # ===========================================================================
 
 
+@router.get("/ingredients", response_model=list[IngredientDetail])
+async def list_system_ingredients(
+    _admin: User = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db),
+) -> list[Ingredient]:
+    """Return all system ingredients with full nutrition detail."""
+    result = await session.execute(
+        select(Ingredient)
+        .where(Ingredient.is_system.is_(True))
+        .order_by(Ingredient.name)
+    )
+    return list(result.scalars().all())
+
+
+@router.get("/ingredients/{ingredient_id}", response_model=IngredientDetail)
+async def get_any_ingredient(
+    ingredient_id: int,
+    _admin: User = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db),
+) -> Ingredient:
+    """Return full detail for any ingredient by ID (admin-only)."""
+    result = await session.execute(
+        select(Ingredient).where(Ingredient.id == ingredient_id)
+    )
+    ingredient = result.scalar_one_or_none()
+    if ingredient is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+    return ingredient
+
+
 @router.post(
     "/ingredients",
     response_model=IngredientDetail,

@@ -1,15 +1,46 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { OpenAPI } from "../client/core/OpenAPI";
 import { authApi, type LoginRequest, type RegisterRequest } from "../services/auth";
+import type { UserRole } from "../client/types.gen";
+
+// Decode the JWT payload (middle base64 segment) — safe since we never trust
+// these values for access control; the API enforces authz server-side.
+function decodeJwtPayload(token: string): { role?: string; sub?: string } {
+  try {
+    return JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
+    ) as { role?: string; sub?: string };
+  } catch {
+    return {};
+  }
+}
+
+function decodeJwtRole(token: string): UserRole | null {
+  const payload = decodeJwtPayload(token);
+  if (payload.role === "admin" || payload.role === "user") return payload.role;
+  return null;
+}
+
+function decodeJwtUserId(token: string): number | null {
+  const payload = decodeJwtPayload(token);
+  const id = payload.sub ? Number(payload.sub) : NaN;
+  return isNaN(id) ? null : id;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AuthState {
   /** In-memory access token. Null means unauthenticated. */
   accessToken: string | null;
+  /** Role decoded from the current access token. Null when unauthenticated. */
+  role: UserRole | null;
+  /** User ID decoded from the current access token. Null when unauthenticated. */
+  userId: number | null;
   /** True while the initial silent-refresh attempt is in progress. */
   loading: boolean;
 }
+
+export type { UserRole };
 
 interface AuthContextValue extends AuthState {
   /** Log in with username + password. Throws on failure. */
@@ -29,17 +60,24 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({
     accessToken: null,
+    role: null,
+    userId: null,
     loading: true,
   });
 
   const setAccessToken = useCallback((accessToken: string) => {
     OpenAPI.TOKEN = accessToken;
-    setState({ accessToken, loading: false });
+    setState({
+      accessToken,
+      role: decodeJwtRole(accessToken),
+      userId: decodeJwtUserId(accessToken),
+      loading: false,
+    });
   }, []);
 
   const clearAccessToken = useCallback(() => {
     OpenAPI.TOKEN = undefined;
-    setState({ accessToken: null, loading: false });
+    setState({ accessToken: null, role: null, userId: null, loading: false });
   }, []);
 
   // ── Silent refresh on mount ───────────────────────────────────────────────

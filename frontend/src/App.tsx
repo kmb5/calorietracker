@@ -1,11 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
 import { ToastProvider } from "./components/ui/toast";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
 import { CustomIngredientFormPage } from "./pages/CustomIngredientFormPage";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
 
 export default function App() {
   return (
@@ -27,6 +29,11 @@ export default function App() {
                 path="/ingredients/:id/edit"
                 element={<CustomIngredientFormPage />}
               />
+            </Route>
+
+            {/* Admin-only: redirect non-admins to / */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminDashboard />} />
             </Route>
           </Routes>
         </ToastProvider>

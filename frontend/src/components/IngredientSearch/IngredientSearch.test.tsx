@@ -81,6 +81,7 @@ const DETAIL: IngredientDetail = {
   owner_id: null,
   icon: null,
   is_promotion_pending: false,
+  promotion_rejection_note: null,
 };
 
 const CUSTOM_DETAIL: IngredientDetail = {
@@ -98,6 +99,7 @@ const CUSTOM_DETAIL: IngredientDetail = {
   owner_id: 1,
   icon: null,
   is_promotion_pending: false,
+  promotion_rejection_note: null,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
