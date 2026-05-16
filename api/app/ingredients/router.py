@@ -1,4 +1,4 @@
-"""Ingredient read endpoints: search and detail."""
+"""Ingredient endpoints: search, detail, create, update, delete, promote."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
@@ -7,8 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.deps import get_current_user
 from app.models.ingredient import Ingredient, UnitType
-from app.models.user import User
-from app.schemas.ingredient import IngredientDetail, IngredientSearchResult
+from app.models.user import User, UserRole
+from app.schemas.ingredient import (
+    IngredientCreate,
+    IngredientDetail,
+    IngredientSearchResult,
+    IngredientUpdate,
+)
 
 router = APIRouter(prefix="/ingredients", tags=["ingredients"])
 
@@ -90,4 +95,154 @@ async def get_ingredient(
             status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
         )
 
+    return ingredient
+
+
+# ---------------------------------------------------------------------------
+# POST /ingredients — create custom ingredient
+# ---------------------------------------------------------------------------
+
+
+@router.post("", response_model=IngredientDetail, status_code=status.HTTP_201_CREATED)
+async def create_ingredient(
+    body: IngredientCreate,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> Ingredient:
+    """Create a custom ingredient owned by the calling user.
+
+    ``is_system`` is always set to ``False``; ``owner_id`` is always the caller.
+    """
+    ingredient = Ingredient(
+        **body.model_dump(),
+        is_system=False,
+        owner_id=current_user.id,
+    )
+    session.add(ingredient)
+    await session.commit()
+    await session.refresh(ingredient)
+    return ingredient
+
+
+# ---------------------------------------------------------------------------
+# PATCH /ingredients/{id} — update own ingredient (admin: any)
+# ---------------------------------------------------------------------------
+
+
+@router.patch("/{ingredient_id}", response_model=IngredientDetail)
+async def update_ingredient(
+    ingredient_id: int,
+    body: IngredientUpdate,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> Ingredient:
+    """Update an ingredient.
+
+    Regular users may only update ingredients they own.
+    Admins may update any ingredient (system or custom).
+    Returns 404 (not 403) for ownership violations.
+    """
+    result = await session.execute(
+        select(Ingredient).where(Ingredient.id == ingredient_id)
+    )
+    ingredient = result.scalar_one_or_none()
+
+    is_admin = current_user.role == UserRole.admin
+
+    if ingredient is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    if not is_admin and ingredient.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(ingredient, field, value)
+
+    await session.commit()
+    await session.refresh(ingredient)
+    return ingredient
+
+
+# ---------------------------------------------------------------------------
+# DELETE /ingredients/{id} — delete own ingredient (admin: any)
+# ---------------------------------------------------------------------------
+
+
+@router.delete("/{ingredient_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_ingredient(
+    ingredient_id: int,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> None:
+    """Delete an ingredient.
+
+    Regular users may only delete ingredients they own.
+    Admins may delete any ingredient (system or custom).
+    Returns 404 (not 403) for ownership violations.
+    """
+    result = await session.execute(
+        select(Ingredient).where(Ingredient.id == ingredient_id)
+    )
+    ingredient = result.scalar_one_or_none()
+
+    is_admin = current_user.role == UserRole.admin
+
+    if ingredient is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    if not is_admin and ingredient.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    await session.delete(ingredient)
+    await session.commit()
+
+
+# ---------------------------------------------------------------------------
+# POST /ingredients/{id}/promote — request promotion to system ingredient
+# ---------------------------------------------------------------------------
+
+
+@router.post("/{ingredient_id}/promote", response_model=IngredientDetail)
+async def promote_ingredient(
+    ingredient_id: int,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> Ingredient:
+    """Set ``is_promotion_pending=True`` on a custom ingredient the caller owns.
+
+    Idempotent — calling again when already pending is a no-op.
+    Returns 404 (not 403) for ownership violations.
+    """
+    result = await session.execute(
+        select(Ingredient).where(Ingredient.id == ingredient_id)
+    )
+    ingredient = result.scalar_one_or_none()
+
+    if ingredient is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    if ingredient.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
+        )
+
+    if ingredient.is_system:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="System ingredients cannot be promoted",
+        )
+
+    ingredient.is_promotion_pending = True
+    await session.commit()
+    await session.refresh(ingredient)
     return ingredient

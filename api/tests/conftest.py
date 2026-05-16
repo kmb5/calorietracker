@@ -129,3 +129,50 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
     async with _TestSessionLocal() as session:
         yield session
+
+
+# ---------------------------------------------------------------------------
+# Shared test helpers (used across multiple test modules)
+# ---------------------------------------------------------------------------
+
+
+async def register_and_login(
+    client: AsyncClient,
+    username: str = "alice",
+    password: str = "s3cr3t!1",
+    *,
+    make_admin: bool = False,
+    db_session: AsyncSession | None = None,
+) -> str:
+    """Register a user (if not already registered) and return an access token.
+
+    Pass ``make_admin=True`` together with a ``db_session`` to promote the
+    user to the admin role before logging in.
+    """
+    await client.post(
+        "/auth/register",
+        json={
+            "username": username,
+            "email": f"{username}@example.com",
+            "password": password,
+        },
+    )
+    if make_admin and db_session is not None:
+        from sqlalchemy import select as sa_select
+
+        from app.models.user import User, UserRole
+
+        result = await db_session.execute(
+            sa_select(User).where(User.username == username)
+        )
+        user = result.scalar_one()
+        user.role = UserRole.admin
+        await db_session.commit()
+    resp = await client.post(
+        "/auth/login", json={"username": username, "password": password}
+    )
+    return resp.json()["access_token"]
+
+
+def auth_headers(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}

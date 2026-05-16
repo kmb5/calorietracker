@@ -42,6 +42,7 @@ class Ingredient(Base):
     carbohydrates: Mapped[float] = mapped_column(Float, nullable=False)
     fiber: Mapped[float] = mapped_column(Float, nullable=False)
     sodium: Mapped[float] = mapped_column(Float, nullable=False)
+    icon: Mapped[str | None] = mapped_column(String(10), nullable=True, default=None)
     is_system: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     owner_id: Mapped[int | None] = mapped_column(
         Integer,

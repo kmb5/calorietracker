@@ -1,6 +1,7 @@
 """Tests for /ingredients/* endpoints — search and detail."""
 
 import pytest
+from conftest import auth_headers, register_and_login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,27 +10,6 @@ from app.models.ingredient import Ingredient, UnitType
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-async def register_and_login(
-    client: AsyncClient, username: str = "alice", password: str = "s3cr3t!1"
-) -> str:
-    await client.post(
-        "/auth/register",
-        json={
-            "username": username,
-            "email": f"{username}@example.com",
-            "password": password,
-        },
-    )
-    resp = await client.post(
-        "/auth/login", json={"username": username, "password": password}
-    )
-    return resp.json()["access_token"]
-
-
-def auth_headers(token: str) -> dict[str, str]:
-    return {"Authorization": f"Bearer {token}"}
 
 
 async def _create_ingredient(
@@ -212,6 +192,7 @@ async def test_search_result_fields(client: AsyncClient, db_session: AsyncSessio
         "portion_size",
         "kcal",
         "is_system",
+        "icon",
     }
 
 
@@ -249,6 +230,8 @@ async def test_detail_returns_all_fields(client: AsyncClient, db_session: AsyncS
         "sodium",
         "is_system",
         "owner_id",
+        "icon",
+        "is_promotion_pending",
     }
     assert set(data.keys()) == expected_keys
 
