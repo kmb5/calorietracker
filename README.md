@@ -46,6 +46,22 @@ pre-commit run --all-files
 > docker compose run --rm api python scripts/seed_ingredients.py
 > ```
 
+### Previewing HTML prototypes on mobile
+
+Prototypes live in `docs/prototypes/`. To check one on a phone:
+
+```bash
+# Serve on all network interfaces
+cd docs/prototypes/<name> && python3 -m http.server 8888 --bind 0.0.0.0
+
+# Find your local IP
+ipconfig getifaddr en0
+
+# Then open http://<local-ip>:8888 in your phone browser (same WiFi required)
+```
+
+> **VPN note:** if the browser has a VPN extension active, local IPs (`192.168.x.x`) may not be reachable — disable it temporarily.
+
 ---
 
 # PRD Index

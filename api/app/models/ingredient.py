@@ -53,6 +53,9 @@ class Ingredient(Base):
     is_promotion_pending: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
+    promotion_rejection_note: Mapped[str | None] = mapped_column(
+        String(1000), nullable=True, default=None
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

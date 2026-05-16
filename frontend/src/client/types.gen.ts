@@ -4,6 +4,19 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type IngredientCreate = {
+  name: string;
+  unit: UnitType;
+  portion_size?: number;
+  kcal: number;
+  protein: number;
+  fat: number;
+  carbohydrates: number;
+  fiber: number;
+  sodium: number;
+  icon?: string | null;
+};
+
 export type IngredientDetail = {
   id: number;
   name: string;
@@ -17,6 +30,8 @@ export type IngredientDetail = {
   sodium: number;
   is_system: boolean;
   owner_id: number | null;
+  icon: string | null;
+  is_promotion_pending: boolean;
 };
 
 export type IngredientSearchResult = {
@@ -26,6 +41,20 @@ export type IngredientSearchResult = {
   portion_size: number;
   kcal: number;
   is_system: boolean;
+  icon: string | null;
+};
+
+export type IngredientUpdate = {
+  name?: string | null;
+  unit?: UnitType | null;
+  portion_size?: number | null;
+  kcal?: number | null;
+  protein?: number | null;
+  fat?: number | null;
+  carbohydrates?: number | null;
+  fiber?: number | null;
+  sodium?: number | null;
+  icon?: string | null;
 };
 
 export type LoginRequest = {
@@ -94,6 +123,32 @@ export type GetIngredientIngredientsIngredientIdGetData = {
 };
 
 export type GetIngredientIngredientsIngredientIdGetResponse = IngredientDetail;
+
+export type UpdateIngredientIngredientsIngredientIdPatchData = {
+  ingredientId: number;
+  requestBody: IngredientUpdate;
+};
+
+export type UpdateIngredientIngredientsIngredientIdPatchResponse = IngredientDetail;
+
+export type DeleteIngredientIngredientsIngredientIdDeleteData = {
+  ingredientId: number;
+};
+
+export type DeleteIngredientIngredientsIngredientIdDeleteResponse = void;
+
+export type CreateIngredientIngredientsPostData = {
+  requestBody: IngredientCreate;
+};
+
+export type CreateIngredientIngredientsPostResponse = IngredientDetail;
+
+export type PromoteIngredientIngredientsIngredientIdPromotePostData = {
+  ingredientId: number;
+};
+
+export type PromoteIngredientIngredientsIngredientIdPromotePostResponse =
+  IngredientDetail;
 
 export type HealthHealthGetResponse = {
   [key: string]: string;
@@ -178,6 +233,62 @@ export type $OpenApiTs = {
   "/ingredients/{ingredient_id}": {
     get: {
       req: GetIngredientIngredientsIngredientIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: IngredientDetail;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    patch: {
+      req: UpdateIngredientIngredientsIngredientIdPatchData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: IngredientDetail;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+    delete: {
+      req: DeleteIngredientIngredientsIngredientIdDeleteData;
+      res: {
+        /**
+         * Successful Response
+         */
+        204: void;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/ingredients": {
+    post: {
+      req: CreateIngredientIngredientsPostData;
+      res: {
+        /**
+         * Successful Response
+         */
+        201: IngredientDetail;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
+  };
+  "/ingredients/{ingredient_id}/promote": {
+    post: {
+      req: PromoteIngredientIngredientsIngredientIdPromotePostData;
       res: {
         /**
          * Successful Response
