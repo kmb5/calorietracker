@@ -36,6 +36,8 @@ export function useIngredientSearch(): UseIngredientSearchReturn {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentQueryRef = useRef("");
+  const detailAbortRef = useRef<AbortController | null>(null);
 
   const setQuery = useCallback((q: string) => {
     setQueryRaw(q);
@@ -47,15 +49,18 @@ export function useIngredientSearch(): UseIngredientSearchReturn {
     }
     setIsOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    const trimmed = q.trim();
+    currentQueryRef.current = trimmed;
     debounceRef.current = setTimeout(async () => {
+      const firedFor = trimmed;
       setIsLoading(true);
       try {
-        const data = await searchIngredientsIngredientsSearchGet({ q: q.trim() });
-        setResults(data);
+        const data = await searchIngredientsIngredientsSearchGet({ q: firedFor });
+        setResults((prev) => (currentQueryRef.current === firedFor ? data : prev));
       } catch {
-        setResults([]);
+        if (currentQueryRef.current === firedFor) setResults([]);
       } finally {
-        setIsLoading(false);
+        if (currentQueryRef.current === firedFor) setIsLoading(false);
       }
     }, DEBOUNCE_MS);
   }, []);
@@ -75,19 +80,23 @@ export function useIngredientSearch(): UseIngredientSearchReturn {
   }, []);
 
   const openDetail = useCallback(async (id: number) => {
+    detailAbortRef.current?.abort();
+    const controller = new AbortController();
+    detailAbortRef.current = controller;
     setIsDetailLoading(true);
     setDetail(null);
     try {
       const data = await getIngredientIngredientsIngredientIdGet({ ingredientId: id });
-      setDetail(data);
+      if (!controller.signal.aborted) setDetail(data);
     } catch {
-      setDetail(null);
+      if (!controller.signal.aborted) setDetail(null);
     } finally {
-      setIsDetailLoading(false);
+      if (!controller.signal.aborted) setIsDetailLoading(false);
     }
   }, []);
 
   const closeDetail = useCallback(() => {
+    detailAbortRef.current?.abort();
     setDetail(null);
     setIsDetailLoading(false);
   }, []);

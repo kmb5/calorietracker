@@ -285,6 +285,42 @@ describe("IngredientSearch — selection state", () => {
   });
 });
 
+describe("IngredientSearch — error paths", () => {
+  it("shows no-results state when search API rejects", async () => {
+    mockSearch.mockRejectedValue(new Error("Network error"));
+    renderSearch();
+    const input = screen.getByRole("combobox");
+
+    typeAndDebounce(input, "chicken");
+
+    await waitFor(() => screen.getByText("No ingredients found"));
+    // Should not be stuck in loading state
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("closes the detail sheet (no loading spinner) when detail fetch rejects", async () => {
+    mockSearch.mockResolvedValue([SYSTEM_RESULT]);
+    mockGetDetail.mockRejectedValue(new Error("500"));
+    renderSearch();
+    const input = screen.getByRole("combobox");
+
+    typeAndDebounce(input, "chick");
+    await waitFor(() => screen.getByText("Chicken Breast"));
+    fireEvent.click(screen.getByText("Chicken Breast"));
+    await waitFor(() => screen.getByLabelText("View nutrition details"));
+
+    fireEvent.click(screen.getByLabelText("View nutrition details"));
+
+    await waitFor(() =>
+      expect(mockGetDetail).toHaveBeenCalledWith({ ingredientId: 1 })
+    );
+    // Sheet should not hang in loading state — detail is null so sheet closes
+    await waitFor(() =>
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
+    );
+  });
+});
+
 describe("IngredientSearch — detail sheet", () => {
   it("opens the detail sheet and shows all 6 nutrition fields", async () => {
     mockSearch.mockResolvedValue([SYSTEM_RESULT]);
