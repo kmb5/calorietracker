@@ -203,18 +203,22 @@
     .item-card {
       background: var(--white);
       border-radius: var(--radius);
-      padding: 14px 16px;
+      padding: 14px 16px 14px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
+      border-left: 3px solid var(--terra-light);
       position: relative;
       transition: transform 0.25s ease, box-shadow 0.2s;
       z-index: 1;
     }
     .item-card.qty-open {
-      transform: translateX(120px);
+      border-left-color: transparent;
+    }
+    .item-card.qty-open {
+      transform: translateX(110px);
       border-radius: 0 var(--radius) var(--radius) 0;
     }
     .item-icon {
@@ -274,48 +278,53 @@
     .qty-controls {
       position: absolute;
       left: 0; top: 0; bottom: 0;
-      width: 120px;
+      width: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
       background: var(--terra);
       border-radius: var(--radius) 0 0 var(--radius);
       z-index: 0;
-      padding: 0 8px;
+      padding: 0 10px;
     }
     .qty-btn {
-      width: 44px; height: 44px;
+      width: 30px; height: 30px;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.4);
-      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.18);
       color: #fff;
-      font-size: 22px;
+      font-size: 18px;
       line-height: 1;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700;
+      font-weight: 600;
       flex-shrink: 0;
-      transition: background 0.15s;
+      transition: background 0.12s, transform 0.1s;
     }
-    .qty-btn:hover { background: rgba(255,255,255,0.28); }
-    .qty-btn:active { background: rgba(255,255,255,0.38); }
+    .qty-btn:hover { background: rgba(255,255,255,0.30); }
+    .qty-btn:active { background: rgba(255,255,255,0.42); transform: scale(0.92); }
     .qty-value {
       font-weight: 700;
-      font-size: 16px;
+      font-size: 15px;
       color: #fff;
-      min-width: 24px;
+      min-width: 18px;
       text-align: center;
     }
-    /* hint label under card */
-    .swipe-hint {
-      font-size: 11px;
-      color: var(--ink-soft);
-      text-align: center;
-      padding: 2px 0 6px;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
+    /* left-edge affordance arrow on each card */
+    .swipe-arrow {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      opacity: 0.25;
+      pointer-events: none;
+      transition: opacity 0.2s;
     }
-    .swipe-hint svg { width: 12px; height: 12px; fill: var(--ink-soft); }
+    .item-card:hover .swipe-arrow { opacity: 0.45; }
+    .item-card.qty-open .swipe-arrow { opacity: 0; }
 
     /* ── Section label ────────────────────────────────────────────── */
     .section-label {
@@ -819,7 +828,7 @@
 
       <div class="hint-bar">
         <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        Swipe right on any card to reveal quick-quantity controls
+        Tap any card to reveal quick-quantity controls
       </div>
 
       <div class="scroll-area">
@@ -841,10 +850,6 @@
             </div>
             <span class="item-expiry expiry-warning">in 2 days</span>
           </div>
-          <div class="swipe-hint">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Tap to reveal qty controls
-          </div>
         </div>
 
         <div class="item-card-wrap" id="wrap-rice">
@@ -864,10 +869,6 @@
             </div>
             <span class="item-expiry expiry-ok">Sep 2026</span>
           </div>
-          <div class="swipe-hint">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Tap to reveal qty controls
-          </div>
         </div>
 
         <div class="item-card-wrap" id="wrap-milk">
@@ -886,10 +887,6 @@
               </div>
             </div>
             <span class="item-expiry expiry-expired">Expired</span>
-          </div>
-          <div class="swipe-hint">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Tap to reveal qty controls
           </div>
         </div>
       </div>
@@ -964,9 +961,6 @@
               </div>
             </div>
             <span class="item-expiry expiry-warning">in 2 days</span>
-          </div>
-          <div class="swipe-hint" style="color:var(--terra); font-weight:600;">
-            ← Tap card to close · Tap −/+ to change qty
           </div>
         </div>
 
