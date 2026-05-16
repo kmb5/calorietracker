@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- PROTOTYPE NOTE: width=375 and maximum-scale=1.0 are intentional here for pixel-perfect
+       preview at 375 px. The React implementation MUST use width=device-width and omit
+       maximum-scale (removing it is required for WCAG 1.4.4 / iOS Safari). -->
   <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
   <title>CalorieTracker — Weekly Strip & Streak Prototype</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -473,6 +476,9 @@
     }
 
     /* ── No target note ─────────────────────────────────────────── */
+    /* NOTE: .no-target-note lives inside .scroll-content which already has 16px padding.
+       Do NOT add horizontal margin here in the React implementation — it would double-inset
+       the note to 32px and make it narrower than the sibling .card elements. */
     .no-target-note {
       display: flex;
       align-items: center;
@@ -480,7 +486,7 @@
       background: var(--neutral-bg);
       border-radius: var(--radius-sm);
       padding: 10px 14px;
-      margin: 0 16px 14px;
+      margin: 0 0 14px;
       font-size: 12px;
       color: var(--neutral);
     }
@@ -608,7 +614,7 @@
       <div class="streak-fire-wrap">🔥</div>
       <div class="streak-info">
         <div class="streak-label">Current streak</div>
-        <div class="streak-value">3 days</div>
+        <div class="streak-value">2 days</div>
         <div class="streak-sub">Best: <strong>14 days</strong></div>
       </div>
     </div>
@@ -640,19 +646,19 @@
 
       <div class="avg-row">
         <div class="avg-cell">
-          <div class="avg-val kcal">1 142</div>
+          <div class="avg-val kcal">1 000</div>
           <div class="avg-lbl">kcal avg</div>
         </div>
         <div class="avg-cell">
-          <div class="avg-val protein">84g</div>
+          <div class="avg-val protein">74g</div>
           <div class="avg-lbl">protein</div>
         </div>
         <div class="avg-cell">
-          <div class="avg-val fat">40g</div>
+          <div class="avg-val fat">35g</div>
           <div class="avg-lbl">fat</div>
         </div>
         <div class="avg-cell">
-          <div class="avg-val carbs">127g</div>
+          <div class="avg-val carbs">111g</div>
           <div class="avg-lbl">carbs</div>
         </div>
       </div>
