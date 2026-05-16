@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
   <title>CalorieTracker — Pantry Prototype</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1690,6 +1690,17 @@
   function saveItem() {
     closeSheet('add');
     showToast('Item saved');
+    // Reset form so the sheet is clean for the next quick-add
+    clearIngredient('add');
+    document.getElementById('ing-input-add').value = '';
+    // Reset quantity
+    const addSheet = document.getElementById('add-sheet-overlay');
+    addSheet.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+    addSheet.querySelectorAll('input[type="date"]').forEach(el => el.value = '');
+    addSheet.querySelectorAll('textarea').forEach(el => el.value = '');
+    // Reset location pills to default (Fridge)
+    const pills = addSheet.querySelectorAll('.location-pills .location-pill');
+    pills.forEach((p, i) => p.classList.toggle('active', i === 0));
   }
 
   function showToast(msg) {
