@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Custom Ingredient Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:         #FDF6ED;
+      --cream-dark:    #F5EADB;
+      --cream-mid:     #EFE0CD;
+      --terra:         #C9562B;
+      --terra-dark:    #A8431F;
+      --terra-light:   #F2E0D8;
+      --ink:           #1A1208;
+      --ink-mid:       #4A3728;
+      --ink-soft:      #7A6555;
+      --border:        #E2CEBA;
+      --border-focus:  #C9562B;
+      --white:         #FFFFFF;
+      --badge-system:  #C9562B;
+      --badge-custom:  #5B7FA6;
+      --badge-sys-bg:  #F2E0D8;
+      --badge-cus-bg:  #DDE8F4;
+      --success:       #3D7A4A;
+      --success-bg:    #D6EDD9;
+      --error:         #B83232;
+      --error-bg:      #F9DEDE;
+      --highlight:     rgba(201,86,43,0.10);
+      --font-display:  'Playfair Display', Georgia, serif;
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --radius-xs:     6px;
+      --shadow:        0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+      --shadow-sm:     0 2px 8px rgba(26,18,8,0.07);
+      --shadow-drop:   0 8px 40px rgba(26,18,8,0.16), 0 2px 8px rgba(26,18,8,0.08);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #2D1E10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+      color: var(--ink);
+    }
+
+    /* ── Screen nav ───────────────────────────────────────────────── */
+    .screen-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+    .screen-nav button {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(253,246,237,0.2);
+      background: rgba(253,246,237,0.07);
+      color: rgba(253,246,237,0.7);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .screen-nav button:hover {
+      background: rgba(253,246,237,0.14);
+      color: #FDF6ED;
+    }
+    .screen-nav button.active {
+      background: var(--terra);
+      border-color: var(--terra);
+      color: #FDF6ED;
+    }
+
+    /* ── Phone shell ──────────────────────────────────────────────── */
+    .phone {
+      width: 375px;
+      background: var(--cream);
+      border-radius: 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Screen ───────────────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ── Status bar ───────────────────────────────────────────────── */
+    .status-bar {
+      background: var(--cream);
+      padding: 14px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-mid);
+    }
+
+    /* ── Nav bar ──────────────────────────────────────────────────── */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      padding: 6px 20px 12px;
+      background: var(--cream);
+      gap: 12px;
+    }
+    .nav-back {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-mid);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .nav-back:hover { background: var(--cream-dark); }
+    .nav-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+    .nav-action {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--terra);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      padding: 4px 0;
+    }
+
+    /* ── Scroll body ──────────────────────────────────────────────── */
+    .scroll-body {
+      overflow-y: auto;
+      max-height: calc(100vh - 160px);
+      /* visual cap for prototype */
+      max-height: 700px;
+      padding: 0 20px 40px;
+    }
+
+    /* ── Form sections ────────────────────────────────────────────── */
+    .form-section {
+      margin-bottom: 24px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      margin-bottom: 5px;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus,
+    .field select:focus { border-color: var(--border-focus); }
+    .field.error input,
+    .field.error select { border-color: var(--error); background: #FFF8F8; }
+    .field-error-msg {
+      font-size: 11.5px;
+      color: var(--error);
+      margin-top: 4px;
+    }
+    .field input::placeholder { color: var(--ink-soft); }
+
+    /* two-col grid */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ── Icon picker ──────────────────────────────────────────────── */
+    .icon-picker-trigger {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .icon-picker-trigger:hover { border-color: var(--terra); }
+    .icon-preview {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .icon-picker-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .icon-picker-label span:first-child {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .icon-picker-label span:last-child {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+    }
+    .icon-picker-chevron {
+      margin-left: auto;
+      color: var(--ink-soft);
+      font-size: 16px;
+    }
+
+    /* Emoji grid panel */
+    .emoji-panel {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 8px;
+      display: none;
+    }
+    .emoji-panel.open { display: block; }
+    .emoji-panel-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+    }
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+    .emoji-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1.5px solid transparent;
+      background: var(--cream);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+    .emoji-btn:hover { background: var(--cream-mid); border-color: var(--border); }
+    .emoji-btn.selected { background: var(--terra-light); border-color: var(--terra); }
+    .emoji-clear {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      padding: 2px 0;
+    }
+    .emoji-clear:hover { color: var(--terra); }
+
+    /* fallback indicator */
+    .fallback-note {
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+    }
+    .btn-primary {
+      background: var(--terra);
+      color: #FDF6ED;
+    }
+    .btn-primary:hover { background: var(--terra-dark); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink-mid);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--cream-dark); }
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1.5px solid rgba(184,50,50,0.3);
+    }
+    .btn-danger:hover { background: var(--error-bg); }
+    .btn-promote {
+      background: #5B7FA6;
+      color: #FDF6ED;
+    }
+    .btn-promote:hover { background: #4A6A8E; }
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    /* ── Divider ──────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* ── Ingredient name row in form ──────────────────────────────── */
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .name-icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .name-input-wrapper { flex: 1; }
+    .name-input-wrapper input {
+      font-size: 17px;
+      font-weight: 600;
+      border: none;
+      border-bottom: 2px solid var(--border);
+      border-radius: 0;
+      padding: 6px 0;
+      background: transparent;
+    }
+    .name-input-wrapper input:focus { border-color: var(--terra); }
+    .name-input-wrapper.error input { border-color: var(--error); }
+
+    /* ── Search screen ────────────────────────────────────────────── */
+    .search-header {
+      padding: 20px 20px 0;
+    }
+    .search-header h1 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .search-box svg { color: var(--ink-soft); flex-shrink: 0; }
+    .search-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    /* dropdown */
+    .dropdown {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin-top: 6px;
+      box-shadow: var(--shadow-drop);
+      overflow: hidden;
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background: var(--highlight); }
+    .dropdown-item.active { background: var(--highlight); }
+    .item-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .item-info { flex: 1; min-width: 0; }
+    .item-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-name mark {
+      background: var(--terra-light);
+      color: var(--terra-dark);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+    .item-meta {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 1px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .badge-system { background: var(--badge-sys-bg); color: var(--badge-system); }
+    .badge-custom { background: var(--badge-cus-bg); color: var(--badge-custom); }
+
+    /* ── Detail screen ────────────────────────────────────────────── */
+    .detail-hero {
+      background: var(--cream-dark);
+      padding: 24px 20px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .detail-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .detail-sub {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+    .detail-badge-row { margin-top: 8px; }
+
+    .macros-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .macro-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .macro-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      margin-bottom: 4px;
+    }
+    .macro-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      font-family: var(--font-display);
+    }
+    .macro-unit {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--ink-soft);
+    }
+
+    /* ── Promote confirmation toast ───────────────────────────────── */
+    .toast {
+      position: absolute;
+      bottom: 28px;
+      left: 20px;
+      right: 20px;
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      box-shadow: var(--shadow-drop);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .toast-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .toast-text span {
+      font-size: 12.5px;
+      color: rgba(253,246,237,0.7);
+    }
+
+    /* ── Delete confirm dialog ────────────────────────────────────── */
+    .dialog-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(26,18,8,0.55);
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .dialog-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .dialog-sheet {
+      background: var(--cream);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 24px 20px 36px;
+      width: 100%;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .dialog-overlay.show .dialog-sheet {
+      transform: translateY(0);
+    }
+    .dialog-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .dialog-body {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+    .dialog-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── Title / label ────────────────────────────────────────────── */
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    /* ── Outer heading ────────────────────────────────────────────── */
+    .proto-heading {
+      color: rgba(253,246,237,0.45);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    /* scrollbar */
+    .scroll-body::-webkit-scrollbar { width: 4px; }
+    .scroll-body::-webkit-scrollbar-track { background: transparent; }
+    .scroll-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+  <p class="proto-heading">Custom Ingredient UI Prototype — CalorieTracker v3</p>
+
+  <!-- Screen navigation -->
+  <nav class="screen-nav">
+    <button class="active" onclick="showScreen('create')">1 · Create Form</button>
+    <button onclick="showScreen('edit')">2 · Edit Form</button>
+    <button onclick="showScreen('search')">3 · Search Results</button>
+    <button onclick="showScreen('detail')">4 · Custom Detail</button>
+    <button onclick="showScreen('promote')">5 · Promotion</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PHONE SHELL                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="phone">
+
+    <!-- ── Status bar ─────────────────────────────────────────────── -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="display:flex;gap:6px;align-items:center;">
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="4" width="3" height="7" rx="1"/><rect x="4" y="2.5" width="3" height="8.5" rx="1"/><rect x="8" y="1" width="3" height="10" rx="1"/><rect x="12" y="0" width="3" height="11" rx="1" opacity="0.3"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4C10.65 2.4 13.03 3.5 14.7 5.3L16 4C13.97 1.8 11.14.6 8 .6S2.03 1.8 0 4l1.3 1.3C2.97 3.5 5.35 2.4 8 2.4z" opacity="0.3"/><path d="M8 5.2C9.82 5.2 11.47 5.93 12.7 7.1L14 5.8C12.42 4.28 10.31 3.4 8 3.4S3.58 4.28 2 5.8l1.3 1.3C4.53 5.93 6.18 5.2 8 5.2z"/><path d="M8 8c1 0 1.9.38 2.58.99L8 12 5.42 9C6.1 8.38 7 8 8 8z"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="3" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/><rect x="1.5" y="2.5" width="17" height="7" rx="2" fill="currentColor"/><path d="M23 4.5v3a1.5 1.5 0 0 0 0-3z"/></svg>
+      </span>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 1: CREATE CUSTOM INGREDIENT                           -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div id="screen-create" class="screen active">
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="nav-title">New ingredient</span>
+        <button class="nav-action" onclick="submitCreate()">Save</button>
+      </div>
+
+      <div class="scroll-body">
+
+        <!-- Name row with icon preview -->
+        <div id="create-name-row" class="name-row">
+          <div class="name-icon-badge" id="create-icon-badge">⚖️</div>
+          <div class="name-input-wrapper" id="create-name-wrapper">
+            <input type="text" id="create-name-input" placeholder="Ingredient name…" />
+          </div>
+        </div>
+        <div class="field-error-msg" id="create-name-error" style="display:none;margin-top:-10px;margin-bottom:12px;">Name is required</div>
+
+        <!-- Icon picker -->
+        <div class="form-section">
+          <div class="section-label">Icon</div>
+          <div class="icon-picker-trigger" onclick="toggleEmojiPanel('create')" id="create-picker-trigger">
+            <div class="icon-preview" id="create-icon-preview">⚖️</div>
+            <div class="icon-picker-label">
+              <span id="create-icon-label">Choose an emoji</span>
+              <span id="create-icon-sub">Falls back to unit default</span>
+            </div>
+            <span class="icon-picker-chevron">›</span>
+          </div>
+          <div class="emoji-panel" id="create-emoji-panel">
+            <div class="emoji-panel-header">Food & ingredients</div>
+            <div class="emoji-grid" id="create-emoji-grid"></div>
+            <button class="emoji-clear" onclick="clearEmoji('create')">✕ Clear selection (use unit default)</button>
+          </div>
+          <p class="fallback-note" id="create-fallback-note">
+            <span>Unit default:</span><strong id="create-fallback-icon">⚖️</strong><span id="create-fallback-text">for grams</span>
+          </p>
+        </div>
+
+        <!-- Unit -->
+        <div class="form-section">
+          <div class="section-label">Unit & portion</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Unit</label>
+              <select id="create-unit" onchange="updateFallback('create')">
+                <option value="g">g — grams</option>
+                <option value="ml">ml — millilitres</option>
+                <option value="tablespoon">Tablespoon</option>
+                <option value="piece">Piece</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Portion size</label>
+              <input type="number" value="100" min="0" step="1" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Nutrition per 100g/ml/etc -->
+        <div class="form-section">
+          <div class="section-label">Nutrition per 100 g</div>
+
+          <div class="field">
+            <label>Calories (kcal) *</label>
+            <input type="number" id="create-kcal" placeholder="0" min="0" step="0.1" />
+          </div>
+          <div id="create-kcal-error" class="field-error-msg" style="display:none;margin-top:-10px;margin-bottom:10px;">Required</div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Protein (g)</label>
+              <input type="number" placeholder="0" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label>Fat (g)</label>
+              <input type="number" placeholder="0" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Carbohydrates (g)</label>
+              <input type="number" placeholder="0" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label>Fibre (g)</label>
+              <input type="number" placeholder="0" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Sodium (mg)</label>
+            <input type="number" placeholder="0" min="0" step="0.1" />
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-stack">
+          <button class="btn btn-primary">Save ingredient</button>
+          <button class="btn btn-secondary">Cancel</button>
+        </div>
+
+      </div><!-- /scroll-body -->
+    </div><!-- /screen-create -->
+
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 2: EDIT CUSTOM INGREDIENT                             -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div id="screen-edit" class="screen">
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="nav-title">Edit ingredient</span>
+        <button class="nav-action">Save</button>
+      </div>
+
+      <div class="scroll-body">
+
+        <!-- Name row with icon preview -->
+        <div class="name-row">
+          <div class="name-icon-badge" id="edit-icon-badge">🍅</div>
+          <div class="name-input-wrapper">
+            <input type="text" id="edit-name-input" value="Sun-dried Tomato" />
+          </div>
+        </div>
+
+        <!-- Icon picker -->
+        <div class="form-section">
+          <div class="section-label">Icon</div>
+          <div class="icon-picker-trigger" onclick="toggleEmojiPanel('edit')" id="edit-picker-trigger">
+            <div class="icon-preview" id="edit-icon-preview">🍅</div>
+            <div class="icon-picker-label">
+              <span id="edit-icon-label">🍅 Tomato</span>
+              <span>Tap to change</span>
+            </div>
+            <span class="icon-picker-chevron">›</span>
+          </div>
+          <div class="emoji-panel" id="edit-emoji-panel">
+            <div class="emoji-panel-header">Food & ingredients</div>
+            <div class="emoji-grid" id="edit-emoji-grid"></div>
+            <button class="emoji-clear" onclick="clearEmoji('edit')">✕ Clear selection (use unit default)</button>
+          </div>
+        </div>
+
+        <!-- Unit -->
+        <div class="form-section">
+          <div class="section-label">Unit & portion</div>
+          <div class="field-row">
+            <div class="field">
+              <label>Unit</label>
+              <select>
+                <option value="g" selected>g — grams</option>
+                <option value="ml">ml — millilitres</option>
+                <option value="tablespoon">Tablespoon</option>
+                <option value="piece">Piece</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Portion size</label>
+              <input type="number" value="100" min="0" step="1" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Nutrition -->
+        <div class="form-section">
+          <div class="section-label">Nutrition per 100 g</div>
+          <div class="field">
+            <label>Calories (kcal) *</label>
+            <input type="number" value="258" min="0" step="0.1" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Protein (g)</label>
+              <input type="number" value="14.1" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label>Fat (g)</label>
+              <input type="number" value="3.0" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Carbohydrates (g)</label>
+              <input type="number" value="43.5" min="0" step="0.1" />
+            </div>
+            <div class="field">
+              <label>Fibre (g)</label>
+              <input type="number" value="12.3" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Sodium (mg)</label>
+            <input type="number" value="266" min="0" step="0.1" />
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-stack">
+          <button class="btn btn-primary">Save changes</button>
+          <button class="btn btn-danger" onclick="showDeleteDialog()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete ingredient
+          </button>
+          <button class="btn btn-secondary">Cancel</button>
+        </div>
+
+      </div><!-- /scroll-body -->
+
+      <!-- Delete confirmation dialog -->
+      <div class="dialog-overlay" id="delete-dialog">
+        <div class="dialog-sheet">
+          <div class="dialog-title">Delete ingredient?</div>
+          <div class="dialog-body">
+            <strong>Sun-dried Tomato</strong> will be permanently deleted. Any recipes using this ingredient may be affected.
+          </div>
+          <div class="dialog-actions">
+            <button class="btn btn-danger" onclick="closeDeleteDialog()">Yes, delete</button>
+            <button class="btn btn-secondary" onclick="closeDeleteDialog()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screen-edit -->
+
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 3: SEARCH RESULTS WITH CUSTOM BADGE                   -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div id="screen-search" class="screen">
+      <div class="search-header">
+        <h1>Add ingredient</h1>
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" value="tom" placeholder="Search ingredients…" />
+        </div>
+
+        <!-- Dropdown results -->
+        <div class="dropdown" style="margin-top:8px;">
+
+          <div class="dropdown-item">
+            <div class="item-icon">🍅</div>
+            <div class="item-info">
+              <div class="item-name"><mark>Tom</mark>ato, raw</div>
+              <div class="item-meta">18 kcal · per 100 g</div>
+            </div>
+            <span class="badge badge-system">System</span>
+          </div>
+
+          <div class="dropdown-item">
+            <div class="item-icon">🍅</div>
+            <div class="item-info">
+              <div class="item-name"><mark>Tom</mark>ato paste</div>
+              <div class="item-meta">82 kcal · per 100 g</div>
+            </div>
+            <span class="badge badge-system">System</span>
+          </div>
+
+          <!-- Custom ingredient — highlighted with "Custom" badge -->
+          <div class="dropdown-item active">
+            <div class="item-icon">🌿</div>
+            <div class="item-info">
+              <div class="item-name">Sun-dried <mark>Tom</mark>ato</div>
+              <div class="item-meta">258 kcal · per 100 g</div>
+            </div>
+            <span class="badge badge-custom">Custom</span>
+          </div>
+
+          <div class="dropdown-item">
+            <div class="item-icon">⚖️</div>
+            <div class="item-info">
+              <div class="item-name"><mark>Tom</mark>ato sauce, canned</div>
+              <div class="item-meta">24 kcal · per 100 g</div>
+            </div>
+            <span class="badge badge-system">System</span>
+          </div>
+
+          <div class="dropdown-item">
+            <div class="item-icon">⚖️</div>
+            <div class="item-info">
+              <div class="item-name"><mark>Tom</mark>ato, cherry</div>
+              <div class="item-meta">18 kcal · per 100 g</div>
+            </div>
+            <span class="badge badge-system">System</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Create new button -->
+      <div style="padding: 14px 20px 0;">
+        <button class="btn btn-secondary" style="gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create custom ingredient
+        </button>
+      </div>
+    </div><!-- /screen-search -->
+
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 4: CUSTOM INGREDIENT DETAIL                           -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div id="screen-detail" class="screen">
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="nav-title">Ingredient</span>
+        <button class="nav-action" onclick="showScreen('edit')">Edit</button>
+      </div>
+
+      <div class="detail-hero">
+        <div class="detail-icon">🌿</div>
+        <div>
+          <div class="detail-title">Sun-dried Tomato</div>
+          <div class="detail-sub">per 100 g · 258 kcal</div>
+          <div class="detail-badge-row">
+            <span class="badge badge-custom">Your ingredient</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-body" style="padding-top:20px;">
+
+        <div class="macros-grid">
+          <div class="macro-card">
+            <div class="macro-label">Protein</div>
+            <div class="macro-value">14.1<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Fat</div>
+            <div class="macro-value">3.0<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Carbohydrates</div>
+            <div class="macro-value">43.5<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Fibre</div>
+            <div class="macro-value">12.3<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Sodium</div>
+            <div class="macro-value">266<span class="macro-unit"> mg</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Portion size</div>
+            <div class="macro-value">100<span class="macro-unit"> g</span></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Promote section -->
+        <div style="margin-bottom: 20px;">
+          <div class="section-label" style="margin-bottom:8px;">Share with community</div>
+          <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:14px;">
+            Think this ingredient belongs in the shared database? Submit it for review and an admin will check the nutrition values.
+          </p>
+          <button class="btn btn-promote" onclick="showScreen('promote')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Submit for review
+          </button>
+        </div>
+
+        <div class="btn-stack">
+          <button class="btn btn-secondary">Add to meal log</button>
+        </div>
+
+      </div>
+    </div><!-- /screen-detail -->
+
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 5: PROMOTION CONFIRMATION                             -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <div id="screen-promote" class="screen">
+      <div class="nav-bar">
+        <button class="nav-back" aria-label="Back" onclick="showScreen('detail')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="nav-title">Ingredient</span>
+      </div>
+
+      <div class="detail-hero">
+        <div class="detail-icon">🌿</div>
+        <div>
+          <div class="detail-title">Sun-dried Tomato</div>
+          <div class="detail-sub">per 100 g · 258 kcal</div>
+          <div class="detail-badge-row">
+            <span class="badge badge-custom">Your ingredient</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-body" style="padding-top:20px;">
+
+        <div class="macros-grid">
+          <div class="macro-card">
+            <div class="macro-label">Protein</div>
+            <div class="macro-value">14.1<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Fat</div>
+            <div class="macro-value">3.0<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Carbohydrates</div>
+            <div class="macro-value">43.5<span class="macro-unit"> g</span></div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-label">Fibre</div>
+            <div class="macro-value">12.3<span class="macro-unit"> g</span></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Submitted state -->
+        <div style="margin-bottom: 20px;">
+          <div class="section-label" style="margin-bottom:8px;">Share with community</div>
+
+          <!-- Pending state card -->
+          <div style="background:var(--success-bg);border:1.5px solid rgba(61,122,74,0.3);border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;">
+            <span style="font-size:20px;line-height:1;margin-top:1px;">✅</span>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--success);margin-bottom:3px;">Submitted for review</div>
+              <div style="font-size:13px;color:#2D5C35;line-height:1.5;">An admin will review your ingredient and add it to the shared database if approved.</div>
+            </div>
+          </div>
+
+          <p style="font-size:12px;color:var(--ink-soft);margin-top:10px;">Review pending · Submitted just now</p>
+        </div>
+
+        <div class="btn-stack">
+          <button class="btn btn-secondary">Add to meal log</button>
+        </div>
+
+      </div>
+
+      <!-- Toast that auto-shows on this screen -->
+      <div class="toast" id="promote-toast">
+        <div class="toast-icon">✉️</div>
+        <div class="toast-text">
+          <strong>Submitted for review</strong>
+          <span>An admin will review your ingredient</span>
+        </div>
+      </div>
+
+    </div><!-- /screen-promote -->
+
+  </div><!-- /phone -->
+
+
+  <script>
+    // ── Food emoji palette ───────────────────────────────────────────
+    const FOOD_EMOJIS = [
+      '🍎','🍊','🍋','🍇','🍓','🫐','🍑','🍒',
+      '🍌','🍉','🍈','🫒','🥝','🍍','🥭','🍐',
+      '🥦','🥕','🌽','🥑','🍆','🥔','🫑','🥗',
+      '🧅','🧄','🫘','🥜','🌶️','🫚','🧂','🫙',
+      '🍅','🥦','🥬','🥒','🥑','🌿','🪴','🌾',
+      '🍄','🫚','🥚','🧈','🥛','🧀','🫕','🍖',
+      '🥩','🍗','🥓','🌭','🍔','🥪','🥙','🧆',
+      '🍣','🦐','🦑','🦞','🦀','🐟','🥫','🍜',
+    ];
+
+    const UNIT_FALLBACK = {
+      g:          { icon: '⚖️', label: 'for grams' },
+      ml:         { icon: '💧', label: 'for millilitres' },
+      tablespoon: { icon: '🥄', label: 'for tablespoon' },
+      piece:      { icon: '🔵', label: 'for piece' },
+    };
+
+    // Track selected emoji per context
+    const state = {
+      create: { selectedEmoji: null },
+      edit:   { selectedEmoji: '🍅' },
+    };
+
+    // ── Build emoji grids ────────────────────────────────────────────
+    function buildGrid(ctx) {
+      const grid = document.getElementById(`${ctx}-emoji-grid`);
+      grid.innerHTML = '';
+      FOOD_EMOJIS.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-btn' + (state[ctx].selectedEmoji === emoji ? ' selected' : '');
+        btn.textContent = emoji;
+        btn.title = emoji;
+        btn.onclick = () => selectEmoji(ctx, emoji);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectEmoji(ctx, emoji) {
+      state[ctx].selectedEmoji = emoji;
+      // Update badge
+      document.getElementById(`${ctx}-icon-badge`).textContent = emoji;
+      document.getElementById(`${ctx}-icon-preview`).textContent = emoji;
+      document.getElementById(`${ctx}-icon-label`).textContent = emoji + ' selected';
+      if (ctx === 'create') {
+        document.getElementById('create-icon-sub').textContent = 'Tap to change';
+        document.getElementById('create-fallback-note').style.display = 'none';
+      }
+      buildGrid(ctx);
+    }
+
+    function clearEmoji(ctx) {
+      state[ctx].selectedEmoji = null;
+      updateFallback(ctx);
+      if (ctx === 'create') {
+        document.getElementById('create-fallback-note').style.display = '';
+        document.getElementById('create-icon-sub').textContent = 'Falls back to unit default';
+      }
+      buildGrid(ctx);
+      closeEmojiPanel(ctx);
+    }
+
+    function toggleEmojiPanel(ctx) {
+      const panel = document.getElementById(`${ctx}-emoji-panel`);
+      if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+      } else {
+        buildGrid(ctx);
+        panel.classList.add('open');
+      }
+    }
+
+    function closeEmojiPanel(ctx) {
+      document.getElementById(`${ctx}-emoji-panel`).classList.remove('open');
+    }
+
+    function updateFallback(ctx) {
+      if (ctx !== 'create') return;
+      const unit = document.getElementById('create-unit').value;
+      const fb = UNIT_FALLBACK[unit] || UNIT_FALLBACK['g'];
+      if (!state.create.selectedEmoji) {
+        document.getElementById('create-icon-badge').textContent = fb.icon;
+        document.getElementById('create-icon-preview').textContent = fb.icon;
+      }
+      document.getElementById('create-fallback-icon').textContent = fb.icon;
+      document.getElementById('create-fallback-text').textContent = fb.label;
+    }
+
+    // ── Validation & submit ──────────────────────────────────────────
+    function submitCreate() {
+      const name  = document.getElementById('create-name-input').value.trim();
+      const kcal  = document.getElementById('create-kcal').value.trim();
+      let hasError = false;
+
+      // Name
+      const nameWrapper = document.getElementById('create-name-wrapper');
+      const nameError   = document.getElementById('create-name-error');
+      if (!name) {
+        nameWrapper.classList.add('error');
+        nameError.style.display = '';
+        hasError = true;
+      } else {
+        nameWrapper.classList.remove('error');
+        nameError.style.display = 'none';
+      }
+
+      // kcal
+      const kcalField = document.getElementById('create-kcal');
+      const kcalError = document.getElementById('create-kcal-error');
+      if (!kcal) {
+        kcalField.closest('.field').classList.add('error');
+        kcalError.style.display = '';
+        hasError = true;
+      } else {
+        kcalField.closest('.field').classList.remove('error');
+        kcalError.style.display = 'none';
+      }
+
+      if (!hasError) {
+        // Success — navigate to detail (pretend save happened)
+        showScreen('detail');
+      }
+    }
+
+    // ── Delete dialog ────────────────────────────────────────────────
+    function showDeleteDialog()  { document.getElementById('delete-dialog').classList.add('show'); }
+    function closeDeleteDialog() { document.getElementById('delete-dialog').classList.remove('show'); }
+
+    // ── Screen routing ───────────────────────────────────────────────
+    let toastTimer = null;
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.screen-nav button').forEach((b,i) => {
+        const ids = ['create','edit','search','detail','promote'];
+        b.classList.toggle('active', ids[i] === id);
+      });
+      document.getElementById(`screen-${id}`).classList.add('active');
+
+      // Show toast on promote screen
+      if (id === 'promote') {
+        clearTimeout(toastTimer);
+        const toast = document.getElementById('promote-toast');
+        toast.classList.remove('show');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            toast.classList.add('show');
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+          });
+        });
+      }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────
+    buildGrid('create');
+    buildGrid('edit');
+    updateFallback('create');
+  </script>
+</body>
+</html>
