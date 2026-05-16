@@ -135,6 +135,7 @@ export function IngredientSearch({
     isDetailLoading,
     openDetail,
     closeDetail,
+    updateDetail,
     highlightedIndex,
     setHighlightedIndex,
   } = useIngredientSearch();
@@ -422,10 +423,8 @@ export function IngredientSearch({
         onClose={closeDetail}
         onAdd={onAdd}
         onPromoted={(updated) => {
-          // Reflect promotion state change in the local detail
-          if (detail && updated.id === detail.id) {
-            openDetail(detail.id);
-          }
+          // Use the returned value directly to avoid an extra GET round-trip.
+          updateDetail(updated);
         }}
       />
     </div>

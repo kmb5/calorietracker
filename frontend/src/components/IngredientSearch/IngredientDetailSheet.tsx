@@ -57,8 +57,9 @@ export function IngredientDetailSheet({
   const { toast } = useToast();
 
   const [isPromoting, setIsPromoting] = useState(false);
-  // Local pending state — reset when sheet opens for a different ingredient
-  const [localPromotionPending, setLocalPromotionPending] = useState(false);
+  // Track which ingredient ID the user promoted locally so the "Pending review"
+  // badge is scoped to that ingredient — no effect needed to reset it.
+  const [localPendingId, setLocalPendingId] = useState<number | null>(null);
 
   const portionLabel =
     detail?.unit === "tablespoon"
@@ -68,7 +69,9 @@ export function IngredientDetailSheet({
         : `per ${detail?.portion_size}${detail?.unit}`;
 
   // Whether the promote button should show as "Pending review"
-  const isPending = localPromotionPending || detail?.is_promotion_pending === true;
+  const isPending =
+    (detail?.id !== undefined && localPendingId === detail.id) ||
+    detail?.is_promotion_pending === true;
 
   async function handlePromote() {
     if (!detail) return;
@@ -77,7 +80,7 @@ export function IngredientDetailSheet({
       const updated = await promoteIngredientIngredientsIngredientIdPromotePost({
         ingredientId: detail.id,
       });
-      setLocalPromotionPending(true);
+      setLocalPendingId(detail.id);
       onPromoted?.(updated);
       toast({
         title: "Submitted for review",
@@ -97,7 +100,7 @@ export function IngredientDetailSheet({
 
   function handleSheetOpenChange(o: boolean) {
     if (!o) {
-      setLocalPromotionPending(false);
+      setLocalPendingId(null);
       onClose();
     }
   }

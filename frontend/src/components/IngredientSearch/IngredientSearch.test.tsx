@@ -25,10 +25,12 @@ jest.mock("../../hooks/useToast", () => ({
 jest.mock("../../client/services.gen", () => ({
   searchIngredientsIngredientsSearchGet: jest.fn(),
   getIngredientIngredientsIngredientIdGet: jest.fn(),
+  promoteIngredientIngredientsIngredientIdPromotePost: jest.fn(),
 }));
 
 import {
   getIngredientIngredientsIngredientIdGet,
+  promoteIngredientIngredientsIngredientIdPromotePost,
   searchIngredientsIngredientsSearchGet,
 } from "../../client/services.gen";
 
@@ -38,6 +40,10 @@ const mockSearch = searchIngredientsIngredientsSearchGet as jest.MockedFunction<
 const mockGetDetail = getIngredientIngredientsIngredientIdGet as jest.MockedFunction<
   typeof getIngredientIngredientsIngredientIdGet
 >;
+const mockPromote =
+  promoteIngredientIngredientsIngredientIdPromotePost as jest.MockedFunction<
+    typeof promoteIngredientIngredientsIngredientIdPromotePost
+  >;
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 const SYSTEM_RESULT: IngredientSearchResult = {
@@ -73,6 +79,23 @@ const DETAIL: IngredientDetail = {
   sodium: 74,
   is_system: true,
   owner_id: null,
+  icon: null,
+  is_promotion_pending: false,
+};
+
+const CUSTOM_DETAIL: IngredientDetail = {
+  id: 2,
+  name: "My Marinade",
+  unit: "tablespoon",
+  portion_size: 15,
+  kcal: 48,
+  protein: 2,
+  fat: 3,
+  carbohydrates: 5,
+  fiber: 0.5,
+  sodium: 100,
+  is_system: false,
+  owner_id: 1,
   icon: null,
   is_promotion_pending: false,
 };
@@ -354,5 +377,41 @@ describe("IngredientSearch — detail sheet", () => {
     expect(screen.getByText("Fiber")).toBeInTheDocument();
     expect(screen.getByText("Sodium")).toBeInTheDocument();
     expect(screen.getByText("Calories")).toBeInTheDocument();
+  });
+});
+
+describe("IngredientSearch — post-promotion state", () => {
+  it("shows 'Pending review' after a successful promote without a second GET", async () => {
+    // Custom ingredient that can be promoted
+    mockSearch.mockResolvedValue([CUSTOM_RESULT]);
+    mockGetDetail.mockResolvedValue(CUSTOM_DETAIL);
+    // Promote API returns the updated ingredient with is_promotion_pending=true
+    const updatedDetail: IngredientDetail = {
+      ...CUSTOM_DETAIL,
+      is_promotion_pending: true,
+    };
+    mockPromote.mockResolvedValue(updatedDetail);
+
+    renderSearch();
+    const input = screen.getByRole("combobox");
+
+    // Select the custom ingredient to show the chip
+    typeAndDebounce(input, "marinade");
+    await waitFor(() => screen.getByText("My Marinade"));
+    fireEvent.click(screen.getByText("My Marinade"));
+
+    // Open the detail sheet
+    await waitFor(() => screen.getByLabelText("View nutrition details"));
+    fireEvent.click(screen.getByLabelText("View nutrition details"));
+    await waitFor(() => screen.getByText("Submit for review"));
+
+    // Click promote
+    fireEvent.click(screen.getByText("Submit for review"));
+
+    // Sheet should update to "Pending review" using the returned value directly
+    await waitFor(() => screen.getByText("Pending review"));
+
+    // The detail GET should NOT have been called a second time
+    expect(mockGetDetail).toHaveBeenCalledTimes(1);
   });
 });
