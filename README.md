@@ -51,16 +51,13 @@ pre-commit run --all-files
 Prototypes live in `docs/prototypes/`. To check one on a phone:
 
 ```bash
-# Serve on all network interfaces
 cd docs/prototypes/<name> && python3 -m http.server 8888 --bind 0.0.0.0
-
-# Find your local IP
-ipconfig getifaddr en0
-
-# Then open http://<local-ip>:8888 in your phone browser (same WiFi required)
+# then open http://$(ipconfig getifaddr en0):8888 on your phone (same WiFi)
 ```
 
-> **VPN note:** if the browser has a VPN extension active, local IPs (`192.168.x.x`) may not be reachable — disable it temporarily.
+**Never use a `file:///` path** — a phone cannot access the laptop's local filesystem. The file must be served over HTTP on the local network.
+
+**VPN note:** if the browser has a VPN extension active, local IPs (`192.168.x.x`) may not be reachable — disable it temporarily.
 
 ---
 
