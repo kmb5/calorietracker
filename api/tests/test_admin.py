@@ -612,3 +612,78 @@ async def test_update_user_role_invalid_value(
         headers=auth_headers(admin_token),
     )
     assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Self-modification guards
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_admin_cannot_deactivate_self(
+    client: AsyncClient, db_session: AsyncSession
+):
+    admin_token = await _make_admin_token(client, db_session, "admin_self_deact")
+    users_resp = await client.get("/admin/users", headers=auth_headers(admin_token))
+    admin_id = next(
+        u["id"] for u in users_resp.json() if u["username"] == "admin_self_deact"
+    )
+    resp = await client.patch(
+        f"/admin/users/{admin_id}",
+        json={"is_active": False},
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_admin_cannot_demote_self(client: AsyncClient, db_session: AsyncSession):
+    admin_token = await _make_admin_token(client, db_session, "admin_self_demote")
+    users_resp = await client.get("/admin/users", headers=auth_headers(admin_token))
+    admin_id = next(
+        u["id"] for u in users_resp.json() if u["username"] == "admin_self_demote"
+    )
+    resp = await client.patch(
+        f"/admin/users/{admin_id}/role",
+        json={"role": "user"},
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_bulk_import_does_not_overwrite_user_ingredient(
+    client: AsyncClient, db_session: AsyncSession
+):
+    """Bulk import must not silently strip owner_id from user-created ingredients."""
+    admin_token = await _make_admin_token(client, db_session, "admin_bulk_guard")
+    user_token = await _make_user_token(client, "user_bulk_guard")
+
+    # User creates a custom ingredient with the same (name, unit) as the bulk payload
+    create_resp = await client.post(
+        "/ingredients",
+        json={"name": "Shared Name", **_BASE},
+        headers=auth_headers(user_token),
+    )
+    assert create_resp.status_code == 201
+    user_ing_id = create_resp.json()["id"]
+
+    # Bulk-import a system ingredient with the same (name, unit)
+    import_resp = await client.post(
+        "/admin/ingredients/bulk-import",
+        json=[{"name": "Shared Name", **_BASE}],
+        headers=auth_headers(admin_token),
+    )
+    assert import_resp.status_code == 200
+    # Row is skipped, not created, because a user-owned ingredient occupies the key
+    assert import_resp.json()["created"] == 0
+    assert import_resp.json()["updated"] == 0
+
+    # The original user ingredient must still be owned by the user
+    ing_resp = await client.get(
+        f"/ingredients/{user_ing_id}", headers=auth_headers(user_token)
+    )
+    assert ing_resp.status_code == 200
+    data = ing_resp.json()
+    assert data["is_system"] is False
+    assert data["owner_id"] is not None

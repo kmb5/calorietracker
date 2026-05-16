@@ -5,7 +5,7 @@ dependency returns HTTP 403 for non-admin callers.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -212,18 +212,34 @@ async def bulk_import_ingredients(
     """Idempotent upsert of system ingredients by (name, unit).
 
     Re-importing the same payload does not create duplicates.
+    Only existing *system* ingredients are candidates for update;
+    user-owned ingredients with the same (name, unit) are never touched.
     """
+    if not items:
+        return BulkImportResult(created=0, updated=0, total=0)
+
+    # Single batched lookup — no N+1 queries.
+    # We look up ALL ingredients for the given (name, unit) pairs so that:
+    #   • Existing system ingredients are updated in-place.
+    #   • User-owned ingredients with the same key are silently skipped —
+    #     we must not strip their ownership, and the DB UNIQUE constraint
+    #     would reject a duplicate insert anyway.
+    names_units = [(item.name, item.unit) for item in items]
+    existing_result = await session.execute(
+        select(Ingredient).where(
+            tuple_(Ingredient.name, Ingredient.unit).in_(names_units),
+        )
+    )
+    existing_map: dict[tuple[str, str], Ingredient] = {
+        (ing.name, ing.unit): ing for ing in existing_result.scalars()
+    }
+
     created = 0
     updated = 0
+    skipped = 0
 
     for item in items:
-        result = await session.execute(
-            select(Ingredient).where(
-                Ingredient.name == item.name,
-                Ingredient.unit == item.unit,
-            )
-        )
-        existing = result.scalar_one_or_none()
+        existing = existing_map.get((item.name, item.unit))
 
         if existing is None:
             session.add(
@@ -234,12 +250,17 @@ async def bulk_import_ingredients(
                 )
             )
             created += 1
-        else:
+        elif existing.is_system:
+            # Safe to update — this is already a system ingredient.
             for field, value in item.model_dump().items():
                 setattr(existing, field, value)
             existing.is_system = True
             existing.owner_id = None
             updated += 1
+        else:
+            # A user-owned ingredient holds this (name, unit) key.
+            # Skip silently — never strip ownership.
+            skipped += 1
 
     await session.commit()
     return BulkImportResult(created=created, updated=updated, total=created + updated)
@@ -268,6 +289,11 @@ async def update_user_active(
     session: AsyncSession = Depends(get_db),
 ) -> User:
     """Activate or deactivate a user account."""
+    if user_id == _admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admins cannot modify their own account via this endpoint",
+        )
     user = await _get_user_or_404(user_id, session)
     user.is_active = body.is_active
     await session.commit()
@@ -283,6 +309,11 @@ async def update_user_role(
     session: AsyncSession = Depends(get_db),
 ) -> User:
     """Set a user's role (``user`` or ``admin``)."""
+    if user_id == _admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admins cannot modify their own account via this endpoint",
+        )
     user = await _get_user_or_404(user_id, session)
     user.role = body.role
     await session.commit()
