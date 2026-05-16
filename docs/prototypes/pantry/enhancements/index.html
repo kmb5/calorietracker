@@ -517,7 +517,7 @@
 
       <!-- Location filter tabs -->
       <div class="location-tabs">
-        <button class="tab-btn active" onclick="/* all items */this">All</button>
+        <button class="tab-btn active" onclick="showScreen('s-all')">All</button>
         <button class="tab-btn" onclick="showScreen('s-fridge')">Fridge</button>
         <button class="tab-btn" onclick="showScreen('s-freezer-empty')">Freezer</button>
         <button class="tab-btn">Pantry</button>
@@ -710,7 +710,7 @@
                 <span class="item-location-badge loc-fridge">Fridge</span>
               </div>
             </div>
-            <span class="item-expiry expiry-ok">May 19</span>
+            <span class="item-expiry expiry-warning">in 3 days</span>
           </div>
         </div>
       </div>
@@ -820,9 +820,9 @@
 
       <!-- Location filter tabs -->
       <div class="location-tabs">
-        <button class="tab-btn active">All</button>
-        <button class="tab-btn">Fridge</button>
-        <button class="tab-btn">Freezer</button>
+        <button class="tab-btn active" onclick="showScreen('s-all')">All</button>
+        <button class="tab-btn" onclick="showScreen('s-fridge')">Fridge</button>
+        <button class="tab-btn" onclick="showScreen('s-freezer-empty')">Freezer</button>
         <button class="tab-btn">Pantry</button>
       </div>
 
@@ -935,9 +935,9 @@
       </div>
 
       <div class="location-tabs">
-        <button class="tab-btn active">All</button>
-        <button class="tab-btn">Fridge</button>
-        <button class="tab-btn">Freezer</button>
+        <button class="tab-btn active" onclick="showScreen('s-all')">All</button>
+        <button class="tab-btn" onclick="showScreen('s-fridge')">Fridge</button>
+        <button class="tab-btn" onclick="showScreen('s-freezer-empty')">Freezer</button>
         <button class="tab-btn">Pantry</button>
       </div>
 
