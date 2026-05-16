@@ -18,6 +18,7 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 function makeAuthMock(overrides: Partial<ReturnType<typeof useAuth>> = {}) {
   return {
     accessToken: null,
+    role: null,
     loading: false,
     login: jest.fn(),
     register: jest.fn(),

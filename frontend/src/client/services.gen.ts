@@ -24,6 +24,24 @@ import type {
   CreateIngredientIngredientsPostResponse,
   PromoteIngredientIngredientsIngredientIdPromotePostData,
   PromoteIngredientIngredientsIngredientIdPromotePostResponse,
+  ListPromotionsAdminIngredientsPromotionsGetResponse,
+  ApprovePromotionAdminIngredientsPromotionsIngredientIdApprovePostData,
+  ApprovePromotionAdminIngredientsPromotionsIngredientIdApprovePostResponse,
+  RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostData,
+  RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostResponse,
+  CreateSystemIngredientAdminIngredientsPostData,
+  CreateSystemIngredientAdminIngredientsPostResponse,
+  UpdateAnyIngredientAdminIngredientsIngredientIdPatchData,
+  UpdateAnyIngredientAdminIngredientsIngredientIdPatchResponse,
+  DeleteAnyIngredientAdminIngredientsIngredientIdDeleteData,
+  DeleteAnyIngredientAdminIngredientsIngredientIdDeleteResponse,
+  BulkImportIngredientsAdminIngredientsBulkImportPostData,
+  BulkImportIngredientsAdminIngredientsBulkImportPostResponse,
+  ListUsersAdminUsersGetResponse,
+  UpdateUserActiveAdminUsersUserIdPatchData,
+  UpdateUserActiveAdminUsersUserIdPatchResponse,
+  UpdateUserRoleAdminUsersUserIdRolePatchData,
+  UpdateUserRoleAdminUsersUserIdRolePatchResponse,
   HealthHealthGetResponse,
 } from "./types.gen";
 
@@ -270,6 +288,239 @@ export const promoteIngredientIngredientsIngredientIdPromotePost = (
     path: {
       ingredient_id: data.ingredientId,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * List Promotions
+ * Return all ingredients with ``is_promotion_pending=True``.
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const listPromotionsAdminIngredientsPromotionsGet =
+  (): CancelablePromise<ListPromotionsAdminIngredientsPromotionsGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/admin/ingredients/promotions",
+    });
+  };
+
+/**
+ * Approve Promotion
+ * Approve a promotion request.
+ *
+ * Sets ``is_system=True``, ``owner_id=None``, ``is_promotion_pending=False``.
+ * The ingredient becomes visible to all users.
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const approvePromotionAdminIngredientsPromotionsIngredientIdApprovePost = (
+  data: ApprovePromotionAdminIngredientsPromotionsIngredientIdApprovePostData
+): CancelablePromise<ApprovePromotionAdminIngredientsPromotionsIngredientIdApprovePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/admin/ingredients/promotions/{ingredient_id}/approve",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Reject Promotion
+ * Reject a promotion request, storing the reason on the ingredient row.
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @param data.requestBody
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const rejectPromotionAdminIngredientsPromotionsIngredientIdRejectPost = (
+  data: RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostData
+): CancelablePromise<RejectPromotionAdminIngredientsPromotionsIngredientIdRejectPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/admin/ingredients/promotions/{ingredient_id}/reject",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Create System Ingredient
+ * Create a new system ingredient (``is_system=True``, ``owner_id=None``).
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const createSystemIngredientAdminIngredientsPost = (
+  data: CreateSystemIngredientAdminIngredientsPostData
+): CancelablePromise<CreateSystemIngredientAdminIngredientsPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/admin/ingredients",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update Any Ingredient
+ * Update any ingredient regardless of owner.
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @param data.requestBody
+ * @returns IngredientDetail Successful Response
+ * @throws ApiError
+ */
+export const updateAnyIngredientAdminIngredientsIngredientIdPatch = (
+  data: UpdateAnyIngredientAdminIngredientsIngredientIdPatchData
+): CancelablePromise<UpdateAnyIngredientAdminIngredientsIngredientIdPatchResponse> => {
+  return __request(OpenAPI, {
+    method: "PATCH",
+    url: "/admin/ingredients/{ingredient_id}",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Delete Any Ingredient
+ * Delete any ingredient.
+ *
+ * Returns HTTP 409 if the ingredient is referenced by any RecipeIngredient
+ * or MealLogEntry row (those tables are added in later PRDs; the guard is
+ * wired in once the models exist).
+ * @param data The data for the request.
+ * @param data.ingredientId
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const deleteAnyIngredientAdminIngredientsIngredientIdDelete = (
+  data: DeleteAnyIngredientAdminIngredientsIngredientIdDeleteData
+): CancelablePromise<DeleteAnyIngredientAdminIngredientsIngredientIdDeleteResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/admin/ingredients/{ingredient_id}",
+    path: {
+      ingredient_id: data.ingredientId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Bulk Import Ingredients
+ * Idempotent upsert of system ingredients by (name, unit).
+ *
+ * Re-importing the same payload does not create duplicates.
+ * Only existing *system* ingredients are candidates for update;
+ * user-owned ingredients with the same (name, unit) are never touched.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns BulkImportResult Successful Response
+ * @throws ApiError
+ */
+export const bulkImportIngredientsAdminIngredientsBulkImportPost = (
+  data: BulkImportIngredientsAdminIngredientsBulkImportPostData
+): CancelablePromise<BulkImportIngredientsAdminIngredientsBulkImportPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/admin/ingredients/bulk-import",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * List Users
+ * Return all registered users.
+ * @returns UserAdminResponse Successful Response
+ * @throws ApiError
+ */
+export const listUsersAdminUsersGet =
+  (): CancelablePromise<ListUsersAdminUsersGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/admin/users",
+    });
+  };
+
+/**
+ * Update User Active
+ * Activate or deactivate a user account.
+ * @param data The data for the request.
+ * @param data.userId
+ * @param data.requestBody
+ * @returns UserAdminResponse Successful Response
+ * @throws ApiError
+ */
+export const updateUserActiveAdminUsersUserIdPatch = (
+  data: UpdateUserActiveAdminUsersUserIdPatchData
+): CancelablePromise<UpdateUserActiveAdminUsersUserIdPatchResponse> => {
+  return __request(OpenAPI, {
+    method: "PATCH",
+    url: "/admin/users/{user_id}",
+    path: {
+      user_id: data.userId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update User Role
+ * Set a user's role (``user`` or ``admin``).
+ * @param data The data for the request.
+ * @param data.userId
+ * @param data.requestBody
+ * @returns UserAdminResponse Successful Response
+ * @throws ApiError
+ */
+export const updateUserRoleAdminUsersUserIdRolePatch = (
+  data: UpdateUserRoleAdminUsersUserIdRolePatchData
+): CancelablePromise<UpdateUserRoleAdminUsersUserIdRolePatchResponse> => {
+  return __request(OpenAPI, {
+    method: "PATCH",
+    url: "/admin/users/{user_id}/role",
+    path: {
+      user_id: data.userId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },
