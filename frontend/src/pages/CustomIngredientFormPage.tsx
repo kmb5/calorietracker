@@ -19,9 +19,82 @@ import {
 import type { UnitType } from "../client/types.gen";
 import { useToast } from "../hooks/useToast";
 
+// ── Food emoji picker data ────────────────────────────────────────────────────
+const FOOD_EMOJIS = [
+  "🍎",
+  "🍊",
+  "🍋",
+  "🍇",
+  "🍓",
+  "🫐",
+  "🍑",
+  "🥝",
+  "🍅",
+  "🫒",
+  "🥦",
+  "🥕",
+  "🧅",
+  "🥔",
+  "🌽",
+  "🥑",
+  "🍆",
+  "🫑",
+  "🥒",
+  "🧄",
+  "🍗",
+  "🥩",
+  "🥚",
+  "🧀",
+  "🥛",
+  "🍳",
+  "🥓",
+  "🌭",
+  "🍔",
+  "🍕",
+  "🫙",
+  "🥫",
+  "🧈",
+  "🥜",
+  "🫘",
+  "🌾",
+  "🍞",
+  "🥐",
+  "🥖",
+  "🧆",
+  "🍚",
+  "🍜",
+  "🍝",
+  "🍲",
+  "🥗",
+  "🫕",
+  "🍱",
+  "🥡",
+  "🍣",
+  "🐟",
+  "🧂",
+  "🫚",
+  "🍯",
+  "🧃",
+  "🥤",
+  "🫖",
+  "☕",
+  "🧋",
+  "🥂",
+  "🍷",
+];
+
+// Unit-based fallback icons
+const UNIT_ICONS: Record<string, string> = {
+  g: "⚖️",
+  ml: "💧",
+  tablespoon: "🥄",
+  piece: "🔵",
+};
+
 // ── Form state type ───────────────────────────────────────────────────────────
 interface FormState {
   name: string;
+  icon: string;
   unit: UnitType;
   portion_size: string;
   kcal: string;
@@ -36,6 +109,7 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 
 const EMPTY_FORM: FormState = {
   name: "",
+  icon: "",
   unit: "g",
   portion_size: "100",
   kcal: "",
@@ -100,6 +174,7 @@ export function CustomIngredientFormPage() {
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditing);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -115,6 +190,7 @@ export function CustomIngredientFormPage() {
         if (cancelled) return;
         setForm({
           name: data.name,
+          icon: data.icon ?? "",
           unit: data.unit,
           portion_size: String(data.portion_size),
           kcal: String(data.kcal),
@@ -172,7 +248,7 @@ export function CustomIngredientFormPage() {
         carbohydrates: Number(form.carbohydrates),
         fiber: Number(form.fiber),
         sodium: Number(form.sodium),
-        icon: null,
+        icon: form.icon || null,
       };
 
       if (isEditing && id) {
@@ -257,6 +333,8 @@ export function CustomIngredientFormPage() {
       ? "Save Changes"
       : "Create Ingredient";
 
+  const previewIcon = form.icon || UNIT_ICONS[form.unit] || "🍽️";
+
   return (
     <div style={{ background: "hsl(var(--background))", minHeight: "100vh" }}>
       {/* ── Header ── */}
@@ -319,6 +397,89 @@ export function CustomIngredientFormPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* ── Icon ── */}
+          <div style={{ marginBottom: 20 }}>
+            <div className="ci-section-label">
+              Icon{" "}
+              <span
+                style={{
+                  fontWeight: 400,
+                  textTransform: "none",
+                  fontSize: 10,
+                  color: "hsl(var(--muted-foreground))",
+                }}
+              >
+                optional
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                type="button"
+                className="ci-icon-btn"
+                onClick={() => setShowEmojiPicker((v) => !v)}
+                aria-label="Choose icon"
+              >
+                {previewIcon}
+              </button>
+              <span
+                style={{
+                  fontSize: 13,
+                  color: "hsl(var(--muted-foreground))",
+                  lineHeight: 1.45,
+                }}
+              >
+                {form.icon ? "Tap to change icon" : "Tap to choose an emoji icon"}
+                {!form.icon && (
+                  <>
+                    <br />
+                    <span style={{ fontSize: 11 }}>
+                      Defaults to {UNIT_ICONS[form.unit] ?? "🍽️"} based on unit
+                    </span>
+                  </>
+                )}
+              </span>
+            </div>
+
+            {/* Emoji grid */}
+            {showEmojiPicker && (
+              <div className="ci-emoji-grid open" style={{ marginTop: 8 }}>
+                {FOOD_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    className={`ci-emoji-btn${form.icon === emoji ? "selected" : ""}`}
+                    aria-label={emoji}
+                    onClick={() => {
+                      handleChange("icon", emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+                {form.icon && (
+                  <button
+                    type="button"
+                    className="ci-emoji-btn"
+                    style={{
+                      gridColumn: "1 / -1",
+                      fontSize: 11,
+                      color: "hsl(var(--muted-foreground))",
+                      height: "auto",
+                      paddingBlock: 6,
+                    }}
+                    onClick={() => {
+                      handleChange("icon", "");
+                      setShowEmojiPicker(false);
+                    }}
+                  >
+                    ✕ Use default
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── Unit & Portion ── */}
