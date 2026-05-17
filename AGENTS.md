@@ -90,6 +90,13 @@ docker compose run --rm api alembic revision --autogenerate -m "<description>"
 docker compose run --rm api alembic upgrade head
 ```
 
+> ⚠️ **Always use `alembic revision --autogenerate`** — never write migration files by hand.
+> Hand-written migrations produce fake revision IDs (e.g. `a1b2c3d4e5f6`), duplicate IDs across
+> files, and broken `down_revision` chains that Alembic cannot traverse. The `--autogenerate` flag
+> diffs the live SQLAlchemy models against the DB schema and emits a correctly-chained file with a
+> real unique revision ID. The only valid reason to edit a generated file is to add a data migration
+> step inside an existing `upgrade()`/`downgrade()` — never to create or rechain migrations manually.
+
 ### Frontend
 
 ```bash

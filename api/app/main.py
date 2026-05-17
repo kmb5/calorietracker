@@ -8,6 +8,7 @@ from app.auth.router import router as auth_router
 from app.config import get_settings
 from app.ingredients.router import router as ingredients_router
 from app.limiter import limiter
+from app.logs.router import router as logs_router
 from app.recipes.router import router as recipes_router
 from app.users.router import router as users_router
 
@@ -34,6 +35,7 @@ app.include_router(ingredients_router)
 app.include_router(admin_router)
 app.include_router(recipes_router)
 app.include_router(users_router)
+app.include_router(logs_router)
 
 
 @app.get("/health")

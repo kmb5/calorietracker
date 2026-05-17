@@ -93,6 +93,8 @@ async def create_test_tables():
 # ---------------------------------------------------------------------------
 
 _TRUNCATE_TABLES = [
+    "meal_log_entries",
+    "meal_logs",
     "refresh_tokens",
     "macro_targets",
     "recipe_ingredients",
