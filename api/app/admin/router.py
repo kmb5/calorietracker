@@ -213,17 +213,48 @@ async def delete_any_ingredient(
             status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found"
         )
 
-    # --- Reference guard (extend when RecipeIngredient / MealLogEntry exist) ---
-    # from app.models.recipe import RecipeIngredient
-    # from app.models.meal_log import MealLogEntry
-    # ref_check = await session.execute(
-    #     select(RecipeIngredient).where(RecipeIngredient.ingredient_id == ingredient_id).limit(1)
-    # )
-    # if ref_check.scalar_one_or_none():
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="...")
+    await _check_ingredient_not_referenced(ingredient_id, session)
 
     await session.delete(ingredient)
     await session.commit()
+
+
+async def _check_ingredient_not_referenced(
+    ingredient_id: int, session: AsyncSession
+) -> None:
+    """Raise HTTP 409 if the ingredient is referenced by any recipe or meal log row.
+
+    Uses SAVEPOINTs so that an OperationalError from a not-yet-existing table
+    (added in later issues) is scoped and rolled back without aborting the
+    outer transaction.
+    """
+    from sqlalchemy import text
+    from sqlalchemy.exc import OperationalError
+
+    for table, detail in [
+        (
+            "recipe_ingredients",
+            "Ingredient is referenced by one or more recipes",
+        ),
+        (
+            "meal_log_entries",
+            "Ingredient is referenced by one or more meal log entries",
+        ),
+    ]:
+        try:
+            async with session.begin_nested():  # SAVEPOINT
+                result = await session.execute(
+                    text(f"SELECT COUNT(*) FROM {table} WHERE ingredient_id = :id"),
+                    {"id": ingredient_id},
+                )
+                if (result.scalar() or 0) > 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=detail,
+                    )
+        except OperationalError:
+            # Table does not exist yet — savepoint rolled back, outer tx intact.
+            pass
 
 
 # ===========================================================================
