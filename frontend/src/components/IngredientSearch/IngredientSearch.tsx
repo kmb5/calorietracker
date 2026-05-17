@@ -294,7 +294,7 @@ export function IngredientSearch({
               onClick={() => openDetail(selected.id)}
               aria-label="View nutrition details"
               className="btn-primary"
-              style={{ flex: 1, height: 48, fontSize: 14 }}
+              style={{ flex: 1, height: 48, fontSize: 14, marginTop: 0 }}
             >
               View full nutrition &rarr;
             </button>
