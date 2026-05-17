@@ -2826,22 +2826,22 @@
           <div id="atl-state-recipe-idle" class="atl-tab-body">
             <p class="atl-list-label">Recent recipes</p>
             <div class="atl-recipe-list">
-              <div class="atl-recipe-row" onclick="showLogState('recipe-selected')">
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
                 <span class="atl-recipe-icon">&#x1F357;</span>
                 <div class="atl-recipe-body"><div class="atl-recipe-name">Chicken Rice Bowl</div><div class="atl-recipe-meta">Last cooked 3 days ago &middot; 850 g</div></div>
                 <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
               </div>
-              <div class="atl-recipe-row" onclick="showLogState('recipe-cooked')">
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-cooked')">
                 <span class="atl-recipe-icon">&#x1F35D;</span>
                 <div class="atl-recipe-body"><div class="atl-recipe-name">Pasta Bolognese</div><div class="atl-recipe-meta">Last cooked 3 weeks ago &middot; needs update</div></div>
                 <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
               </div>
-              <div class="atl-recipe-row" onclick="showLogState('recipe-selected')">
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
                 <span class="atl-recipe-icon">&#x1F957;</span>
                 <div class="atl-recipe-body"><div class="atl-recipe-name">Quinoa Salad</div><div class="atl-recipe-meta">Last cooked yesterday &middot; 620 g</div></div>
                 <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
               </div>
-              <div class="atl-recipe-row" onclick="showLogState('recipe-selected')">
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
                 <span class="atl-recipe-icon">&#x1F95E;</span>
                 <div class="atl-recipe-body"><div class="atl-recipe-name">Protein Pancakes</div><div class="atl-recipe-meta">Last cooked 5 days ago &middot; 340 g</div></div>
                 <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
@@ -3372,6 +3372,13 @@
   }
 
   // Used by sheet sub-state transitions (recipe rows, chip clears, submitting)
+  function selectRecipeRow(el, state) {
+    // Mark the tapped row as selected so the CSS checkmark is revealed
+    document.querySelectorAll('.atl-recipe-row').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    showLogState(state);
+  }
+
   function showLogState(key) {
     _applyLogState(key);
     _updateLogSidebar(key);
@@ -3396,6 +3403,13 @@
     if (s.submitting) {
       if (sheet) { sheet.style.opacity = '0.82'; sheet.style.pointerEvents = 'none'; }
       document.querySelectorAll('.atl-log-btn').forEach(b => { b.classList.add('loading'); b.disabled = false; });
+      // Capture the active meal name now so the success toast reflects the chosen meal
+      const activeMealBtn = document.querySelector('.atl-meal-btn.active');
+      if (activeMealBtn) {
+        const mealName = activeMealBtn.querySelector('.atl-meal-icon').nextSibling.textContent.trim();
+        const msgEl = document.getElementById('log-toast-msg');
+        if (msgEl) msgEl.innerHTML = 'Logged to <strong>' + mealName + '</strong>';
+      }
       setTimeout(() => { _applyLogState('success'); _updateLogSidebar('success'); }, 1300);
       return;
     }
@@ -3493,6 +3507,9 @@
     const hint = document.getElementById('atl-recipe-hint');
     if (!hint) return;
     if (!g) { hint.textContent = ''; return; }
+    // TODO (issue #02-09): these figures (850 g batch, 1437 kcal, 110.5 g protein, 47.6 g fat,
+    // 144.5 g carbs) are hardcoded for Chicken Rice Bowl only. The real implementation must
+    // look up per-100 g macros and last-cooked batch weight from the selected recipe.
     const ratio = g / 850;
     hint.textContent = '\u2248\u2009' + Math.round(1437 * ratio) + ' kcal \u00b7 '
       + Math.round(110.5 * ratio) + ' g protein \u00b7 '
