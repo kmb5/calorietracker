@@ -20,21 +20,19 @@ export function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const recipeId = id ? Number(id) : NaN;
+  const isInvalidId = !id || isNaN(recipeId);
+
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!isInvalidId);
+  const [error, setError] = useState<string | null>(
+    isInvalidId ? "Invalid recipe ID." : null,
+  );
 
   useEffect(() => {
-    if (!id) return;
-    const recipeId = Number(id);
-    if (isNaN(recipeId)) {
-      setError("Invalid recipe ID.");
-      setLoading(false);
-      return;
-    }
+    if (isInvalidId) return;
 
     let cancelled = false;
-    setLoading(true);
     getRecipeRecipesRecipeIdGet({ recipeId })
       .then((data) => {
         if (!cancelled) setRecipe(data);
@@ -48,7 +46,7 @@ export function RecipeDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, isInvalidId, recipeId]);
 
   return (
     <div className="app-screen" style={{ overflowY: "auto" }}>

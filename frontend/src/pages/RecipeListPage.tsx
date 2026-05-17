@@ -19,7 +19,7 @@ import { formatRelative } from "../lib/dateUtils";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function recipeIcon(_name: string): string {
+function recipeIcon(): string {
   // Default icon — extend later with per-recipe emoji support
   return "🍳";
 }
@@ -77,7 +77,7 @@ function RecipeCard({ recipe, onDelete }: RecipeCardProps) {
         onKeyDown={(e) => e.key === "Enter" && navigate(`/recipes/${recipe.id}`)}
         aria-label={`View ${recipe.name}`}
       >
-        <div className="recipe-icon">{recipeIcon(recipe.name)}</div>
+        <div className="recipe-icon">{recipeIcon()}</div>
         <div className="recipe-card-body">
           <div className="recipe-card-name">{recipe.name}</div>
           <div className="recipe-card-meta">
@@ -154,7 +154,6 @@ export function RecipeListPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     listRecipesRecipesGet()
       .then((data) => {
         if (!cancelled) setRecipes(data);
