@@ -1370,6 +1370,326 @@
   .location-seg-btn.active { background:var(--white); color:var(--ink); box-shadow:0 1px 6px rgba(26,18,8,0.10); }
   html.dark .location-seg-btn.active { box-shadow:0 1px 6px rgba(0,0,0,0.30); }
 
+  /* ════ DAILY LOG ════ */
+
+  /* ── Date navigation header ── */
+  .log-date-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 52px 16px 0;
+    gap: 8px;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .log-date-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--ink-mid);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .log-date-btn:hover { border-color: var(--terra); color: var(--terra); background: var(--terra-xlight); }
+  .log-date-btn svg { width: 16px; height: 16px; }
+  .log-date-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .log-date-label {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.2px;
+  }
+  .log-today-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: var(--terra);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .log-today-pill:hover { background: var(--terra-dark); }
+  .log-past-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    background: var(--cream-dark);
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Macro summary panel (sticky) ── */
+  .macro-panel {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 12px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .macro-panel-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .macro-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .macro-bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-mid);
+    width: 48px;
+    flex-shrink: 0;
+  }
+  .macro-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--cream-dark);
+    border-radius: 99px;
+    overflow: visible;
+    position: relative;
+  }
+  html.dark .macro-bar-track { background: var(--cream-mid); }
+  .macro-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    max-width: 110%;
+    position: relative;
+  }
+  .macro-bar-fill.kcal   { background: var(--terra); }
+  .macro-bar-fill.protein{ background: var(--protein-color); }
+  .macro-bar-fill.fat    { background: var(--fat-color); }
+  .macro-bar-fill.carbs  { background: var(--carbs-color); }
+  /* Overflow state (>100%) */
+  .macro-bar-fill.overflow { background: #E88A30; }
+  .macro-bar-fill.overflow-red { background: var(--error); }
+  /* Overflow indicator pip */
+  .macro-bar-fill.overflow::after {
+    content: '';
+    position: absolute;
+    right: -3px; top: 50%;
+    transform: translateY(-50%);
+    width: 5px; height: 14px;
+    background: #E88A30;
+    border-radius: 3px;
+  }
+  .macro-bar-fill.overflow-red::after { background: var(--error); }
+  .macro-bar-value {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ink-mid);
+    width: 70px;
+    flex-shrink: 0;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .macro-bar-value.over { color: #E88A30; }
+  .macro-bar-value.over-red { color: var(--error); }
+  .macro-fiber-row {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .macro-fiber-row strong { color: var(--ink-mid); font-weight: 700; }
+  /* No-targets variant */
+  .macro-notargets {
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .macro-nt-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 4px;
+    border-right: 1px solid var(--border);
+  }
+  .macro-nt-chip:last-child { border-right: none; }
+  .macro-nt-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: var(--font-display);
+    line-height: 1.1;
+  }
+  .macro-nt-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .macro-nt-unit {
+    font-size: 9px;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  .macro-nt-chip.kcal-chip .macro-nt-val { color: var(--terra); }
+  .macro-nt-chip.protein-chip .macro-nt-val { color: var(--protein-color); }
+  .macro-nt-chip.fat-chip .macro-nt-val { color: var(--fat-color); }
+  .macro-nt-chip.carbs-chip .macro-nt-val { color: var(--carbs-color); }
+
+  /* ── Meal sections ── */
+  .log-scroll-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .meal-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .meal-section-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+    transition: background 0.15s;
+  }
+  .meal-section-header:hover { background: var(--cream-dark); }
+  html.dark .meal-section-header:hover { background: var(--cream-mid); }
+  .meal-section-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+  }
+  .meal-section-kcal {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .meal-section-chevron {
+    color: var(--ink-soft);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .meal-section-chevron svg { width: 16px; height: 16px; }
+  .meal-section.collapsed .meal-section-chevron { transform: rotate(-90deg); }
+  .meal-section-body {
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .meal-section.collapsed .meal-section-body { display: none; }
+  /* Empty section — de-emphasised */
+  .meal-section.empty .meal-section-name { color: var(--ink-soft); }
+  .meal-section.empty .meal-section-header { opacity: 0.6; }
+  .meal-section-empty-hint {
+    padding: 14px 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+  }
+  /* Log entry card */
+  .log-entry {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-entry-name {
+    flex: 1;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .log-entry-name small {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-top: 1px;
+  }
+  .log-entry-kcal {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--terra);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  /* Add to section row */
+  .meal-section-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--terra);
+    cursor: pointer;
+    border-top: 1px dashed var(--border);
+    transition: background 0.15s;
+    background: none;
+    border-left: none; border-right: none; border-bottom: none;
+    width: 100%;
+    font-family: var(--font-body);
+  }
+  .meal-section-add:hover { background: var(--terra-xlight); }
+  .meal-section-add svg { width: 14px; height: 14px; }
+  /* Past day read-only banner */
+  .log-readonly-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--warn);
+    font-weight: 500;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+  .log-readonly-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+  /* Past day header tint */
+  .log-date-nav.past .log-date-label { color: var(--ink-soft); }
+
   /* ════ LOG — DAILY LOG HOME ════ */
   .log-macro-strip {
     background: var(--white);
@@ -1594,7 +1914,13 @@
 
     <div class="sidebar-group">
       <div class="sidebar-group-label">Log</div>
-      <button class="sidebar-btn" data-screen="s-log-home" onclick="showLogScreen('home')"><span class="dot"></span>Log Home</button>
+      <button class="sidebar-btn" data-screen="s-log-today" onclick="showScreen('s-log-today')"><span class="dot"></span>Active Day</button>
+      <button class="sidebar-btn" data-screen="s-log-overflow" onclick="showScreen('s-log-overflow')"><span class="dot"></span>Targets Exceeded</button>
+      <button class="sidebar-btn" data-screen="s-log-no-targets" onclick="showScreen('s-log-no-targets')"><span class="dot"></span>No Targets Set</button>
+      <button class="sidebar-btn" data-screen="s-log-empty-section" onclick="showScreen('s-log-empty-section')"><span class="dot"></span>Empty Sections</button>
+      <button class="sidebar-btn" data-screen="s-log-date-nav" onclick="showScreen('s-log-date-nav')"><span class="dot"></span>Date Navigation</button>
+      <button class="sidebar-btn" data-screen="s-log-readonly" onclick="showScreen('s-log-readonly')"><span class="dot"></span>Past Day (Read-only)</button>
+      <button class="sidebar-btn" data-screen="s-log-home" onclick="showLogScreen('home')"><span class="dot"></span>Log Home (Add-to-Log)</button>
       <button class="sidebar-btn" id="sb-log-recipe-idle" onclick="showLogScreen('recipe-idle')"><span class="dot"></span>Sheet &middot; Recipe list</button>
       <button class="sidebar-btn" id="sb-log-recipe-selected" onclick="showLogScreen('recipe-selected')"><span class="dot"></span>Sheet &middot; Recipe selected</button>
       <button class="sidebar-btn" id="sb-log-recipe-cooked" onclick="showLogScreen('recipe-cooked')"><span class="dot"></span>Sheet &middot; Cooked weight</button>
@@ -1732,7 +2058,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-recipe-create')" aria-label="New Recipe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item active" data-tab="recipes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2338,7 +2664,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2391,7 +2717,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><div class="nav-badge-pantry">2</div><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2451,7 +2777,7 @@
         </div>
       </div>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2532,7 +2858,7 @@
       </div>
       <div style="height:80px;"></div>
             <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2589,7 +2915,7 @@
         </div>
       </div>
             <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-today')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -3000,6 +3326,585 @@
       </div>
     </div>
 
+
+    <!-- DAILY LOG: ACTIVE DAY (Screen 1) -->
+    <section class="screen" id="s-log-today" style="display:none;flex-direction:column;min-height:100vh;">
+      <!-- Date header -->
+      <div class="log-date-nav">
+        <button class="log-date-btn" onclick="logPrev('s-log-today')" aria-label="Previous day">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg>
+        </button>
+        <div class="log-date-center">
+          <div class="log-date-label" id="log-today-date">Today, 17 May</div>
+        </div>
+        <button class="log-date-btn" onclick="logNext('s-log-today')" aria-label="Next day">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+      <!-- Sticky macro panel -->
+      <div class="macro-panel">
+        <div class="macro-panel-title">Today’s Nutrition</div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Calories</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill kcal" style="width:72%;"></div></div>
+          <span class="macro-bar-value">1330 / 1850</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Protein</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill protein" style="width:60%;"></div></div>
+          <span class="macro-bar-value">84 / 140g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Fat</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill fat" style="width:80%;"></div></div>
+          <span class="macro-bar-value">48 / 60g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Carbs</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill carbs" style="width:55%;"></div></div>
+          <span class="macro-bar-value">116 / 210g</span>
+        </div>
+        <div class="macro-fiber-row">Fiber: <strong>18 / 30g</strong></div>
+      </div>
+      <!-- Meal sections -->
+      <div class="log-scroll-body">
+        <!-- Breakfast -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">420 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry">
+              <div class="log-entry-name">Greek Yogurt<small>200g</small></div>
+              <div class="log-entry-kcal">130 kcal</div>
+            </div>
+            <div class="log-entry">
+              <div class="log-entry-name">Oat Granola<small>60g</small></div>
+              <div class="log-entry-kcal">240 kcal</div>
+            </div>
+            <div class="log-entry">
+              <div class="log-entry-name">Blueberries<small>80g</small></div>
+              <div class="log-entry-kcal">46 kcal</div>
+            </div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              Add to Breakfast
+            </button>
+          </div>
+        </div>
+        <!-- Lunch -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">540 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry">
+              <div class="log-entry-name">Chicken &amp; Rice Bowl<small>350g &mdash; from recipe</small></div>
+              <div class="log-entry-kcal">480 kcal</div>
+            </div>
+            <div class="log-entry">
+              <div class="log-entry-name">Olive Oil<small>8g</small></div>
+              <div class="log-entry-kcal">72 kcal</div>
+            </div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              Add to Lunch
+            </button>
+          </div>
+        </div>
+        <!-- Dinner -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">370 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry">
+              <div class="log-entry-name">Salmon Fillet<small>180g</small></div>
+              <div class="log-entry-kcal">297 kcal</div>
+            </div>
+            <div class="log-entry">
+              <div class="log-entry-name">Steamed Broccoli<small>150g</small></div>
+              <div class="log-entry-kcal">51 kcal</div>
+            </div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              Add to Dinner
+            </button>
+          </div>
+        </div>
+        <!-- Snacks -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')" style="border-top:none;">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              Add to Snacks
+            </button>
+          </div>
+        </div>
+        <div class="proto-states">
+          <div class="proto-states-label">&darr; prototype states</div>
+          <div class="proto-states-row">
+            <button class="proto-pill" onclick="showScreen('s-log-overflow')">Targets exceeded</button>
+            <button class="proto-pill" onclick="showScreen('s-log-no-targets')">No targets</button>
+            <button class="proto-pill" onclick="showScreen('s-log-empty-section')">Empty sections</button>
+            <button class="proto-pill" onclick="showScreen('s-log-date-nav')">Date navigation</button>
+            <button class="proto-pill" onclick="showScreen('s-log-readonly')">Past day</button>
+          </div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- DAILY LOG: TARGETS EXCEEDED (Screen 2) -->
+    <section class="screen" id="s-log-overflow" style="display:none;flex-direction:column;min-height:100vh;">
+      <div class="log-date-nav">
+        <button class="log-date-btn" aria-label="Previous day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg></button>
+        <div class="log-date-center"><div class="log-date-label">Today, 17 May</div></div>
+        <button class="log-date-btn" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></button>
+      </div>
+      <div class="macro-panel">
+        <div class="macro-panel-title">Today’s Nutrition</div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Calories</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill kcal overflow" style="width:100%;"></div></div>
+          <span class="macro-bar-value over">2030 / 1850</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Protein</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill protein" style="width:100%;"></div></div>
+          <span class="macro-bar-value">140 / 140g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Fat</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill fat overflow-red" style="width:100%;"></div></div>
+          <span class="macro-bar-value over-red">82 / 60g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Carbs</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill carbs overflow" style="width:100%;"></div></div>
+          <span class="macro-bar-value over">248 / 210g</span>
+        </div>
+        <div class="macro-fiber-row">Fiber: <strong>26 / 30g</strong></div>
+      </div>
+      <div class="log-scroll-body">
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">620 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Full English<small>480g</small></div><div class="log-entry-kcal">620 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Breakfast</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">780 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Pasta Carbonara<small>420g</small></div><div class="log-entry-kcal">780 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Lunch</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">530 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Beef Stir Fry<small>380g</small></div><div class="log-entry-kcal">530 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Dinner</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">100 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Banana<small>100g</small></div><div class="log-entry-kcal">89 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Snacks</button>
+          </div>
+        </div>
+        <div class="proto-states"><div class="proto-states-label">&darr; prototype states</div><div class="proto-states-row"><button class="proto-pill" onclick="showScreen('s-log-today')">Active day</button><button class="proto-pill" onclick="showScreen('s-log-no-targets')">No targets</button></div></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- DAILY LOG: NO TARGETS SET (Screen 3) -->
+    <section class="screen" id="s-log-no-targets" style="display:none;flex-direction:column;min-height:100vh;">
+      <div class="log-date-nav">
+        <button class="log-date-btn" aria-label="Previous day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg></button>
+        <div class="log-date-center"><div class="log-date-label">Today, 17 May</div></div>
+        <button class="log-date-btn" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></button>
+      </div>
+      <div class="macro-panel">
+        <div class="macro-panel-title">Today’s Nutrition &mdash; no targets set</div>
+        <div class="macro-notargets">
+          <div class="macro-nt-chip kcal-chip"><div class="macro-nt-val">1330</div><div class="macro-nt-label">Calories</div><div class="macro-nt-unit">kcal</div></div>
+          <div class="macro-nt-chip protein-chip"><div class="macro-nt-val">84</div><div class="macro-nt-label">Protein</div><div class="macro-nt-unit">g</div></div>
+          <div class="macro-nt-chip fat-chip"><div class="macro-nt-val">48</div><div class="macro-nt-label">Fat</div><div class="macro-nt-unit">g</div></div>
+          <div class="macro-nt-chip carbs-chip"><div class="macro-nt-val">116</div><div class="macro-nt-label">Carbs</div><div class="macro-nt-unit">g</div></div>
+          <div class="macro-nt-chip"><div class="macro-nt-val" style="color:var(--ink-soft);">18</div><div class="macro-nt-label">Fiber</div><div class="macro-nt-unit">g</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--ink-soft);">Set targets in <a onclick="showScreen('s-profile')" style="color:var(--terra);cursor:pointer;font-weight:600;">Profile</a> to see progress bars</div>
+      </div>
+      <div class="log-scroll-body">
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">420 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Greek Yogurt<small>200g</small></div><div class="log-entry-kcal">130 kcal</div></div>
+            <div class="log-entry"><div class="log-entry-name">Granola<small>60g</small></div><div class="log-entry-kcal">240 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Breakfast</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">540 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Chicken &amp; Rice<small>350g</small></div><div class="log-entry-kcal">480 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Lunch</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">370 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Salmon Fillet<small>180g</small></div><div class="log-entry-kcal">297 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Dinner</button>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')" style="border-top:none;"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Snacks</button>
+          </div>
+        </div>
+        <div class="proto-states"><div class="proto-states-label">&darr; prototype states</div><div class="proto-states-row"><button class="proto-pill" onclick="showScreen('s-log-today')">With targets</button><button class="proto-pill" onclick="showScreen('s-profile')">Set targets</button></div></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- DAILY LOG: EMPTY SECTIONS (Screen 4) -->
+    <section class="screen" id="s-log-empty-section" style="display:none;flex-direction:column;min-height:100vh;">
+      <div class="log-date-nav">
+        <button class="log-date-btn" aria-label="Previous day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg></button>
+        <div class="log-date-center"><div class="log-date-label">Today, 17 May</div></div>
+        <button class="log-date-btn" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></button>
+      </div>
+      <div class="macro-panel">
+        <div class="macro-panel-title">Today’s Nutrition</div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Calories</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill kcal" style="width:23%;"></div></div>
+          <span class="macro-bar-value">420 / 1850</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Protein</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill protein" style="width:18%;"></div></div>
+          <span class="macro-bar-value">25 / 140g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Fat</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill fat" style="width:20%;"></div></div>
+          <span class="macro-bar-value">12 / 60g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Carbs</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill carbs" style="width:25%;"></div></div>
+          <span class="macro-bar-value">52 / 210g</span>
+        </div>
+        <div class="macro-fiber-row">Fiber: <strong>6 / 30g</strong></div>
+      </div>
+      <div class="log-scroll-body">
+        <!-- Breakfast: has entries -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">420 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Oatmeal with Berries<small>300g</small></div><div class="log-entry-kcal">420 kcal</div></div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Breakfast</button>
+          </div>
+        </div>
+        <!-- Lunch: empty (de-emphasised, collapsed) -->
+        <div class="meal-section empty collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="meal-section-empty-hint">Nothing logged yet</div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Lunch</button>
+          </div>
+        </div>
+        <!-- Dinner: empty (de-emphasised, collapsed) -->
+        <div class="meal-section empty collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="meal-section-empty-hint">Nothing logged yet</div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Dinner</button>
+          </div>
+        </div>
+        <!-- Snacks: empty (de-emphasised, collapsed) -->
+        <div class="meal-section empty collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="meal-section-empty-hint">Nothing logged yet</div>
+            <button class="meal-section-add" onclick="showScreen('s-search-idle')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Add to Snacks</button>
+          </div>
+        </div>
+        <div class="proto-states"><div class="proto-states-label">&darr; prototype states</div><div class="proto-states-row"><button class="proto-pill" onclick="showScreen('s-log-today')">Full day</button></div></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- DAILY LOG: DATE NAVIGATION (Screen 5) -->
+    <section class="screen" id="s-log-date-nav" style="display:none;flex-direction:column;min-height:100vh;">
+      <div class="log-date-nav past">
+        <button class="log-date-btn" onclick="logPrev('s-log-date-nav')" aria-label="Previous day">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg>
+        </button>
+        <div class="log-date-center">
+          <div class="log-date-label" id="log-dateNav-date">Thu, 15 May</div>
+          <button class="log-today-pill" onclick="showScreen('s-log-today')">Today</button>
+        </div>
+        <button class="log-date-btn" onclick="logNext('s-log-date-nav')" aria-label="Next day">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+      <div class="macro-panel">
+        <div class="macro-panel-title">15 May Nutrition</div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Calories</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill kcal" style="width:90%;"></div></div>
+          <span class="macro-bar-value">1665 / 1850</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Protein</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill protein" style="width:95%;"></div></div>
+          <span class="macro-bar-value">133 / 140g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Fat</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill fat" style="width:75%;"></div></div>
+          <span class="macro-bar-value">45 / 60g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Carbs</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill carbs" style="width:88%;"></div></div>
+          <span class="macro-bar-value">185 / 210g</span>
+        </div>
+        <div class="macro-fiber-row">Fiber: <strong>22 / 30g</strong></div>
+      </div>
+      <div class="log-scroll-body">
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">380 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Scrambled Eggs<small>180g</small></div><div class="log-entry-kcal">250 kcal</div></div>
+            <div class="log-entry"><div class="log-entry-name">Sourdough Toast<small>70g</small></div><div class="log-entry-kcal">180 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">620 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Lentil Soup<small>400g</small></div><div class="log-entry-kcal">320 kcal</div></div>
+            <div class="log-entry"><div class="log-entry-name">Wholemeal Roll<small>80g</small></div><div class="log-entry-kcal">198 kcal</div></div>
+            <div class="log-entry"><div class="log-entry-name">Olive Oil Drizzle<small>11g</small></div><div class="log-entry-kcal">97 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">665 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Roast Chicken &amp; Veg<small>520g &mdash; from recipe</small></div><div class="log-entry-kcal">665 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section empty collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body"><div class="meal-section-empty-hint">Nothing logged</div></div>
+        </div>
+        <div class="proto-states"><div class="proto-states-label">&darr; prototype states</div><div class="proto-states-row"><button class="proto-pill" onclick="showScreen('s-log-today')">Back to today</button><button class="proto-pill" onclick="showScreen('s-log-readonly')">Read-only hint</button></div></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- DAILY LOG: PAST DAY READ-ONLY (Screen 6) -->
+    <section class="screen" id="s-log-readonly" style="display:none;flex-direction:column;min-height:100vh;">
+      <div class="log-date-nav past">
+        <button class="log-date-btn" aria-label="Previous day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4l-4 4 4 4"/></svg></button>
+        <div class="log-date-center">
+          <div class="log-date-label">Mon, 12 May</div>
+          <button class="log-today-pill" onclick="showScreen('s-log-today')">Today</button>
+        </div>
+        <button class="log-date-btn" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></button>
+      </div>
+      <div class="macro-panel">
+        <div class="macro-panel-title">12 May Nutrition</div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Calories</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill kcal" style="width:95%;"></div></div>
+          <span class="macro-bar-value">1758 / 1850</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Protein</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill protein" style="width:88%;"></div></div>
+          <span class="macro-bar-value">123 / 140g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Fat</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill fat" style="width:92%;"></div></div>
+          <span class="macro-bar-value">55 / 60g</span>
+        </div>
+        <div class="macro-bar-row">
+          <span class="macro-bar-label">Carbs</span>
+          <div class="macro-bar-track"><div class="macro-bar-fill carbs" style="width:86%;"></div></div>
+          <span class="macro-bar-value">181 / 210g</span>
+        </div>
+        <div class="macro-fiber-row">Fiber: <strong>28 / 30g</strong></div>
+      </div>
+      <div class="log-scroll-body">
+        <!-- Read-only banner -->
+        <div class="log-readonly-banner">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4"/><circle cx="8" cy="5.5" r="0.6" fill="currentColor" stroke="none"/></svg>
+          Viewing a past day &mdash; entries cannot be edited
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌙 Breakfast</span>
+            <span class="meal-section-kcal">410 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Porridge<small>350g</small></div><div class="log-entry-kcal">290 kcal</div></div>
+            <div class="log-entry"><div class="log-entry-name">Banana<small>120g</small></div><div class="log-entry-kcal">107 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">☀️ Lunch</span>
+            <span class="meal-section-kcal">590 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Tuna Pasta Salad<small>380g</small></div><div class="log-entry-kcal">590 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🌞 Dinner</span>
+            <span class="meal-section-kcal">758 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body">
+            <div class="log-entry"><div class="log-entry-name">Beef Tacos<small>420g &mdash; from recipe</small></div><div class="log-entry-kcal">758 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-section empty collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <span class="meal-section-name">🍰 Snacks</span>
+            <span class="meal-section-kcal">0 kcal</span>
+            <span class="meal-section-chevron"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></span>
+          </div>
+          <div class="meal-section-body"><div class="meal-section-empty-hint">Nothing logged</div></div>
+        </div>
+        <div class="proto-states"><div class="proto-states-label">&darr; prototype states</div><div class="proto-states-row"><button class="proto-pill" onclick="showScreen('s-log-today')">Back to today</button><button class="proto-pill" onclick="showScreen('s-log-date-nav')">Date navigation</button></div></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
   </div><!-- /phone-viewport -->
 
   <script>
@@ -3279,6 +4184,8 @@
     // update bottom nav active tab
     const tabMap = {
       's-log-home': 'log',
+      's-log-today': 'log', 's-log-overflow': 'log', 's-log-no-targets': 'log',
+      's-log-empty-section': 'log', 's-log-date-nav': 'log', 's-log-readonly': 'log',
       's-recipe-list': 'recipes', 's-recipe-list-empty': 'recipes',
       's-recipe-detail': 'recipes', 's-recipe-create': 'recipes',
       's-cooking': 'recipes',
@@ -3292,7 +4199,8 @@
     });
     if (id === 's-cooking') { renderIngredients(); calcCooking(); }
     // Close add-to-log sheet when navigating away from log screen
-    if (id !== 's-log-home') {
+    const LOG_SCREEN_IDS = ['s-log-home','s-log-today','s-log-overflow','s-log-no-targets','s-log-empty-section','s-log-date-nav','s-log-readonly'];
+    if (!LOG_SCREEN_IDS.includes(id)) {
       const atlOverlay = document.getElementById('atl-overlay');
       if (atlOverlay) atlOverlay.classList.add('hidden');
       const logToast = document.getElementById('log-toast');
@@ -3548,6 +4456,37 @@
     hint.textContent = '\u2248\u2009' + Math.round(110 * r) + ' kcal \u00b7 '
       + Math.round(23 * r) + ' g protein \u00b7 '
       + parseFloat((1.2 * r).toFixed(1)) + ' g fat \u00b7 0 g carbs';
+  }
+
+
+  /* ════ DAILY LOG DATE NAVIGATION HELPERS ════ */
+  const LOG_DATES = [
+    'Mon, 12 May', 'Tue, 13 May', 'Wed, 14 May',
+    'Thu, 15 May', 'Fri, 16 May', 'Today, 17 May'
+  ];
+  const LOG_DATE_IDX = { 's-log-today': 5, 's-log-date-nav': 3 };
+
+  function logPrev(screenId) {
+    const idx = LOG_DATE_IDX[screenId] || 5;
+    if (idx > 0) {
+      LOG_DATE_IDX[screenId] = idx - 1;
+      _updateLogDate(screenId);
+    }
+  }
+  function logNext(screenId) {
+    const idx = LOG_DATE_IDX[screenId] || 0;
+    if (idx < LOG_DATES.length - 1) {
+      LOG_DATE_IDX[screenId] = idx + 1;
+      _updateLogDate(screenId);
+    }
+  }
+  function _updateLogDate(screenId) {
+    const idx = LOG_DATE_IDX[screenId];
+    const label = LOG_DATES[idx];
+    const el = document.getElementById(
+      screenId === 's-log-today' ? 'log-today-date' : 'log-dateNav-date'
+    );
+    if (el) el.textContent = label;
   }
 
   </script>
