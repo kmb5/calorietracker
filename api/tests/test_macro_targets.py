@@ -1,9 +1,8 @@
 """Tests for GET /users/me/targets and PUT /users/me/targets."""
 
 import pytest
-from httpx import AsyncClient
-
 from conftest import auth_headers, register_and_login
+from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
