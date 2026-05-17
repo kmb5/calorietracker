@@ -16,10 +16,7 @@ import {
   cookRecipeRecipesRecipeIdCookPost,
 } from "../client/services.gen";
 import type { RecipeDetail, RecipeIngredientItem } from "../client/types.gen";
-import {
-  calculateNutrition,
-  type IngredientNutrition,
-} from "../lib/nutrition";
+import { calculateNutrition, type IngredientNutrition } from "../lib/nutrition";
 import { useToast } from "../hooks/useToast";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -103,7 +100,7 @@ function reducer(state: CookingState, action: CookingAction): CookingState {
       return { ...state, recipe: undefined, isLoading: false, ingredients: [] };
     case "SET_INGREDIENT_AMOUNT": {
       const ingredients = state.ingredients.map((ing, i) =>
-        i === action.index ? { ...ing, amount: action.value } : ing,
+        i === action.index ? { ...ing, amount: action.value } : ing
       );
       return { ...state, ingredients };
     }
@@ -147,14 +144,9 @@ interface IngredientRowProps {
   onChange: (index: number, value: number) => void;
 }
 
-function IngredientRow({
-  ingredient,
-  index,
-  onChange,
-}: IngredientRowProps) {
+function IngredientRow({ ingredient, index, onChange }: IngredientRowProps) {
   const kcalForAmount =
-    (ingredient.nutrition.kcal / ingredient.nutrition.portion_size) *
-    ingredient.amount;
+    (ingredient.nutrition.kcal / ingredient.nutrition.portion_size) * ingredient.amount;
 
   return (
     <div
@@ -298,9 +290,7 @@ export function CookingModePage() {
 
   const sumAmountsVal = sumAmounts(state.ingredients);
   const cookedWeight =
-    state.cookedWeightOverride !== null
-      ? state.cookedWeightOverride
-      : sumAmountsVal;
+    state.cookedWeightOverride !== null ? state.cookedWeightOverride : sumAmountsVal;
 
   const isZeroWeight = cookedWeight <= 0;
 
@@ -310,7 +300,7 @@ export function CookingModePage() {
       nutritionResult = calculateNutrition(
         state.ingredients.map((ing) => [ing.nutrition, ing.amount]),
         state.extraKcal,
-        cookedWeight,
+        cookedWeight
       );
     } catch {
       // cookedWeightG <= 0, handled by isZeroWeight
@@ -327,10 +317,8 @@ export function CookingModePage() {
   const totalKcal = nutritionResult
     ? nutritionResult.totals.kcal
     : state.ingredients.reduce(
-        (s, ing) =>
-          s +
-          (ing.nutrition.kcal / ing.nutrition.portion_size) * ing.amount,
-        0,
+        (s, ing) => s + (ing.nutrition.kcal / ing.nutrition.portion_size) * ing.amount,
+        0
       ) + state.extraKcal;
 
   const per100g = nutritionResult?.per_100g ?? null;
@@ -348,8 +336,7 @@ export function CookingModePage() {
       portionKcal = (per100g.kcal / 100) * portionWeightG;
     } else {
       portionKcal = state.portionValue;
-      portionWeightG =
-        per100g.kcal > 0 ? (state.portionValue / per100g.kcal) * 100 : 0;
+      portionWeightG = per100g.kcal > 0 ? (state.portionValue / per100g.kcal) * 100 : 0;
     }
     portionProtein = (per100g.protein / 100) * (portionWeightG ?? 0);
     portionFat = (per100g.fat / 100) * (portionWeightG ?? 0);
@@ -360,14 +347,11 @@ export function CookingModePage() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
-  const handleIngredientChange = useCallback(
-    (index: number, value: number) => {
-      dispatch({ type: "SET_INGREDIENT_AMOUNT", index, value });
-      // Reset cooked weight override so it tracks sum again if not manually edited
-      // (We only reset if user hasn't manually overridden)
-    },
-    [],
-  );
+  const handleIngredientChange = useCallback((index: number, value: number) => {
+    dispatch({ type: "SET_INGREDIENT_AMOUNT", index, value });
+    // Reset cooked weight override so it tracks sum again if not manually edited
+    // (We only reset if user hasn't manually overridden)
+  }, []);
 
   const handleSaveCook = async () => {
     if (!recipeId || isZeroWeight) return;
@@ -422,8 +406,7 @@ export function CookingModePage() {
     );
   }
 
-  const recipeName =
-    state.recipe?.name ?? (recipeId ? "Recipe" : "Ad-hoc cook");
+  const recipeName = state.recipe?.name ?? (recipeId ? "Recipe" : "Ad-hoc cook");
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -567,7 +550,13 @@ export function CookingModePage() {
           >
             {fmt(totalKcal)}
           </span>
-          <span style={{ fontSize: 10.5, fontWeight: 500, color: "hsl(var(--primary) / 0.6)" }}>
+          <span
+            style={{
+              fontSize: 10.5,
+              fontWeight: 500,
+              color: "hsl(var(--primary) / 0.6)",
+            }}
+          >
             kcal
           </span>
         </div>
@@ -605,7 +594,13 @@ export function CookingModePage() {
             {cookedWeight > 0 ? cookedWeight : "—"}
           </span>
           {cookedWeight > 0 && (
-            <span style={{ fontSize: 10.5, fontWeight: 500, color: "hsl(var(--primary) / 0.6)" }}>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 500,
+                color: "hsl(var(--primary) / 0.6)",
+              }}
+            >
               g
             </span>
           )}
@@ -631,7 +626,8 @@ export function CookingModePage() {
             left: 0,
             right: 0,
             height: 40,
-            background: "linear-gradient(to bottom, transparent, hsl(var(--background)))",
+            background:
+              "linear-gradient(to bottom, transparent, hsl(var(--background)))",
             pointerEvents: "none",
             zIndex: 3,
           }}
@@ -736,16 +732,22 @@ export function CookingModePage() {
               🫙
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "hsl(var(--foreground))" }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "hsl(var(--foreground))",
+                }}
+              >
                 Extra calories
               </div>
-              <div
-                style={{ fontSize: 11, color: "hsl(var(--muted-foreground))" }}
-              >
+              <div style={{ fontSize: 11, color: "hsl(var(--muted-foreground))" }}>
                 Oil spray, seasoning…
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}
+            >
               <input
                 type="number"
                 inputMode="decimal"
@@ -800,7 +802,14 @@ export function CookingModePage() {
               padding: "14px 16px 12px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                marginBottom: 10,
+              }}
+            >
               <div
                 style={{
                   width: 26,
@@ -999,7 +1008,14 @@ export function CookingModePage() {
           >
             per 100g
           </span>
-          <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", rowGap: 2 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              flexWrap: "wrap",
+              rowGap: 2,
+            }}
+          >
             <span
               data-testid="p100-kcal"
               style={{
@@ -1013,9 +1029,15 @@ export function CookingModePage() {
               {per100g ? fmt(per100g.kcal) : "—"}
             </span>
             <span
-              style={{ fontSize: 11.5, fontWeight: 400, color: "hsl(var(--muted-foreground))", marginRight: 6 }}
+              style={{
+                fontSize: 11.5,
+                fontWeight: 400,
+                color: "hsl(var(--muted-foreground))",
+                marginRight: 6,
+              }}
             >
-              {" "}kcal
+              {" "}
+              kcal
             </span>
             <span
               style={{
@@ -1039,7 +1061,11 @@ export function CookingModePage() {
               {per100g ? fmt(per100g.protein, 1) : "—"}
             </span>
             <span
-              style={{ fontSize: 11.5, color: "hsl(var(--muted-foreground))", marginRight: 6 }}
+              style={{
+                fontSize: 11.5,
+                color: "hsl(var(--muted-foreground))",
+                marginRight: 6,
+              }}
             >
               g P
             </span>
@@ -1065,7 +1091,11 @@ export function CookingModePage() {
               {per100g ? fmt(per100g.fat, 1) : "—"}
             </span>
             <span
-              style={{ fontSize: 11.5, color: "hsl(var(--muted-foreground))", marginRight: 6 }}
+              style={{
+                fontSize: 11.5,
+                color: "hsl(var(--muted-foreground))",
+                marginRight: 6,
+              }}
             >
               g F
             </span>
@@ -1090,9 +1120,7 @@ export function CookingModePage() {
             >
               {per100g ? fmt(per100g.carbohydrates, 1) : "—"}
             </span>
-            <span
-              style={{ fontSize: 11.5, color: "hsl(var(--muted-foreground))" }}
-            >
+            <span style={{ fontSize: 11.5, color: "hsl(var(--muted-foreground))" }}>
               g C
             </span>
           </div>
@@ -1143,8 +1171,7 @@ export function CookingModePage() {
                     state.portionMode === mode
                       ? "hsl(var(--primary))"
                       : "hsl(var(--muted-foreground))",
-                  background:
-                    state.portionMode === mode ? "white" : "transparent",
+                  background: state.portionMode === mode ? "white" : "transparent",
                   border: "none",
                   borderRadius: 7,
                   cursor: "pointer",
@@ -1191,13 +1218,19 @@ export function CookingModePage() {
           </div>
 
           {/* Portion input */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+          <div
+            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}
+          >
             <input
               type="number"
               inputMode="decimal"
               aria-label={`Portion ${state.portionMode === "weight" ? "weight in grams" : "in kcal"}`}
               placeholder="0"
-              value={state.portionValue === null || state.portionValue === 0 ? "" : state.portionValue}
+              value={
+                state.portionValue === null || state.portionValue === 0
+                  ? ""
+                  : state.portionValue
+              }
               min={0}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
@@ -1214,12 +1247,8 @@ export function CookingModePage() {
                 fontSize: 24,
                 fontWeight: 700,
                 textAlign: "center",
-                color:
-                  portionReady
-                    ? "hsl(var(--primary))"
-                    : "hsl(var(--foreground))",
-                background:
-                  portionReady ? "white" : "hsl(var(--muted))",
+                color: portionReady ? "hsl(var(--primary))" : "hsl(var(--foreground))",
+                background: portionReady ? "white" : "hsl(var(--muted))",
                 border: `1.5px solid ${portionReady ? "hsl(var(--primary) / 0.3)" : "hsl(var(--border))"}`,
                 borderRadius: 8,
                 outline: "none",
@@ -1242,20 +1271,22 @@ export function CookingModePage() {
           </div>
 
           {/* Derived weight (kcal mode) */}
-          {state.portionMode === "kcal" && portionWeightG !== null && portionWeightG > 0 && (
-            <div
-              style={{
-                fontSize: 12,
-                color: "hsl(var(--muted-foreground))",
-                fontStyle: "italic",
-                textAlign: "center",
-                marginTop: -6,
-                marginBottom: 6,
-              }}
-            >
-              ≈ <strong>{fmt(portionWeightG)}g</strong> portion weight
-            </div>
-          )}
+          {state.portionMode === "kcal" &&
+            portionWeightG !== null &&
+            portionWeightG > 0 && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "hsl(var(--muted-foreground))",
+                  fontStyle: "italic",
+                  textAlign: "center",
+                  marginTop: -6,
+                  marginBottom: 6,
+                }}
+              >
+                ≈ <strong>{fmt(portionWeightG)}g</strong> portion weight
+              </div>
+            )}
 
           {/* Empty hint or results */}
           {!portionReady ? (
@@ -1278,7 +1309,8 @@ export function CookingModePage() {
                 flexDirection: "column",
                 gap: 7,
                 padding: "10px 14px",
-                background: "linear-gradient(135deg, hsl(var(--secondary) / 0.5) 0%, hsl(var(--background)) 100%)",
+                background:
+                  "linear-gradient(135deg, hsl(var(--secondary) / 0.5) 0%, hsl(var(--background)) 100%)",
                 borderRadius: 8,
                 border: "1.5px solid hsl(var(--primary) / 0.18)",
                 marginBottom: 7,

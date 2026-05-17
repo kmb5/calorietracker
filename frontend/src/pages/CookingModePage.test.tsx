@@ -118,7 +118,7 @@ function renderWithRouter(recipeId?: string) {
         <Route path="/recipes/:recipeId/cook" element={<CookingModePage />} />
         <Route path="/cook" element={<CookingModePage />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 }
 
@@ -133,7 +133,7 @@ describe("CookingModePage", () => {
     it("shows a loading state while fetching recipe", async () => {
       mockGetRecipe.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        () => new Promise(() => {}) as any, // never resolves
+        () => new Promise(() => {}) as any // never resolves
       );
       renderWithRouter("1");
       expect(screen.getByRole("status")).toBeInTheDocument();
@@ -144,9 +144,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       // Wait for ingredients to render
-      await waitFor(() =>
-        expect(screen.getByDisplayValue("200")).toBeInTheDocument(),
-      );
+      await waitFor(() => expect(screen.getByDisplayValue("200")).toBeInTheDocument());
       expect(screen.getByDisplayValue("50")).toBeInTheDocument();
     });
 
@@ -155,7 +153,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByText("Chicken Breast")).toBeInTheDocument(),
+        expect(screen.getByText("Chicken Breast")).toBeInTheDocument()
       );
       expect(screen.getByText("Lemon Juice")).toBeInTheDocument();
     });
@@ -166,7 +164,7 @@ describe("CookingModePage", () => {
 
       // 200 + 50 = 250
       await waitFor(() =>
-        expect(screen.getByLabelText("Total Cooked Weight")).toHaveValue(250),
+        expect(screen.getByLabelText("Total Cooked Weight")).toHaveValue(250)
       );
     });
 
@@ -174,9 +172,7 @@ describe("CookingModePage", () => {
       mockGetRecipe.mockResolvedValue(makeRecipe());
       renderWithRouter("1");
 
-      await waitFor(() =>
-        expect(screen.getByDisplayValue("200")).toBeInTheDocument(),
-      );
+      await waitFor(() => expect(screen.getByDisplayValue("200")).toBeInTheDocument());
 
       // Initially: totals = 200*(165/100) + 50*(25/100) = 330 + 12.5 = 342.5 kcal
       // cooked weight = 250 (sum of ingredients), per100g = 342.5/250*100 = 137
@@ -197,7 +193,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByLabelText("Total Cooked Weight")).toBeInTheDocument(),
+        expect(screen.getByLabelText("Total Cooked Weight")).toBeInTheDocument()
       );
 
       const cwInput = screen.getByLabelText("Total Cooked Weight");
@@ -214,7 +210,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByLabelText("Extra calories")).toBeInTheDocument(),
+        expect(screen.getByLabelText("Extra calories")).toBeInTheDocument()
       );
 
       const extraInput = screen.getByLabelText("Extra calories");
@@ -231,7 +227,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByLabelText("Total Cooked Weight")).toBeInTheDocument(),
+        expect(screen.getByLabelText("Total Cooked Weight")).toBeInTheDocument()
       );
 
       fireEvent.change(screen.getByLabelText("Total Cooked Weight"), {
@@ -248,21 +244,35 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByText(/save cook result/i)).toBeInTheDocument(),
+        expect(screen.getByText(/save cook result/i)).toBeInTheDocument()
       );
     });
 
     it("calls POST /recipes/{id}/cook when Save cook result is clicked", async () => {
       mockGetRecipe.mockResolvedValue(makeRecipe());
       mockCookRecipe.mockResolvedValue({
-        totals: { kcal: 342.5, protein: 62.2, fat: 7.3, carbohydrates: 3.35, fiber: 0.15, sodium: 149 },
-        per_100g: { kcal: 137, protein: 24.9, fat: 2.92, carbohydrates: 1.34, fiber: 0.06, sodium: 59.6 },
+        totals: {
+          kcal: 342.5,
+          protein: 62.2,
+          fat: 7.3,
+          carbohydrates: 3.35,
+          fiber: 0.15,
+          sodium: 149,
+        },
+        per_100g: {
+          kcal: 137,
+          protein: 24.9,
+          fat: 2.92,
+          carbohydrates: 1.34,
+          fiber: 0.06,
+          sodium: 59.6,
+        },
       });
 
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByText(/save cook result/i)).toBeInTheDocument(),
+        expect(screen.getByText(/save cook result/i)).toBeInTheDocument()
       );
 
       await act(async () => {
@@ -282,7 +292,7 @@ describe("CookingModePage", () => {
       renderWithRouter("1");
 
       await waitFor(() =>
-        expect(screen.getByText(/log this portion/i)).toBeInTheDocument(),
+        expect(screen.getByText(/log this portion/i)).toBeInTheDocument()
       );
 
       expect(screen.getByText(/log this portion/i)).toBeDisabled();
