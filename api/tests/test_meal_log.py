@@ -73,15 +73,50 @@ async def test_create_log_requires_auth(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_log_with_ingredient_id(client: AsyncClient) -> None:
+async def test_create_log_with_ingredient_id(client: AsyncClient, db_session) -> None:  # type: ignore[no-untyped-def]
+    """A valid ingredient_id (row exists) is stored on the entry."""
+
+    from app.models.ingredient import Ingredient, UnitType
+
+    # Insert a real ingredient so the FK is satisfied in any DB engine.
+    ingredient = Ingredient(
+        name="Rolled Oats",
+        unit=UnitType.g,
+        portion_size=100.0,
+        kcal=389.0,
+        protein=17.0,
+        fat=7.0,
+        carbohydrates=66.0,
+        fiber=10.0,
+        sodium=2.0,
+        is_system=True,
+    )
+    db_session.add(ingredient)
+    await db_session.commit()
+    await db_session.refresh(ingredient)
+
     token = await register_and_login(client)
     payload = {
         **LOG_PAYLOAD,
-        "entries": [{**ENTRY_PAYLOAD, "ingredient_id": 999}],
+        "entries": [{**ENTRY_PAYLOAD, "ingredient_id": ingredient.id}],
     }
     resp = await client.post("/logs", json=payload, headers=auth_headers(token))
     assert resp.status_code == 201
-    assert resp.json()["entries"][0]["ingredient_id"] == 999
+    assert resp.json()["entries"][0]["ingredient_id"] == ingredient.id
+
+
+@pytest.mark.asyncio
+async def test_create_log_unknown_ingredient_id_returns_422(
+    client: AsyncClient,
+) -> None:
+    """A non-existent ingredient_id must return 422, not 500."""
+    token = await register_and_login(client)
+    payload = {
+        **LOG_PAYLOAD,
+        "entries": [{**ENTRY_PAYLOAD, "ingredient_id": 999_999}],
+    }
+    resp = await client.post("/logs", json=payload, headers=auth_headers(token))
+    assert resp.status_code == 422
 
 
 @pytest.mark.asyncio

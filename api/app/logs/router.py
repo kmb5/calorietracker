@@ -2,13 +2,15 @@
 
 from datetime import date
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.deps import get_current_user
+from app.models.ingredient import Ingredient
 from app.models.meal_log import MealLog, MealLogEntry
 from app.models.user import User
 from app.schemas.meal_log import DailySummary, MealLogCreate, MealLogRead
@@ -60,6 +62,19 @@ async def create_log(
     Nutrition values are provided by the client and stored as-is (snapshot).
     The server never recomputes nutrition from ingredient data.
     """
+    # Pre-flight: validate every ingredient_id that was supplied.
+    # Querying before insert means this check works on both SQLite (tests)
+    # and PostgreSQL (production), rather than relying on IntegrityError which
+    # SQLite silently swallows when FK enforcement is off.
+    for entry_data in body.entries:
+        if entry_data.ingredient_id is not None:
+            exists = await session.get(Ingredient, entry_data.ingredient_id)
+            if exists is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail=f"ingredient_id {entry_data.ingredient_id} does not exist",
+                )
+
     log = MealLog(
         user_id=current_user.id,
         logged_date=body.logged_date,
@@ -85,7 +100,14 @@ async def create_log(
         )
         session.add(entry)
 
-    await session.commit()
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="ingredient_id references a non-existent ingredient",
+        )
 
     # Re-fetch with entries loaded
     stmt = (
