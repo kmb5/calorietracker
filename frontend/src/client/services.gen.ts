@@ -4,6 +4,11 @@ import type { CancelablePromise } from "./core/CancelablePromise";
 import { OpenAPI } from "./core/OpenAPI";
 import { request as __request } from "./core/request";
 import type {
+  ListRecipesRecipesGetResponse,
+  GetRecipeRecipesRecipeIdGetData,
+  GetRecipeRecipesRecipeIdGetResponse,
+  DeleteRecipeRecipesRecipeIdDeleteData,
+  DeleteRecipeRecipesRecipeIdDeleteResponse,
   RegisterAuthRegisterPostData,
   RegisterAuthRegisterPostResponse,
   LoginAuthLoginPostData,
@@ -576,5 +581,62 @@ export const healthHealthGet = (): CancelablePromise<HealthHealthGetResponse> =>
   return __request(OpenAPI, {
     method: "GET",
     url: "/health",
+  });
+};
+
+/**
+ * List Recipes
+ * @returns RecipeSummary[] Successful Response
+ * @throws ApiError
+ */
+export const listRecipesRecipesGet =
+  (): CancelablePromise<ListRecipesRecipesGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/recipes",
+    });
+  };
+
+/**
+ * Get Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const getRecipeRecipesRecipeIdGet = (
+  data: GetRecipeRecipesRecipeIdGetData
+): CancelablePromise<GetRecipeRecipesRecipeIdGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      404: "Not Found",
+    },
+  });
+};
+
+/**
+ * Delete Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const deleteRecipeRecipesRecipeIdDelete = (
+  data: DeleteRecipeRecipesRecipeIdDeleteData
+): CancelablePromise<DeleteRecipeRecipesRecipeIdDeleteResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      404: "Not Found",
+    },
   });
 };

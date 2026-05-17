@@ -13,10 +13,11 @@ export interface ToastItem {
   title: string;
   description?: string;
   variant?: ToastVariant;
+  action?: { label: string; onClick: () => void };
 }
 
 interface ToastContextValue {
-  toast: (item: Omit<ToastItem, "id">) => void;
+  toast: (item: Omit<ToastItem, "id">) => string;
   toasts: ToastItem[];
   dismiss: (id: string) => void;
 }
@@ -26,7 +27,7 @@ export const ToastContext = createContext<ToastContextValue | null>(null);
 export function useToast() {
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error("useToast must be used within <ToastProvider>");
-  return { toast: ctx.toast };
+  return { toast: ctx.toast, dismiss: ctx.dismiss };
 }
 
 export function useToastState() {
@@ -39,6 +40,7 @@ export function useToastState() {
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
+    return id;
   }, []);
 
   const dismiss = useCallback((id: string) => {
