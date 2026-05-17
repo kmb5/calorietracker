@@ -191,63 +191,147 @@ export function IngredientSearch({
     <div className={`relative w-full ${className ?? ""}`}>
       {/* ── Selected chip ── */}
       {selected ? (
-        <div className="border-primary bg-secondary flex h-[52px] items-center gap-2 rounded-[14px] border-[1.5px] px-3.5 shadow-[0_0_0_3px_hsl(16_65%_48%_/_0.10)]">
-          <svg
-            className="text-primary flex-shrink-0"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
+        <div>
+          {/* Chip row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "0 10px 0 14px",
+              height: 52,
+              border: "1.5px solid hsl(var(--primary))",
+              borderRadius: 14,
+              background: "hsl(var(--secondary))",
+              boxShadow: "0 0 0 3px rgba(201,86,43,0.10)",
+            }}
           >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          <span className="text-foreground min-w-0 flex-1 truncate text-sm font-medium">
-            {selected.name}
-          </span>
-          {selected.is_system ? (
-            <Badge
-              variant="secondary"
-              className="bg-secondary text-primary mr-1 flex-shrink-0 px-1.5 py-0 text-[10px] font-semibold tracking-wide uppercase"
-            >
-              <span className="mr-1 inline-block h-1 w-1 rounded-full bg-current" />
-              System
-            </Badge>
-          ) : (
-            <Badge
-              variant="outline"
-              className="mr-1 flex-shrink-0 border-[hsl(214_50%_55%)] bg-[hsl(214_60%_96%)] px-1.5 py-0 text-[10px] font-semibold tracking-wide text-[hsl(214_50%_45%)] uppercase"
-            >
-              <span className="mr-1 inline-block h-1 w-1 rounded-full bg-current" />
-              Custom
-            </Badge>
-          )}
-          <button
-            onClick={() => openDetail(selected.id)}
-            className="text-primary hover:text-terra-dark flex-shrink-0 cursor-pointer text-xs font-medium underline-offset-2 hover:underline"
-            aria-label="View nutrition details"
-          >
-            Details
-          </button>
-          <button
-            onClick={clear}
-            className="bg-secondary hover:bg-secondary/70 ml-1 flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border-0 transition-colors"
-            aria-label="Clear selection"
-          >
+            {/* Checkmark */}
             <svg
-              width="12"
-              height="12"
+              style={{ color: "hsl(var(--primary))", flexShrink: 0 }}
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
             >
-              <path d="M18 6 6 18M6 6l12 12" />
+              <polyline points="20 6 9 17 4 12" />
             </svg>
-          </button>
+
+            {/* Name */}
+            <span
+              style={{
+                flex: 1,
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: 15,
+                fontWeight: 500,
+                color: "hsl(var(--foreground))",
+              }}
+            >
+              {selected.name}
+            </span>
+
+            {/* Badge */}
+            {selected.is_system ? (
+              <Badge
+                variant="secondary"
+                className="bg-secondary text-primary mr-1 flex-shrink-0 px-1.5 py-0 text-[10px] font-semibold tracking-wide uppercase"
+              >
+                <span className="mr-1 inline-block h-1 w-1 rounded-full bg-current" />
+                System
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="mr-1 flex-shrink-0 border-[hsl(214_50%_55%)] bg-[hsl(214_60%_96%)] px-1.5 py-0 text-[10px] font-semibold tracking-wide text-[hsl(214_50%_45%)] uppercase"
+              >
+                <span className="mr-1 inline-block h-1 w-1 rounded-full bg-current" />
+                Custom
+              </Badge>
+            )}
+
+            {/* Clear */}
+            <button
+              onClick={clear}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(201,86,43,0.15)",
+                color: "hsl(var(--primary))",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+                transition: "background 0.15s",
+              }}
+              aria-label="Clear selection"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Action buttons below chip */}
+          <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
+            <button
+              onClick={() => openDetail(selected.id)}
+              aria-label="View nutrition details"
+              className="btn-primary"
+              style={{ flex: 1, height: 48, fontSize: 14, gap: 6 }}
+            >
+              View full nutrition
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 18 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M4 9h10M9 4l5 5-5 5" />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                clear();
+                setTimeout(() => inputRef.current?.focus(), 50);
+              }}
+              aria-label="Search again"
+              className="btn-secondary"
+              style={{ width: 48, height: 48, flexShrink: 0 }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+          </div>
         </div>
       ) : (
         /* ── Search input ── */
