@@ -1384,7 +1384,9 @@
   background: var(--white);
   border: 1.5px solid hsl(var(--border));
   border-radius: 14px;
-  overflow: hidden;
+  /* overflow:hidden removed — it clips the absolutely-positioned search
+     dropdown. The container's border-radius still shapes the border;
+     row backgrounds are the same white so no visual bleed at the corners. */
 }
 
 .ingredient-form-row {
