@@ -4,17 +4,6 @@ import type { CancelablePromise } from "./core/CancelablePromise";
 import { OpenAPI } from "./core/OpenAPI";
 import { request as __request } from "./core/request";
 import type {
-  ListRecipesRecipesGetResponse,
-  GetRecipeRecipesRecipeIdGetData,
-  GetRecipeRecipesRecipeIdGetResponse,
-  DeleteRecipeRecipesRecipeIdDeleteData,
-  DeleteRecipeRecipesRecipeIdDeleteResponse,
-  CreateRecipeRecipesPostData,
-  CreateRecipeRecipesPostResponse,
-  UpdateRecipeRecipesRecipeIdPatchData,
-  UpdateRecipeRecipesRecipeIdPatchResponse,
-  DuplicateRecipeRecipesRecipeIdDuplicatePostData,
-  DuplicateRecipeRecipesRecipeIdDuplicatePostResponse,
   RegisterAuthRegisterPostData,
   RegisterAuthRegisterPostResponse,
   LoginAuthLoginPostData,
@@ -56,6 +45,21 @@ import type {
   UpdateUserActiveAdminUsersUserIdPatchResponse,
   UpdateUserRoleAdminUsersUserIdRolePatchData,
   UpdateUserRoleAdminUsersUserIdRolePatchResponse,
+  ListRecipesRecipesGetResponse,
+  CreateRecipeRecipesPostData,
+  CreateRecipeRecipesPostResponse,
+  GetRecipeRecipesRecipeIdGetData,
+  GetRecipeRecipesRecipeIdGetResponse,
+  UpdateRecipeRecipesRecipeIdPatchData,
+  UpdateRecipeRecipesRecipeIdPatchResponse,
+  DeleteRecipeRecipesRecipeIdDeleteData,
+  DeleteRecipeRecipesRecipeIdDeleteResponse,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostData,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostResponse,
+  CalculateRecipeRecipesRecipeIdCalculatePostData,
+  CalculateRecipeRecipesRecipeIdCalculatePostResponse,
+  CookRecipeRecipesRecipeIdCookPostData,
+  CookRecipeRecipesRecipeIdCookPostResponse,
   HealthHealthGetResponse,
 } from "./types.gen";
 
@@ -579,20 +583,9 @@ export const updateUserRoleAdminUsersUserIdRolePatch = (
 };
 
 /**
- * Health
- * @returns string Successful Response
- * @throws ApiError
- */
-export const healthHealthGet = (): CancelablePromise<HealthHealthGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/health",
-  });
-};
-
-/**
  * List Recipes
- * @returns RecipeSummary[] Successful Response
+ * Return the current user's recipes, sorted by last_cooked_at DESC (nulls last, then by name).
+ * @returns RecipeSummary Successful Response
  * @throws ApiError
  */
 export const listRecipesRecipesGet =
@@ -641,7 +634,6 @@ export const getRecipeRecipesRecipeIdGet = (
       recipe_id: data.recipeId,
     },
     errors: {
-      404: "Not Found",
       422: "Validation Error",
     },
   });
@@ -689,7 +681,7 @@ export const deleteRecipeRecipesRecipeIdDelete = (
       recipe_id: data.recipeId,
     },
     errors: {
-      404: "Not Found",
+      422: "Validation Error",
     },
   });
 };
@@ -713,5 +705,69 @@ export const duplicateRecipeRecipesRecipeIdDuplicatePost = (
     errors: {
       422: "Validation Error",
     },
+  });
+};
+
+/**
+ * Calculate Recipe
+ * Stateless nutrition calculation — does NOT write to the DB.
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns NutritionResult Successful Response
+ * @throws ApiError
+ */
+export const calculateRecipeRecipesRecipeIdCalculatePost = (
+  data: CalculateRecipeRecipesRecipeIdCalculatePostData
+): CancelablePromise<CalculateRecipeRecipesRecipeIdCalculatePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/calculate",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Cook Recipe
+ * Calculate nutrition AND persist last_cooked_at + last_cooked_weight_g.
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns NutritionResult Successful Response
+ * @throws ApiError
+ */
+export const cookRecipeRecipesRecipeIdCookPost = (
+  data: CookRecipeRecipesRecipeIdCookPostData
+): CancelablePromise<CookRecipeRecipesRecipeIdCookPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/cook",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Health
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const healthHealthGet = (): CancelablePromise<HealthHealthGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/health",
   });
 };

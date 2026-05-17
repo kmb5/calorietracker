@@ -24,10 +24,12 @@ htmlcov/
 coverage.xml
 
 # ── Node / pnpm ───────────────────────────────────────────────────────────────
-node_modules/
+.pnpm-store/
+core
+frontend/node_modules/
 frontend/dist/
 frontend/.vite/
-.pnpm-store/
+node_modules/
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 # local override files only — committed compose files are tracked above
@@ -42,3 +44,5 @@ docker-compose.override.yml
 
 # -- Sandcastle
 .sandcastle/
+/package.json
+/pnpm-lock.yaml
