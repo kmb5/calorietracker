@@ -10,6 +10,7 @@ import { CustomIngredientFormPage } from "./pages/CustomIngredientFormPage";
 import { RecipeListPage } from "./pages/RecipeListPage";
 import { RecipeDetailPage } from "./pages/RecipeDetailPage";
 import { RecipeFormPage } from "./pages/RecipeFormPage";
+import { CookingModePage } from "./pages/CookingModePage";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 
 export default function App() {
@@ -36,6 +37,8 @@ export default function App() {
               <Route path="/recipes/new" element={<RecipeFormPage />} />
               <Route path="/recipes/:id" element={<RecipeDetailPage />} />
               <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
+              <Route path="/recipes/:recipeId/cook" element={<CookingModePage />} />
+              <Route path="/cook" element={<CookingModePage />} />
             </Route>
 
             {/* Admin-only: redirect non-admins to / */}

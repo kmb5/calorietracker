@@ -44,3 +44,5 @@ docker-compose.override.yml
 
 # -- Sandcastle
 .sandcastle/
+/package.json
+/pnpm-lock.yaml
