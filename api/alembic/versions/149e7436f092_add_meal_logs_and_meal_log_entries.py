@@ -1,6 +1,6 @@
 """add meal_logs and meal_log_entries tables
 
-Revision ID: a1b2c3d4e5f6
+Revision ID: 149e7436f092
 Revises: 10625c3b76d1
 Create Date: 2026-05-16 00:00:00.000000
 
@@ -15,8 +15,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a1b2c3d4e5f6"
-down_revision: str | None = "10625c3b76d1"
+revision: str = "149e7436f092"
+down_revision: str | None = "c7c79e7f6e8f"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

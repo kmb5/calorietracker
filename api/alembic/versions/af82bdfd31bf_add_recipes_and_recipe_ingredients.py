@@ -1,6 +1,6 @@
 """add_recipes_and_recipe_ingredients
 
-Revision ID: c3d4e5f6a1b2
+Revision ID: af82bdfd31bf
 Revises: a1b2c3d4e5f6
 Create Date: 2026-05-16 00:00:00.000000
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "c3d4e5f6a1b2"
-down_revision: str | None = "a1b2c3d4e5f6"
+revision: str = "af82bdfd31bf"
+down_revision: str | None = "b1af3ad3f2de"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

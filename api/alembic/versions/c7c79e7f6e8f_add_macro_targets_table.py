@@ -1,6 +1,6 @@
 """add macro_targets table
 
-Revision ID: a1b2c3d4e5f6
+Revision ID: c7c79e7f6e8f
 Revises: 10625c3b76d1
 Create Date: 2026-05-16 15:00:00.000000
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a1b2c3d4e5f6"
-down_revision: str | None = "10625c3b76d1"
+revision: str = "c7c79e7f6e8f"
+down_revision: str | None = "af82bdfd31bf"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -40,9 +40,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("user_id", name="uq_macro_targets_user_id"),
     )
-    op.create_index(
-        op.f("ix_macro_targets_id"), "macro_targets", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_macro_targets_id"), "macro_targets", ["id"], unique=False)
     op.create_index(
         op.f("ix_macro_targets_user_id"), "macro_targets", ["user_id"], unique=False
     )
