@@ -57,8 +57,13 @@ class MealLogEntry(Base):
         nullable=True,
         default=None,
     )
-    # recipe_id references a table that does not yet exist; stored as plain int for now
-    recipe_id: Mapped[int | None] = mapped_column(Integer, nullable=True, default=None)
+    # recipe_id now has a proper FK since the recipes table (issue #15) is merged
+    recipe_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("recipes.id", ondelete="SET NULL"),
+        nullable=True,
+        default=None,
+    )
     amount_g: Mapped[float] = mapped_column(Float, nullable=False)
     # Snapshotted nutrition values — immutable after creation
     kcal: Mapped[float] = mapped_column(Float, nullable=False)

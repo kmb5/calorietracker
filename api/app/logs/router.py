@@ -12,6 +12,7 @@ from app.database import get_db
 from app.deps import get_current_user
 from app.models.ingredient import Ingredient
 from app.models.meal_log import MealLog, MealLogEntry
+from app.models.recipe import Recipe
 from app.models.user import User
 from app.schemas.meal_log import DailySummary, MealLogCreate, MealLogRead
 
@@ -62,7 +63,7 @@ async def create_log(
     Nutrition values are provided by the client and stored as-is (snapshot).
     The server never recomputes nutrition from ingredient data.
     """
-    # Pre-flight: validate every ingredient_id that was supplied.
+    # Pre-flight: validate every ingredient_id / recipe_id that was supplied.
     # Querying before insert means this check works on both SQLite (tests)
     # and PostgreSQL (production), rather than relying on IntegrityError which
     # SQLite silently swallows when FK enforcement is off.
@@ -73,6 +74,13 @@ async def create_log(
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail=f"ingredient_id {entry_data.ingredient_id} does not exist",
+                )
+        if entry_data.recipe_id is not None:
+            exists_recipe = await session.get(Recipe, entry_data.recipe_id)
+            if exists_recipe is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail=f"recipe_id {entry_data.recipe_id} does not exist",
                 )
 
     log = MealLog(

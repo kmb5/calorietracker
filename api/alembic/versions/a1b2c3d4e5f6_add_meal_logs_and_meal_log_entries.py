@@ -4,11 +4,14 @@ Revision ID: a1b2c3d4e5f6
 Revises: 10625c3b76d1
 Create Date: 2026-05-16 00:00:00.000000
 
+Note: recipe_id carries a proper FK to recipes.id — the recipes table
+(issue #15) merged before this migration was finalised.
 """
 
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -20,9 +23,7 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     # Create mealtype enum
-    mealtype_enum = sa.Enum(
-        "breakfast", "lunch", "dinner", "snack", name="mealtype"
-    )
+    mealtype_enum = sa.Enum("breakfast", "lunch", "dinner", "snack", name="mealtype")
     mealtype_enum.create(op.get_bind(), checkfirst=True)
 
     op.create_table(
@@ -67,12 +68,11 @@ def upgrade() -> None:
         sa.Column("carbohydrates_g", sa.Float(), nullable=False),
         sa.Column("fiber_g", sa.Float(), nullable=False),
         sa.Column("sodium_mg", sa.Float(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["meal_log_id"], ["meal_logs.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["meal_log_id"], ["meal_logs.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
             ["ingredient_id"], ["ingredients.id"], ondelete="SET NULL"
         ),
+        sa.ForeignKeyConstraint(["recipe_id"], ["recipes.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
@@ -90,9 +90,7 @@ def downgrade() -> None:
     op.drop_index(
         op.f("ix_meal_log_entries_meal_log_id"), table_name="meal_log_entries"
     )
-    op.drop_index(
-        op.f("ix_meal_log_entries_id"), table_name="meal_log_entries"
-    )
+    op.drop_index(op.f("ix_meal_log_entries_id"), table_name="meal_log_entries")
     op.drop_table("meal_log_entries")
 
     op.drop_index(op.f("ix_meal_logs_logged_date"), table_name="meal_logs")

@@ -120,15 +120,42 @@ async def test_create_log_unknown_ingredient_id_returns_422(
 
 
 @pytest.mark.asyncio
-async def test_create_log_with_recipe_id(client: AsyncClient) -> None:
-    token = await register_and_login(client)
+async def test_create_log_with_recipe_id(client: AsyncClient, db_session) -> None:  # type: ignore[no-untyped-def]
+    """A valid recipe_id (row exists) is stored on the entry."""
+    from app.models.recipe import Recipe
+    from app.models.user import User
+
+    # We need a user to own the recipe; register one first.
+    token = await register_and_login(client, username="chef")
+    from sqlalchemy import select as sa_select
+
+    result = await db_session.execute(sa_select(User).where(User.username == "chef"))
+    owner = result.scalar_one()
+
+    recipe = Recipe(owner_id=owner.id, name="Test Stew")
+    db_session.add(recipe)
+    await db_session.commit()
+    await db_session.refresh(recipe)
+
     payload = {
         **LOG_PAYLOAD,
-        "entries": [{**ENTRY_PAYLOAD, "recipe_id": 42}],
+        "entries": [{**ENTRY_PAYLOAD, "recipe_id": recipe.id}],
     }
     resp = await client.post("/logs", json=payload, headers=auth_headers(token))
     assert resp.status_code == 201
-    assert resp.json()["entries"][0]["recipe_id"] == 42
+    assert resp.json()["entries"][0]["recipe_id"] == recipe.id
+
+
+@pytest.mark.asyncio
+async def test_create_log_unknown_recipe_id_returns_422(client: AsyncClient) -> None:
+    """A non-existent recipe_id must return 422, not 500."""
+    token = await register_and_login(client)
+    payload = {
+        **LOG_PAYLOAD,
+        "entries": [{**ENTRY_PAYLOAD, "recipe_id": 999_999}],
+    }
+    resp = await client.post("/logs", json=payload, headers=auth_headers(token))
+    assert resp.status_code == 422
 
 
 @pytest.mark.asyncio
