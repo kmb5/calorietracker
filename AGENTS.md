@@ -109,11 +109,11 @@ pre-commit run --all-files
 
 ### Previewing HTML prototypes on mobile
 
-Prototypes live in `docs/prototypes/`. To check one on a phone:
+The unified prototype lives at `docs/prototypes/app/index.html`. To check it on a phone:
 
 ```bash
 # 1. Serve the prototype directory on all network interfaces
-cd docs/prototypes/<name> && python3 -m http.server 8888 --bind 0.0.0.0
+cd docs/prototypes/app && python3 -m http.server 8888 --bind 0.0.0.0
 
 # 2. Find your local IP
 ipconfig getifaddr en0
@@ -230,7 +230,10 @@ Errors thrown by the generated client are instances of `ApiError` (from `../clie
 
 ## Frontend UI Work
 
-Always invoke the **frontend-design skill** when implementing any UI issue. It ensures production-grade, mobile-first components that match the app's design language.
+For **every** frontend task — no exceptions:
+
+1. **Invoke the `frontend-design` skill** before writing any UI code. It ensures production-grade, mobile-first components that match the app's design language.
+2. **Look up the relevant page in the unified prototype** at `docs/prototypes/app/index.html` and follow it exactly — layout, component structure, copy, spacing, and interaction patterns must all match the prototype. Read the file and locate the section for the screen you are building before writing a single line of component code.
 
 ## Code Conventions
 

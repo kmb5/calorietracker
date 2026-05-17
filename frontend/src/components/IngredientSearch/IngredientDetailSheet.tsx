@@ -118,28 +118,13 @@ export function IngredientDetailSheet({
 
         <SheetHeader className="border-border border-b px-5 pt-1 pb-4 text-left">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2.5">
-              {/* Icon */}
-              {!isLoading && detail && (
-                <div className="bg-secondary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] text-xl">
-                  {detail.icon ||
-                    (detail.unit === "g"
-                      ? "⚖️"
-                      : detail.unit === "ml"
-                        ? "💧"
-                        : detail.unit === "tablespoon"
-                          ? "🥄"
-                          : "🔵")}
-                </div>
+            <SheetTitle className="font-display text-foreground text-xl leading-snug font-bold">
+              {isLoading ? (
+                <span className="bg-muted block h-6 w-48 animate-pulse rounded" />
+              ) : (
+                (detail?.name ?? "—")
               )}
-              <SheetTitle className="font-display text-foreground text-xl leading-snug font-bold">
-                {isLoading ? (
-                  <span className="bg-muted block h-6 w-48 animate-pulse rounded" />
-                ) : (
-                  (detail?.name ?? "—")
-                )}
-              </SheetTitle>
-            </div>
+            </SheetTitle>
           </div>
           <div className="mt-2 flex items-center gap-2">
             {isLoading ? (
@@ -168,15 +153,11 @@ export function IngredientDetailSheet({
             Nutrition per portion
           </p>
 
-          {/* Kcal hero */}
-          <div className="bg-secondary relative mb-4 overflow-hidden rounded-[14px] p-5">
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(ellipse 200px 100px at 50% 100%, hsl(16 65% 48% / 0.15) 0%, transparent 70%)",
-              }}
-            />
+          {/* Kcal hero — flat terra-light background matching prototype */}
+          <div
+            className="relative mb-4 overflow-hidden rounded-[14px] p-5"
+            style={{ background: "hsl(var(--secondary))" }}
+          >
             <div className="relative flex flex-col items-center">
               <div className="flex items-end gap-1">
                 <span className="font-display text-primary text-[44px] leading-none font-bold">
