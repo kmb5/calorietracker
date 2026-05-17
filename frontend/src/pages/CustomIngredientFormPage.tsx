@@ -417,7 +417,7 @@ export function CustomIngredientFormPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button
                 type="button"
-                className="ci-icon-btn"
+                className={`ci-icon-btn${showEmojiPicker ? "open" : ""}`}
                 onClick={() => setShowEmojiPicker((v) => !v)}
                 aria-label="Choose icon"
               >
