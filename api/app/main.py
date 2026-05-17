@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.ingredients.router import router as ingredients_router
 from app.limiter import limiter
 from app.recipes.router import router as recipes_router
+from app.users.router import router as users_router
 
 # get_settings() is called here so that CORSMiddleware can be registered
 # before the app starts (Starlette forbids add_middleware after startup).
@@ -32,6 +33,7 @@ app.include_router(auth_router)
 app.include_router(ingredients_router)
 app.include_router(admin_router)
 app.include_router(recipes_router)
+app.include_router(users_router)
 
 
 @app.get("/health")

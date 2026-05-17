@@ -4,6 +4,7 @@
 # both continue to work without any callsite changes.
 
 from app.models.ingredient import Ingredient, UnitType
+from app.models.macro_target import MacroTarget
 from app.models.recipe import Recipe, RecipeIngredient
 from app.models.user import RefreshToken, User, UserRole
 
@@ -13,6 +14,7 @@ __all__ = [
     "RefreshToken",
     "Ingredient",
     "UnitType",
+    "MacroTarget",
     "Recipe",
     "RecipeIngredient",
 ]
