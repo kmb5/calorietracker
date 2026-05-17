@@ -227,7 +227,7 @@ export function RegisterPage() {
 
           <button
             type="submit"
-            className={`btn-primary${loading ? "loading" : ""}`}
+            className={"btn-primary" + (loading ? " loading" : "")}
             style={{ marginTop: "4px" }}
             disabled={loading}
           >

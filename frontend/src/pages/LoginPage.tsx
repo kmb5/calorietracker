@@ -165,7 +165,7 @@ export function LoginPage() {
 
           <button
             type="submit"
-            className={`btn-primary${loading ? "loading" : ""}`}
+            className={"btn-primary" + (loading ? " loading" : "")}
             disabled={loading}
           >
             <span className="btn-text">Sign In</span>

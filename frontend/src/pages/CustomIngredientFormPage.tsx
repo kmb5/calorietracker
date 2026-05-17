@@ -416,7 +416,7 @@ export function CustomIngredientFormPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button
                 type="button"
-                className={`ci-icon-btn${showEmojiPicker ? "open" : ""}`}
+                className={"ci-icon-btn" + (showEmojiPicker ? " open" : "")}
                 onClick={() => setShowEmojiPicker((v) => !v)}
                 aria-label="Choose icon"
               >
@@ -448,7 +448,9 @@ export function CustomIngredientFormPage() {
                   <button
                     key={emoji}
                     type="button"
-                    className={`ci-emoji-btn${form.icon === emoji ? "selected" : ""}`}
+                    className={
+                      "ci-emoji-btn" + (form.icon === emoji ? " selected" : "")
+                    }
                     aria-label={emoji}
                     onClick={() => {
                       handleChange("icon", emoji);
@@ -671,7 +673,7 @@ export function CustomIngredientFormPage() {
           >
             <button
               type="submit"
-              className={`btn-primary${isSubmitting ? "loading" : ""}`}
+              className={"btn-primary" + (isSubmitting ? " loading" : "")}
               disabled={isSubmitting}
             >
               <span className="btn-text">{submitLabel}</span>
