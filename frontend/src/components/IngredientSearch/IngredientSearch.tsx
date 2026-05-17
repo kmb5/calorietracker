@@ -294,20 +294,9 @@ export function IngredientSearch({
               onClick={() => openDetail(selected.id)}
               aria-label="View nutrition details"
               className="btn-primary"
-              style={{ flex: 1, height: 48, fontSize: 14, gap: 6 }}
+              style={{ flex: 1, height: 48, fontSize: 14 }}
             >
-              View full nutrition
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 18 18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <path d="M4 9h10M9 4l5 5-5 5" />
-              </svg>
+              View full nutrition &rarr;
             </button>
             <button
               onClick={() => {
@@ -316,7 +305,7 @@ export function IngredientSearch({
               }}
               aria-label="Search again"
               className="btn-secondary"
-              style={{ width: 48, height: 48, flexShrink: 0 }}
+              style={{ width: 48, height: 48, flexShrink: 0, padding: 0 }}
             >
               <svg
                 width="16"

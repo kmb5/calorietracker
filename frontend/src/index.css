@@ -671,6 +671,9 @@
   justify-content: center;
   gap: 8px;
   transition: all 0.18s;
+  /* allow flex-row sizing to override width */
+  min-width: 0;
+  box-sizing: border-box;
 }
 .btn-secondary:hover {
   border-color: hsl(var(--ink-mid));
