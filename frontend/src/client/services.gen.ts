@@ -589,12 +589,13 @@ export const healthHealthGet = (): CancelablePromise<HealthHealthGetResponse> =>
  * @returns RecipeSummary[] Successful Response
  * @throws ApiError
  */
-export const listRecipesRecipesGet = (): CancelablePromise<ListRecipesRecipesGetResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/recipes",
-  });
-};
+export const listRecipesRecipesGet =
+  (): CancelablePromise<ListRecipesRecipesGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/recipes",
+    });
+  };
 
 /**
  * Get Recipe

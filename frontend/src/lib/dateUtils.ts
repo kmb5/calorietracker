@@ -23,5 +23,9 @@ export function formatRelative(isoString: string): string {
   if (diffDays < 7) return `${diffDays} days ago`;
   if (diffWeeks === 1) return "1 week ago";
   if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

@@ -84,6 +84,15 @@ function ToastBubble({
           </p>
         )}
       </div>
+      {item.action && (
+        <button
+          onClick={item.action.onClick}
+          className="flex-shrink-0 cursor-pointer text-sm font-semibold underline underline-offset-2"
+          aria-label={item.action.label}
+        >
+          {item.action.label}
+        </button>
+      )}
       <button
         onClick={() => onDismiss(item.id)}
         className="ml-1 flex-shrink-0 cursor-pointer rounded-full p-0.5 opacity-60 transition-opacity hover:opacity-100"

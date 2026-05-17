@@ -64,7 +64,7 @@ function RecipeCard({ recipe, onDelete }: RecipeCardProps) {
   return (
     <div
       ref={cardRef}
-      className={`recipe-card${swiped ? " swiped" : ""}`}
+      className={`recipe-card${swiped ? "swiped" : ""}`}
       data-testid={`recipe-card-${recipe.id}`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -142,7 +142,7 @@ function RecipeCard({ recipe, onDelete }: RecipeCardProps) {
 
 export function RecipeListPage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
 
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,23 +169,60 @@ export function RecipeListPage() {
     };
   }, []);
 
+  // Client-side sort: most-recently-cooked first; never-cooked alphabetically last
+  function sortRecipes(list: RecipeSummary[]): RecipeSummary[] {
+    return [...list].sort((a, b) => {
+      if (a.last_cooked_at && b.last_cooked_at)
+        return (
+          new Date(b.last_cooked_at).getTime() - new Date(a.last_cooked_at).getTime()
+        );
+      if (a.last_cooked_at) return -1;
+      if (b.last_cooked_at) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
   // Client-side filter
+  const sorted = sortRecipes(recipes);
   const filtered = search.trim()
-    ? recipes.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-    : recipes;
+    ? sorted.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+    : sorted;
 
   function handleDelete(id: number) {
+    const recipe = recipes.find((r) => r.id === id);
+    if (!recipe) return;
+
     // Optimistic: remove from UI immediately
     setRecipes((prev) => prev.filter((r) => r.id !== id));
 
     // 5-second undo window — actual DELETE fires after the window expires
-    const timer = setTimeout(async () => {
+    // Use a mutable wrapper so const toastId can be captured before the timer is created
+    const timerRef = { current: 0 as ReturnType<typeof setTimeout> };
+
+    const toastId = toast({
+      title: "Recipe deleted",
+      description: "Tap Undo to restore it.",
+      variant: "default",
+      action: {
+        label: "Undo",
+        onClick: () => {
+          clearTimeout(timerRef.current);
+          pendingDeletes.current.delete(id);
+          setRecipes((prev) => sortRecipes([...prev, recipe]));
+          dismiss(toastId);
+        },
+      },
+    });
+
+    timerRef.current = setTimeout(async () => {
       pendingDeletes.current.delete(id);
       try {
         await deleteRecipeRecipesRecipeIdDelete({ recipeId: id });
       } catch {
         // Re-fetch to restore state on failure
-        listRecipesRecipesGet().then(setRecipes).catch(() => null);
+        listRecipesRecipesGet()
+          .then(setRecipes)
+          .catch(() => null);
         toast({
           title: "Delete failed",
           description: "Could not delete recipe. Please try again.",
@@ -194,14 +231,7 @@ export function RecipeListPage() {
       }
     }, 5000);
 
-    pendingDeletes.current.set(id, timer);
-
-    // Show undo toast
-    toast({
-      title: "Recipe deleted",
-      description: "Tap Undo to restore it.",
-      variant: "default",
-    });
+    pendingDeletes.current.set(id, timerRef.current);
   }
 
   // Cleanup pending timers on unmount
@@ -261,7 +291,10 @@ export function RecipeListPage() {
       {/* Loading */}
       {loading && (
         <div className="flex flex-1 items-center justify-center py-16">
-          <div role="status" className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
+          <div
+            role="status"
+            className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent"
+          />
         </div>
       )}
 
@@ -326,11 +359,7 @@ export function RecipeListPage() {
           </div>
           <div className="recipe-list">
             {filtered.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                onDelete={handleDelete}
-              />
+              <RecipeCard key={recipe.id} recipe={recipe} onDelete={handleDelete} />
             ))}
           </div>
         </>

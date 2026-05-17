@@ -26,7 +26,7 @@ export function RecipeDetailPage() {
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [loading, setLoading] = useState(!isInvalidId);
   const [error, setError] = useState<string | null>(
-    isInvalidId ? "Invalid recipe ID." : null,
+    isInvalidId ? "Invalid recipe ID." : null
   );
 
   useEffect(() => {
@@ -68,9 +68,7 @@ export function RecipeDetailPage() {
           </svg>
         </button>
         <div className="app-header-titles">
-          <h1 className="app-header-title">
-            {recipe ? recipe.name : "Recipe"}
-          </h1>
+          <h1 className="app-header-title">{recipe ? recipe.name : "Recipe"}</h1>
         </div>
         {recipe && (
           <button
@@ -114,9 +112,7 @@ export function RecipeDetailPage() {
               🍳
             </span>
             <h2 className="detail-title">{recipe.name}</h2>
-            {recipe.description && (
-              <p className="detail-desc">{recipe.description}</p>
-            )}
+            {recipe.description && <p className="detail-desc">{recipe.description}</p>}
             <div className="detail-meta-row">
               <div className="detail-meta-chip">
                 <svg
@@ -160,10 +156,7 @@ export function RecipeDetailPage() {
                   strokeWidth="1.7"
                 >
                   <rect x="3" y="8" width="12" height="8" rx="2" />
-                  <path
-                    d="M9 2v6M6 4l3-2 3 2"
-                    strokeLinecap="round"
-                  />
+                  <path d="M9 2v6M6 4l3-2 3 2" strokeLinecap="round" />
                 </svg>
               </div>
               <div>
@@ -200,7 +193,12 @@ export function RecipeDetailPage() {
             <button
               className="btn-primary"
               onClick={() => navigate(`/recipes/${recipe.id}/cook`)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
             >
               <svg
                 viewBox="0 0 18 18"

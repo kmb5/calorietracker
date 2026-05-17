@@ -13,7 +13,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { RecipeListPage } from "./RecipeListPage";
-import { deleteRecipeRecipesRecipeIdDelete,
+import {
+  deleteRecipeRecipesRecipeIdDelete,
   listRecipesRecipesGet,
 } from "../client/services.gen";
 import { useToast } from "../hooks/useToast";
@@ -21,13 +22,16 @@ import { useToast } from "../hooks/useToast";
 jest.mock("../client/services.gen");
 jest.mock("../hooks/useToast");
 
-const mockList = listRecipesRecipesGet as jest.MockedFunction<typeof listRecipesRecipesGet>;
+const mockList = listRecipesRecipesGet as jest.MockedFunction<
+  typeof listRecipesRecipesGet
+>;
 const mockDelete = deleteRecipeRecipesRecipeIdDelete as jest.MockedFunction<
   typeof deleteRecipeRecipesRecipeIdDelete
 >;
 const mockUseToast = useToast as jest.MockedFunction<typeof useToast>;
 
 const mockToast = jest.fn();
+const mockDismiss = jest.fn();
 
 function makeRecipe(overrides = {}) {
   return {
@@ -56,10 +60,11 @@ function renderPage() {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockUseToast.mockReturnValue({ toast: mockToast });
+  mockUseToast.mockReturnValue({ toast: mockToast, dismiss: mockDismiss });
   // Return a resolved promise by default
   mockList.mockResolvedValue([]);
   mockDelete.mockResolvedValue(undefined);
+  mockToast.mockReturnValue("toast-1");
 });
 
 afterEach(() => {
@@ -92,7 +97,9 @@ describe("RecipeListPage — empty state", () => {
   it("CTA navigates to /recipes/new", async () => {
     mockList.mockResolvedValue([]);
     renderPage();
-    fireEvent.click(await screen.findByRole("button", { name: /create your first recipe/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /create your first recipe/i })
+    );
     expect(await screen.findByText("New Recipe")).toBeInTheDocument();
   });
 });
@@ -143,7 +150,10 @@ describe("RecipeListPage — search", () => {
     renderPage();
     await screen.findByText("Chicken & Rice Bowl");
 
-    await userEvent.type(screen.getByRole("textbox", { name: /search recipes/i }), "lentil");
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /search recipes/i }),
+      "lentil"
+    );
     expect(screen.queryByText("Chicken & Rice Bowl")).not.toBeInTheDocument();
     expect(screen.getByText("Red Lentil Soup")).toBeInTheDocument();
   });
@@ -153,7 +163,10 @@ describe("RecipeListPage — search", () => {
     renderPage();
     await screen.findByText("Pasta");
 
-    await userEvent.type(screen.getByRole("textbox", { name: /search recipes/i }), "zzz");
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /search recipes/i }),
+      "zzz"
+    );
     expect(await screen.findByText(/no recipes matching/i)).toBeInTheDocument();
   });
 });
@@ -193,12 +206,10 @@ describe("RecipeListPage — delete with undo", () => {
     await act(async () => {
       jest.advanceTimersByTime(5000);
     });
-    await waitFor(() =>
-      expect(mockDelete).toHaveBeenCalledWith({ recipeId: 7 })
-    );
+    await waitFor(() => expect(mockDelete).toHaveBeenCalledWith({ recipeId: 7 }));
   });
 
-  it("shows an undo toast after delete", async () => {
+  it("shows an undo toast with an Undo action after delete", async () => {
     jest.useFakeTimers();
     mockList.mockResolvedValue([makeRecipe({ id: 7, name: "Pasta Bolognese" })]);
     renderPage();
@@ -206,8 +217,76 @@ describe("RecipeListPage — delete with undo", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /delete pasta bolognese/i }));
     expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Recipe deleted" })
+      expect.objectContaining({
+        title: "Recipe deleted",
+        action: expect.objectContaining({ label: "Undo" }),
+      })
     );
+  });
+
+  it("undo action cancels the delete and restores the card", async () => {
+    jest.useFakeTimers();
+    mockList.mockResolvedValue([makeRecipe({ id: 7, name: "Pasta Bolognese" })]);
+    renderPage();
+    await screen.findByText("Pasta Bolognese");
+
+    fireEvent.click(screen.getByRole("button", { name: /delete pasta bolognese/i }));
+    expect(screen.queryByText("Pasta Bolognese")).not.toBeInTheDocument();
+
+    // Invoke the undo action captured in the toast call
+    const { action } = mockToast.mock.calls[0][0] as {
+      action: { onClick: () => void };
+    };
+    await act(async () => {
+      action.onClick();
+    });
+
+    expect(screen.getByText("Pasta Bolognese")).toBeInTheDocument();
+    // API delete must NOT have been called
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+});
+
+describe("RecipeListPage — sort order", () => {
+  it("renders most-recently-cooked recipes first", async () => {
+    const older = makeRecipe({
+      id: 1,
+      name: "Older Recipe",
+      last_cooked_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    const newer = makeRecipe({
+      id: 2,
+      name: "Newer Recipe",
+      last_cooked_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    mockList.mockResolvedValue([older, newer]);
+    renderPage();
+    await screen.findByText("Newer Recipe");
+
+    const cards = screen.getAllByRole("button", { name: /^View /i });
+    expect(cards[0]).toHaveAccessibleName("View Newer Recipe");
+    expect(cards[1]).toHaveAccessibleName("View Older Recipe");
+  });
+
+  it("places never-cooked recipes alphabetically at the bottom", async () => {
+    const cooked = makeRecipe({
+      id: 1,
+      name: "Cooked Dish",
+      last_cooked_at: new Date().toISOString(),
+    });
+    const neverB = makeRecipe({ id: 2, name: "Zebra Soup", last_cooked_at: null });
+    const neverA = makeRecipe({ id: 3, name: "Apple Salad", last_cooked_at: null });
+    mockList.mockResolvedValue([neverB, cooked, neverA]);
+    renderPage();
+    await screen.findByText("Cooked Dish");
+
+    const cards = screen.getAllByRole("button", { name: /^View /i });
+    expect(cards[0]).toHaveAccessibleName("View Cooked Dish");
+    expect(cards[1]).toHaveAccessibleName("View Apple Salad");
+    expect(cards[2]).toHaveAccessibleName("View Zebra Soup");
   });
 });
 

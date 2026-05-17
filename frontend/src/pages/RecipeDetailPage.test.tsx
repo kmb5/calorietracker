@@ -24,7 +24,13 @@ const mockGet = getRecipeRecipesRecipeIdGet as jest.MockedFunction<
   typeof getRecipeRecipesRecipeIdGet
 >;
 
-function makeIngredient(id: number, name: string, unit: UnitType = "g", amount = 100, display_order = 0) {
+function makeIngredient(
+  id: number,
+  name: string,
+  unit: UnitType = "g",
+  amount = 100,
+  display_order = 0
+) {
   return {
     id,
     ingredient_id: id + 100,
@@ -99,7 +105,10 @@ describe("RecipeDetailPage — content", () => {
     mockGet.mockResolvedValue(makeRecipeDetail());
     renderPage();
     // name appears in both header and hero — check heading level 2 (hero)
-    const heading = await screen.findByRole("heading", { level: 2, name: "Chicken & Rice Bowl" });
+    const heading = await screen.findByRole("heading", {
+      level: 2,
+      name: "Chicken & Rice Bowl",
+    });
     expect(heading).toBeInTheDocument();
   });
 
@@ -176,7 +185,9 @@ describe("RecipeDetailPage — navigation", () => {
   it("Start Cooking Mode button is present", async () => {
     mockGet.mockResolvedValue(makeRecipeDetail());
     renderPage();
-    expect(await screen.findByRole("button", { name: /start cooking mode/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /start cooking mode/i })
+    ).toBeInTheDocument();
   });
 
   it("Start Cooking Mode button navigates to cooking route (placeholder)", async () => {
@@ -203,7 +214,13 @@ describe("RecipeDetailPage — error state", () => {
     mockGet.mockRejectedValue(
       new ApiError(
         { method: "GET", url: "/recipes/999" },
-        { url: "/recipes/999", ok: false, status: 404, statusText: "Not Found", body: {} },
+        {
+          url: "/recipes/999",
+          ok: false,
+          status: 404,
+          statusText: "Not Found",
+          body: {},
+        },
         "Not Found"
       )
     );
