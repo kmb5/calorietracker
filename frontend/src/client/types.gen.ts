@@ -30,6 +30,28 @@ export type RecipeDetail = {
   ingredients: Array<RecipeIngredientItem>;
 };
 
+export type RecipeIngredientInput = {
+  ingredient_id: number;
+  amount: number;
+  display_order?: number;
+};
+
+export type RecipeCreate = {
+  name: string;
+  description?: string | null;
+  ingredients?: Array<RecipeIngredientInput>;
+};
+
+export type RecipeUpdate = {
+  name?: string | null;
+  description?: string | null;
+  ingredients?: Array<RecipeIngredientInput> | null;
+};
+
+export type RecipeDuplicateResponse = {
+  id: number;
+};
+
 export type BulkImportItem = {
   name: string;
   unit: UnitType;
@@ -170,6 +192,23 @@ export type DeleteRecipeRecipesRecipeIdDeleteData = {
 };
 
 export type DeleteRecipeRecipesRecipeIdDeleteResponse = void;
+
+export type CreateRecipeRecipesPostData = {
+  requestBody: RecipeCreate;
+};
+export type CreateRecipeRecipesPostResponse = RecipeDetail;
+
+export type UpdateRecipeRecipesRecipeIdPatchData = {
+  recipeId: number;
+  requestBody: RecipeUpdate;
+};
+export type UpdateRecipeRecipesRecipeIdPatchResponse = RecipeDetail;
+
+export type DuplicateRecipeRecipesRecipeIdDuplicatePostData = {
+  recipeId: number;
+};
+export type DuplicateRecipeRecipesRecipeIdDuplicatePostResponse =
+  RecipeDuplicateResponse;
 
 export type RegisterAuthRegisterPostData = {
   requestBody: RegisterRequest;

@@ -1367,6 +1367,215 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ── Recipe form classes ───────────────────────────────────────────────────── */
+
+.form-body {
+  flex: 1;
+  padding: 0 20px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.ingredient-form-rows {
+  background: var(--white);
+  border: 1.5px solid hsl(var(--border));
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.ingredient-form-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 52px;
+  border-bottom: 1px solid hsl(var(--border));
+  position: relative;
+}
+.ingredient-form-row:last-child {
+  border-bottom: none;
+}
+
+.ingredient-row-handle {
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--border));
+  flex-shrink: 0;
+  cursor: grab;
+}
+.ingredient-row-handle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ingredient-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: hsl(var(--foreground));
+  background: transparent;
+  min-width: 0;
+}
+.ingredient-search-input::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.6;
+}
+
+.ingredient-right-col {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  flex-shrink: 0;
+  border-left: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+}
+
+.ingredient-amount-input {
+  width: 68px;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  background: transparent;
+  text-align: right;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.ingredient-unit-label {
+  padding: 0 6px 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+  min-width: 22px;
+}
+
+.ingredient-remove-btn {
+  width: 36px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: hsl(var(--border));
+  cursor: pointer;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.ingredient-remove-btn:hover {
+  color: #b83232;
+}
+.ingredient-remove-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.add-ingredient-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  border: 1.5px dashed hsl(var(--border));
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: 8px;
+}
+.add-ingredient-btn:hover {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--secondary));
+}
+.add-ingredient-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.form-actions {
+  padding: 0 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+.danger-zone {
+  margin: 0 0 4px;
+  padding: 16px;
+  background: #f9dede;
+  border: 1.5px solid rgba(184, 50, 50, 0.18);
+  border-radius: 14px;
+}
+
+.danger-zone-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #b83232;
+  margin-bottom: 10px;
+}
+
+.ingredient-row-results {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: hsl(var(--card));
+  border: 1.5px solid hsl(var(--border));
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.ingredient-row-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid hsl(var(--border));
+  transition: background 0.12s;
+}
+.ingredient-row-result-item:last-child {
+  border-bottom: none;
+}
+.ingredient-row-result-item:hover,
+.ingredient-row-result-item[aria-selected="true"] {
+  background: hsl(var(--secondary));
+}
+
+.ingredient-row-result-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .ingredient-amount {
   font-size: 13px;
   font-weight: 600;
@@ -1423,4 +1632,17 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.ingredient-row-result-kcal {
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  flex-shrink: 0;
+}
+
+.ingredient-form-error {
+  font-size: 12px;
+  color: #b83232;
+  margin-top: 4px;
 }

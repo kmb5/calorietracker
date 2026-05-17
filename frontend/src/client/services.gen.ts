@@ -9,6 +9,12 @@ import type {
   GetRecipeRecipesRecipeIdGetResponse,
   DeleteRecipeRecipesRecipeIdDeleteData,
   DeleteRecipeRecipesRecipeIdDeleteResponse,
+  CreateRecipeRecipesPostData,
+  CreateRecipeRecipesPostResponse,
+  UpdateRecipeRecipesRecipeIdPatchData,
+  UpdateRecipeRecipesRecipeIdPatchResponse,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostData,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostResponse,
   RegisterAuthRegisterPostData,
   RegisterAuthRegisterPostResponse,
   LoginAuthLoginPostData,
@@ -598,6 +604,27 @@ export const listRecipesRecipesGet =
   };
 
 /**
+ * Create Recipe
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const createRecipeRecipesPost = (
+  data: CreateRecipeRecipesPostData
+): CancelablePromise<CreateRecipeRecipesPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
  * Get Recipe
  * @param data The data for the request.
  * @param data.recipeId
@@ -615,6 +642,32 @@ export const getRecipeRecipesRecipeIdGet = (
     },
     errors: {
       404: "Not Found",
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const updateRecipeRecipesRecipeIdPatch = (
+  data: UpdateRecipeRecipesRecipeIdPatchData
+): CancelablePromise<UpdateRecipeRecipesRecipeIdPatchResponse> => {
+  return __request(OpenAPI, {
+    method: "PATCH",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
     },
   });
 };
@@ -637,6 +690,28 @@ export const deleteRecipeRecipesRecipeIdDelete = (
     },
     errors: {
       404: "Not Found",
+    },
+  });
+};
+
+/**
+ * Duplicate Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns RecipeDuplicateResponse Successful Response
+ * @throws ApiError
+ */
+export const duplicateRecipeRecipesRecipeIdDuplicatePost = (
+  data: DuplicateRecipeRecipesRecipeIdDuplicatePostData
+): CancelablePromise<DuplicateRecipeRecipesRecipeIdDuplicatePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/duplicate",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      422: "Validation Error",
     },
   });
 };
