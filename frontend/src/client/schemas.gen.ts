@@ -94,6 +94,32 @@ export const $BulkImportResult = {
   title: "BulkImportResult",
 } as const;
 
+export const $CookRequest = {
+  properties: {
+    ingredient_amounts: {
+      items: {
+        $ref: "#/components/schemas/RecipeIngredientIn",
+      },
+      type: "array",
+      title: "Ingredient Amounts",
+    },
+    extra_kcal: {
+      type: "number",
+      minimum: 0,
+      title: "Extra Kcal",
+      default: 0,
+    },
+    cooked_weight_g: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Cooked Weight G",
+    },
+  },
+  type: "object",
+  required: ["ingredient_amounts", "cooked_weight_g"],
+  title: "CookRequest",
+} as const;
+
 export const $HTTPValidationError = {
   properties: {
     detail: {
@@ -470,6 +496,52 @@ export const $LoginRequest = {
   title: "LoginRequest",
 } as const;
 
+export const $MacroValues = {
+  properties: {
+    kcal: {
+      type: "number",
+      title: "Kcal",
+    },
+    protein: {
+      type: "number",
+      title: "Protein",
+    },
+    fat: {
+      type: "number",
+      title: "Fat",
+    },
+    carbohydrates: {
+      type: "number",
+      title: "Carbohydrates",
+    },
+    fiber: {
+      type: "number",
+      title: "Fiber",
+    },
+    sodium: {
+      type: "number",
+      title: "Sodium",
+    },
+  },
+  type: "object",
+  required: ["kcal", "protein", "fat", "carbohydrates", "fiber", "sodium"],
+  title: "MacroValues",
+} as const;
+
+export const $NutritionResult = {
+  properties: {
+    totals: {
+      $ref: "#/components/schemas/MacroValues",
+    },
+    per_100g: {
+      $ref: "#/components/schemas/MacroValues",
+    },
+  },
+  type: "object",
+  required: ["totals", "per_100g"],
+  title: "NutritionResult",
+} as const;
+
 export const $PromotionRejectRequest = {
   properties: {
     rejection_note: {
@@ -482,6 +554,317 @@ export const $PromotionRejectRequest = {
   type: "object",
   required: ["rejection_note"],
   title: "PromotionRejectRequest",
+} as const;
+
+export const $RecipeCreate = {
+  properties: {
+    name: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Name",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    ingredients: {
+      items: {
+        $ref: "#/components/schemas/RecipeIngredientInput",
+      },
+      type: "array",
+      title: "Ingredients",
+    },
+  },
+  type: "object",
+  required: ["name"],
+  title: "RecipeCreate",
+} as const;
+
+export const $RecipeDetail = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    owner_id: {
+      type: "integer",
+      title: "Owner Id",
+    },
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    last_cooked_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Cooked At",
+    },
+    last_cooked_weight_g: {
+      anyOf: [
+        {
+          type: "number",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Cooked Weight G",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      title: "Updated At",
+    },
+    ingredients: {
+      items: {
+        $ref: "#/components/schemas/RecipeIngredientItem",
+      },
+      type: "array",
+      title: "Ingredients",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "owner_id",
+    "name",
+    "description",
+    "last_cooked_at",
+    "last_cooked_weight_g",
+    "created_at",
+    "updated_at",
+    "ingredients",
+  ],
+  title: "RecipeDetail",
+  description: "Full recipe with ingredient list, returned by GET /recipes/{id}.",
+} as const;
+
+export const $RecipeDuplicateResponse = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+  },
+  type: "object",
+  required: ["id"],
+  title: "RecipeDuplicateResponse",
+} as const;
+
+export const $RecipeIngredientIn = {
+  properties: {
+    ingredient_id: {
+      type: "integer",
+      title: "Ingredient Id",
+    },
+    amount: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Amount",
+    },
+  },
+  type: "object",
+  required: ["ingredient_id", "amount"],
+  title: "RecipeIngredientIn",
+  description: "Ingredient amount submitted for a cooking session.",
+} as const;
+
+export const $RecipeIngredientInput = {
+  properties: {
+    ingredient_id: {
+      type: "integer",
+      title: "Ingredient Id",
+    },
+    amount: {
+      type: "number",
+      exclusiveMinimum: 0,
+      title: "Amount",
+    },
+    display_order: {
+      type: "integer",
+      minimum: 0,
+      title: "Display Order",
+      default: 0,
+    },
+  },
+  type: "object",
+  required: ["ingredient_id", "amount"],
+  title: "RecipeIngredientInput",
+  description:
+    "Ingredient row submitted by the client when creating/updating a recipe.",
+} as const;
+
+export const $RecipeIngredientItem = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    ingredient_id: {
+      type: "integer",
+      title: "Ingredient Id",
+    },
+    amount: {
+      type: "number",
+      title: "Amount",
+    },
+    display_order: {
+      type: "integer",
+      title: "Display Order",
+    },
+    ingredient: {
+      $ref: "#/components/schemas/IngredientDetail",
+    },
+  },
+  type: "object",
+  required: ["id", "ingredient_id", "amount", "display_order", "ingredient"],
+  title: "RecipeIngredientItem",
+  description: "Embedded ingredient row inside a recipe response.",
+} as const;
+
+export const $RecipeSummary = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    name: {
+      type: "string",
+      title: "Name",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    last_cooked_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Cooked At",
+    },
+    last_cooked_weight_g: {
+      anyOf: [
+        {
+          type: "number",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Cooked Weight G",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      title: "Updated At",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "name",
+    "description",
+    "last_cooked_at",
+    "last_cooked_weight_g",
+    "created_at",
+    "updated_at",
+  ],
+  title: "RecipeSummary",
+  description: "Light summary returned in list views.",
+} as const;
+
+export const $RecipeUpdate = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Name",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    ingredients: {
+      anyOf: [
+        {
+          items: {
+            $ref: "#/components/schemas/RecipeIngredientInput",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Ingredients",
+    },
+  },
+  type: "object",
+  title: "RecipeUpdate",
 } as const;
 
 export const $RegisterRequest = {

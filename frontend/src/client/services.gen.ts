@@ -45,6 +45,21 @@ import type {
   UpdateUserActiveAdminUsersUserIdPatchResponse,
   UpdateUserRoleAdminUsersUserIdRolePatchData,
   UpdateUserRoleAdminUsersUserIdRolePatchResponse,
+  ListRecipesRecipesGetResponse,
+  CreateRecipeRecipesPostData,
+  CreateRecipeRecipesPostResponse,
+  GetRecipeRecipesRecipeIdGetData,
+  GetRecipeRecipesRecipeIdGetResponse,
+  UpdateRecipeRecipesRecipeIdPatchData,
+  UpdateRecipeRecipesRecipeIdPatchResponse,
+  DeleteRecipeRecipesRecipeIdDeleteData,
+  DeleteRecipeRecipesRecipeIdDeleteResponse,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostData,
+  DuplicateRecipeRecipesRecipeIdDuplicatePostResponse,
+  CalculateRecipeRecipesRecipeIdCalculatePostData,
+  CalculateRecipeRecipesRecipeIdCalculatePostResponse,
+  CookRecipeRecipesRecipeIdCookPostData,
+  CookRecipeRecipesRecipeIdCookPostResponse,
   HealthHealthGetResponse,
 } from "./types.gen";
 
@@ -558,6 +573,184 @@ export const updateUserRoleAdminUsersUserIdRolePatch = (
     url: "/admin/users/{user_id}/role",
     path: {
       user_id: data.userId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * List Recipes
+ * Return the current user's recipes, sorted by last_cooked_at DESC (nulls last, then by name).
+ * @returns RecipeSummary Successful Response
+ * @throws ApiError
+ */
+export const listRecipesRecipesGet =
+  (): CancelablePromise<ListRecipesRecipesGetResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/recipes",
+    });
+  };
+
+/**
+ * Create Recipe
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const createRecipeRecipesPost = (
+  data: CreateRecipeRecipesPostData
+): CancelablePromise<CreateRecipeRecipesPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Get Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const getRecipeRecipesRecipeIdGet = (
+  data: GetRecipeRecipesRecipeIdGetData
+): CancelablePromise<GetRecipeRecipesRecipeIdGetResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Update Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns RecipeDetail Successful Response
+ * @throws ApiError
+ */
+export const updateRecipeRecipesRecipeIdPatch = (
+  data: UpdateRecipeRecipesRecipeIdPatchData
+): CancelablePromise<UpdateRecipeRecipesRecipeIdPatchResponse> => {
+  return __request(OpenAPI, {
+    method: "PATCH",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Delete Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const deleteRecipeRecipesRecipeIdDelete = (
+  data: DeleteRecipeRecipesRecipeIdDeleteData
+): CancelablePromise<DeleteRecipeRecipesRecipeIdDeleteResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/recipes/{recipe_id}",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Duplicate Recipe
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @returns RecipeDuplicateResponse Successful Response
+ * @throws ApiError
+ */
+export const duplicateRecipeRecipesRecipeIdDuplicatePost = (
+  data: DuplicateRecipeRecipesRecipeIdDuplicatePostData
+): CancelablePromise<DuplicateRecipeRecipesRecipeIdDuplicatePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/duplicate",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Calculate Recipe
+ * Stateless nutrition calculation — does NOT write to the DB.
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns NutritionResult Successful Response
+ * @throws ApiError
+ */
+export const calculateRecipeRecipesRecipeIdCalculatePost = (
+  data: CalculateRecipeRecipesRecipeIdCalculatePostData
+): CancelablePromise<CalculateRecipeRecipesRecipeIdCalculatePostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/calculate",
+    path: {
+      recipe_id: data.recipeId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  });
+};
+
+/**
+ * Cook Recipe
+ * Calculate nutrition AND persist last_cooked_at + last_cooked_weight_g.
+ * @param data The data for the request.
+ * @param data.recipeId
+ * @param data.requestBody
+ * @returns NutritionResult Successful Response
+ * @throws ApiError
+ */
+export const cookRecipeRecipesRecipeIdCookPost = (
+  data: CookRecipeRecipesRecipeIdCookPostData
+): CancelablePromise<CookRecipeRecipesRecipeIdCookPostResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/recipes/{recipe_id}/cook",
+    path: {
+      recipe_id: data.recipeId,
     },
     body: data.requestBody,
     mediaType: "application/json",
