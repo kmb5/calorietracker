@@ -8,7 +8,7 @@
  *
  * Layout matches the prototype's ci-nav-bar / ci-scroll-body pattern.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   createIngredientIngredientsPost,
@@ -164,7 +164,6 @@ export function CustomIngredientFormPage() {
   const { toast } = useToast();
 
   const isEditing = Boolean(id);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const [form, setForm] = useState<FormState>(() => {
     const nameFromState = (location.state as { name?: string } | null)?.name ?? "";
@@ -371,7 +370,7 @@ export function CustomIngredientFormPage() {
       </div>
 
       {/* ── Form ── */}
-      <form id="ci-form" ref={formRef} onSubmit={handleSubmit} noValidate>
+      <form id="ci-form" onSubmit={handleSubmit} noValidate>
         <div className="ci-scroll-body">
           {/* ── Name ── */}
           <div style={{ marginBottom: 20 }}>
