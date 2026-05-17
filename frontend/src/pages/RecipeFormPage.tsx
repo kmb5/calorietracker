@@ -325,9 +325,8 @@ function IngredientRowSearch({
 
 // ── Main component ──────────────────────────────────────────────────────────────
 
-let rowCounter = 0;
 function newRowKey() {
-  return `row-${++rowCounter}`;
+  return crypto.randomUUID();
 }
 
 export function RecipeFormPage() {
@@ -337,6 +336,7 @@ export function RecipeFormPage() {
 
   const isEditing = Boolean(id);
   const recipeId = id ? parseInt(id, 10) : null;
+  const isValidEditId = isEditing && recipeId !== null && Number.isFinite(recipeId);
 
   // ── Form state ──
   const [name, setName] = useState("");
@@ -344,7 +344,7 @@ export function RecipeFormPage() {
   const [rows, setRows] = useState<IngredientRow[]>([]);
 
   // ── UI state ──
-  const [isLoading, setIsLoading] = useState(isEditing);
+  const [isLoading, setIsLoading] = useState(isValidEditId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -354,7 +354,12 @@ export function RecipeFormPage() {
 
   // ── Load recipe in edit mode ──
   useEffect(() => {
-    if (!recipeId) return;
+    if (recipeId === null) return;
+    if (!Number.isFinite(recipeId)) {
+      // Non-numeric id param — redirect; isLoading was never set to true
+      navigate("/recipes");
+      return;
+    }
 
     let cancelled = false;
 
@@ -396,8 +401,7 @@ export function RecipeFormPage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipeId]);
+  }, [recipeId, navigate, toast]);
 
   // ── Row handlers ──
   const handleAddRow = () => {

@@ -294,6 +294,12 @@ describe("RecipeFormPage – create", () => {
     expect(screen.getByText("Recipe List")).toBeInTheDocument();
   });
 
+  it("navigates back to recipe list when clicking the back arrow in create mode", () => {
+    renderCreate();
+    fireEvent.click(screen.getByRole("button", { name: /back/i }));
+    expect(screen.getByText("Recipe List")).toBeInTheDocument();
+  });
+
   it("does not show the danger zone in create mode", () => {
     renderCreate();
     expect(screen.queryByText(/danger zone/i)).not.toBeInTheDocument();
@@ -483,6 +489,47 @@ describe("RecipeFormPage – edit", () => {
         expect.objectContaining({ variant: "destructive" })
       );
     });
+  });
+
+  it("navigates back to recipe detail when clicking Cancel in edit mode", async () => {
+    mockGetRecipe.mockResolvedValue(RECIPE_DETAIL);
+    renderEdit(7);
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Chicken & Rice")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(screen.getByText("Recipe Detail")).toBeInTheDocument();
+  });
+
+  it("navigates back to recipe detail when clicking the back arrow in edit mode", async () => {
+    mockGetRecipe.mockResolvedValue(RECIPE_DETAIL);
+    renderEdit(7);
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Chicken & Rice")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /back/i }));
+    expect(screen.getByText("Recipe Detail")).toBeInTheDocument();
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────────
+// INVALID ROUTE PARAMS
+// ────────────────────────────────────────────────────────────────────────────────
+
+describe("RecipeFormPage – invalid route params", () => {
+  it("redirects to /recipes when the id param is non-numeric", async () => {
+    render(
+      <MemoryRouter initialEntries={["/recipes/abc/edit"]}>
+        <Routes>
+          <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
+          <Route path="/recipes" element={<div>Recipe List</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Recipe List")).toBeInTheDocument();
+    });
+    expect(mockGetRecipe).not.toHaveBeenCalled();
   });
 });
 
