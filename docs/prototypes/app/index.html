@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CalorieTracker — Unified Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+  /* ═══════════════════════════════════════════════════════════════
+     CANONICAL DESIGN TOKENS
+     Single source of truth — resolves all inconsistencies across
+     the individual prototypes.
+  ═══════════════════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* ── Core palette ── */
+    --cream:          #FDF6ED;
+    --cream-dark:     #F5EADB;
+    --cream-mid:      #EFE0CD;
+    --terra:          #C9562B;
+    --terra-dark:     #A8431F;
+    --terra-light:    #F2E0D8;
+    --terra-xlight:   #FBF0EB;
+    --ink:            #1A1208;
+    --ink-mid:        #4A3728;
+    --ink-soft:       #7A6555;
+    --border:         #E2CEBA;
+    --border-focus:   #C9562B;
+    --white:          #FFFFFF;
+
+    /* ── Semantic states ── */
+    --success:        #3D7A4A;   /* canonical — was #2B6B44 in auth/recipes */
+    --success-bg:     #D6EDD9;
+    --success-light:  #BBDFC2;
+    --error:          #B83232;   /* canonical — was terra in auth, #B83030 in recipes */
+    --error-bg:       #F9DEDE;
+    --error-border:   rgba(184,50,50,0.3);
+    --danger:         #C02020;
+    --warn:           #9C6B1A;   /* canonical name: --warn (not --warning) */
+    --warn-bg:        #FEF3DC;
+    --warn-border:    #E9C06A;
+
+    /* ── Badges ── */
+    --badge-system:   #C9562B;
+    --badge-custom:   #5B7FA6;
+    --badge-sys-bg:   #F2E0D8;
+    --badge-cus-bg:   #DDE8F4;
+    --badge-admin:    #7B5EA7;
+    --badge-admin-bg: #EDE8F5;
+
+    /* ── Macro colours (cooking mode) ── */
+    --protein-color:  #2E6B46;
+    --protein-bg:     #D8EFE3;
+    --fat-color:      #8A5E10;
+    --fat-bg:         #FDECC8;
+    --carbs-color:    #A83820;
+    --carbs-bg:       #FAE0D8;
+
+    /* ── Pantry expiry ── */
+    --expired:        #B83232;
+    --expired-bg:     #FDEAEA;
+    --expired-border: #F5BCBC;
+    --ok:             #3D7A4A;
+    --ok-bg:          #EAF5EC;
+    --ok-border:      #A8DAAF;
+    --no-expiry:      #7A6555;
+    --no-expiry-bg:   #F2EAE0;
+    --no-expiry-border:#D8C9B8;
+
+    /* ── History day status ── */
+    --status-on-target:     #2B6B44;
+    --status-on-target-bg:  #D6EDE1;
+    --status-over:          #B45309;
+    --status-over-bg:       #FEF3C7;
+    --status-under:         #1E6091;
+    --status-under-bg:      #DBEAFE;
+    --status-no-log:        #9C8270;
+    --status-no-log-bg:     #EDE5DC;
+    --status-future-text:   #C4B5A5;
+    --status-neutral:       #6D5E4E;
+    --status-neutral-bg:    #E5D9CE;
+
+    /* ── Weekly strip ── */
+    --bar-on-target:  #3D7A4A;
+    --bar-over:       #E88A30;
+    --bar-empty:      #D8CCBA;
+    --streak-fire:    #E84B1A;
+
+    /* ── Typography ── */
+    --font-display:   'Playfair Display', Georgia, serif;
+    --font-body:      'DM Sans', system-ui, sans-serif;
+
+    /* ── Shape ── */
+    --radius:         14px;   /* canonical — was 12px in admin */
+    --radius-sm:      8px;
+    --radius-xs:      6px;
+
+    /* ── Shadow ── */
+    --shadow:         0 4px 24px rgba(26,18,8,0.10), 0 1px 4px rgba(26,18,8,0.06);
+    --shadow-sm:      0 2px 8px rgba(26,18,8,0.07);
+    --shadow-drop:    0 8px 40px rgba(26,18,8,0.16), 0 2px 8px rgba(26,18,8,0.08);
+    --shadow-up:      0 -3px 20px rgba(26,18,8,0.09), 0 -1px 4px rgba(26,18,8,0.05);
+  }
+
+  html.dark {
+    color-scheme: dark;
+    --cream:          #1D1209;
+    --cream-dark:     #261810;
+    --cream-mid:      #301E12;
+    --terra:          #D4673A;
+    --terra-dark:     #B85A30;
+    --terra-light:    #2D1A0D;
+    --terra-xlight:   #221108;
+    --ink:            #FDF6ED;
+    --ink-mid:        #D4B89A;
+    --ink-soft:       #9C8270;
+    --border:         #3D2416;
+    --border-focus:   #D4673A;
+    --white:          #221508;
+    --success:        #4DAA60;
+    --success-bg:     #122318;
+    --success-light:  #1E3D22;
+    --error:          #D4673A;
+    --error-bg:       #2A1208;
+    --danger:         #E05050;
+    --warn:           #C49430;
+    --warn-bg:        #251A07;
+    --warn-border:    #6B500F;
+    --badge-sys-bg:   #2A1208;
+    --badge-cus-bg:   #0E1E2D;
+    --badge-custom:   #7BAFD4;
+    --badge-admin:    #A98FD4;
+    --badge-admin-bg: #1E1630;
+    --protein-color:  #4DB574;
+    --protein-bg:     #0D2C1A;
+    --fat-color:      #D4A240;
+    --fat-bg:         #271A04;
+    --carbs-color:    #D4673A;
+    --carbs-bg:       #2A1007;
+    --bar-on-target:  #4DAA60;
+    --bar-over:       #D4893A;
+    --bar-empty:      #3D2F1E;
+    --streak-fire:    #FF7A50;
+    --shadow:         0 4px 24px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.25);
+    --shadow-sm:      0 2px 8px rgba(0,0,0,0.30);
+    --shadow-drop:    0 8px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    --shadow-up:      0 -3px 20px rgba(0,0,0,0.38), 0 -1px 4px rgba(0,0,0,0.22);
+    --status-on-target:    #4ADE80;
+    --status-on-target-bg: #052e16;
+    --status-over:         #FBBF24;
+    --status-over-bg:      #1c1005;
+    --status-under:        #60A5FA;
+    --status-under-bg:     #0a1929;
+    --status-no-log:       #6B5E50;
+    --status-no-log-bg:    #231810;
+    --status-future-text:  #4A3728;
+    --status-neutral:      #A89080;
+    --status-neutral-bg:   #2A1E14;
+    /* ── Pantry expiry (dark) ── */
+    --expired-bg:      #2A0808;
+    --expired-border:  #5C1A1A;
+    --ok-bg:           #071A0E;
+    --ok-border:       #1A4A28;
+    --no-expiry-bg:    #1A1410;
+    --no-expiry-border:#3A2E22;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     LAYOUT — sidebar + phone viewport
+  ═══════════════════════════════════════════════════════════════ */
+  html, body {
+    min-height: 100vh;
+    font-family: var(--font-body);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    background: #1A0E06;
+    overflow-x: hidden;
+  }
+
+  /* Desktop: sidebar + centered phone side-by-side */
+  @media (min-width: 700px) {
+    body {
+      display: flex;
+      align-items: flex-start;
+    }
+  }
+
+  /* ── Phone viewport ── */
+  .phone-viewport {
+    width: 375px;
+    min-height: 100vh;
+    background: var(--cream);
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+  }
+
+  @media (max-width: 699px) {
+    .phone-viewport {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  @media (min-width: 700px) {
+    .phone-viewport {
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px var(--border), 0 8px 64px rgba(0,0,0,0.5);
+      border-radius: 0;
+      margin-left: 220px; /* sidebar width */
+    }
+  }
+
+  /* ── Background gradient layer ── */
+  .bg-layer {
+    position: fixed;
+    top: 0; left: 220px; /* offset by sidebar */
+    width: 375px;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  @media (max-width: 699px) {
+    .bg-layer { left: 0; width: 100%; }
+  }
+  .bg-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 280px 220px at 90% 10%, rgba(201,86,43,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 200px 300px at 10% 80%, rgba(201,86,43,0.07) 0%, transparent 70%);
+    animation: breathe 8s ease-in-out infinite alternate;
+  }
+  html.dark .bg-layer::before {
+    background:
+      radial-gradient(ellipse 640px 560px at 115% -8%, rgba(212,103,58,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 560px 680px at -15% 108%, rgba(212,103,58,0.10) 0%, transparent 60%);
+  }
+  @keyframes breathe {
+    from { opacity: 0.7; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.04); }
+  }
+
+  /* ── Screen system ── */
+  .screen {
+    position: relative;
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .screen.active { display: flex; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SIDEBAR NAVIGATOR
+  ═══════════════════════════════════════════════════════════════ */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 220px;
+    background: #120A04;
+    border-right: 1px solid rgba(253,246,237,0.06);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 24px;
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  @media (max-width: 699px) {
+    .sidebar {
+      transform: translateX(-100%);
+      box-shadow: 4px 0 32px rgba(0,0,0,0.5);
+    }
+    .sidebar.open { transform: translateX(0); }
+  }
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(253,246,237,0.06);
+    margin-bottom: 8px;
+  }
+  .sidebar-logo-mark {
+    width: 28px; height: 28px;
+    background: var(--terra);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-logo-mark svg { width: 16px; height: 16px; fill: white; }
+  .sidebar-logo-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(253,246,237,0.9);
+    letter-spacing: -0.2px;
+  }
+  .sidebar-logo-name span { color: var(--terra); }
+
+  .sidebar-group {
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+  .sidebar-group-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: rgba(253,246,237,0.25);
+    padding: 10px 8px 4px;
+  }
+  .sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: rgba(253,246,237,0.55);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar-btn:hover {
+    background: rgba(253,246,237,0.08);
+    color: rgba(253,246,237,0.85);
+  }
+  .sidebar-btn.active {
+    background: rgba(201,86,43,0.18);
+    color: #F2C4A8;
+  }
+  .sidebar-btn .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(253,246,237,0.2);
+    flex-shrink: 0;
+  }
+  .sidebar-btn.active .dot { background: var(--terra); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 16px 0;
+    border-top: 1px solid rgba(253,246,237,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sidebar-theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    border: 1px solid rgba(253,246,237,0.12);
+    background: transparent;
+    color: rgba(253,246,237,0.55);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sidebar-theme-btn:hover { background: rgba(253,246,237,0.08); color: rgba(253,246,237,0.85); }
+  .sidebar-theme-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Mobile hamburger toggle */
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 1001;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(18,10,4,0.9);
+    border: 1px solid rgba(253,246,237,0.15);
+    color: rgba(253,246,237,0.8);
+    font-size: 16px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    transition: all 0.15s;
+  }
+  @media (max-width: 699px) {
+    .sidebar-toggle { display: flex; }
+  }
+  .sidebar-toggle:hover { background: rgba(201,86,43,0.5); }
+
+  /* Sidebar backdrop (mobile) */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+  }
+  @media (max-width: 699px) {
+    .sidebar-backdrop.open { display: block; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SHARED COMPONENTS
+  ═══════════════════════════════════════════════════════════════ */
+
+  /* ── App header ── */
+  .app-header {
+    display: flex;
+    align-items: center;
+    padding: 52px 20px 16px;
+    gap: 12px;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .app-header-compact { padding-top: 16px; }
+
+  .app-header-titles { flex: 1; min-width: 0; }
+  .app-header-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+  }
+  .app-header-sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 1px;
+  }
+
+  /* Icon button — used in headers */
+  .header-icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--ink-mid);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .header-icon-btn:hover { border-color: var(--terra); color: var(--terra); background: var(--terra-xlight); }
+  .header-icon-btn svg { width: 17px; height: 17px; }
+
+  /* ── Bottom navigation (5 tabs) ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 220px;
+    width: 375px;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 100;
+    transition: background-color 0.3s ease;
+  }
+  @media (max-width: 699px) {
+    .bottom-nav { left: 0; width: 100%; }
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 0;
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-size: 10px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    border: none;
+    background: none;
+    transition: color 0.15s;
+    touch-action: manipulation;
+    position: relative;
+  }
+  .nav-item.active { color: var(--terra); }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-label { font-size: 10px; font-weight: 500; }
+
+  /* Nav badge (pantry enhancements) */
+  .nav-badge {
+    position: absolute;
+    top: 2px; right: calc(50% - 18px);
+    min-width: 16px; height: 16px;
+    background: var(--error);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--white);
+  }
+  .nav-badge.hidden { display: none; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    width: 100%;
+    height: 52px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);   /* 8px — canonical */
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    box-shadow: 0 3px 12px rgba(201,86,43,0.30);
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    letter-spacing: 0.1px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary:hover  { background: var(--terra-dark); box-shadow: 0 4px 18px rgba(201,86,43,0.42); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary svg    { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .btn-secondary {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    color: var(--ink-mid);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    transition: all 0.18s;
+  }
+  .btn-secondary:hover { border-color: var(--ink-mid); background: var(--cream); }
+  .btn-secondary svg   { width: 16px; height: 16px; }
+
+  .btn-danger {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    color: var(--danger);
+    border: 1.5px solid var(--error-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    transition: all 0.18s;
+  }
+  .btn-danger:hover { background: var(--error-bg); border-color: var(--danger); }
+  .btn-danger svg   { width: 16px; height: 16px; }
+
+  /* Loading spinner inside btn-primary */
+  .btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    position: absolute;
+  }
+  .btn-primary.loading .btn-text   { opacity: 0; }
+  .btn-primary.loading .btn-spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    margin-bottom: 7px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    -moz-appearance: textfield;
+  }
+  .field input::-webkit-inner-spin-button,
+  .field input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--ink-soft); opacity: 0.6; }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--terra);
+    box-shadow: 0 0 0 3px rgba(201,86,43,0.10);
+  }
+  html.dark .field input:focus,
+  html.dark .field select:focus,
+  html.dark .field textarea:focus {
+    box-shadow: 0 0 0 3px rgba(212,103,58,0.18);
+  }
+  .field input.error-input,
+  .field select.error-input { border-color: var(--error); background: var(--error-bg); }
+  .field textarea { resize: none; height: 80px; line-height: 1.5; }
+
+  .field-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    font-weight: 500;
+    margin-top: 5px;
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  .field-error.visible { display: flex; }
+  .field-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .badge-system { background: var(--badge-sys-bg); color: var(--badge-system); }
+  .badge-custom { background: var(--badge-cus-bg); color: var(--badge-custom); }
+  .badge-admin  { background: var(--badge-admin-bg); color: var(--badge-admin); }
+
+  /* ── Bottom sheet ── */
+  .sheet-overlay {
+    position: fixed;
+    inset: 0;
+    left: 220px; width: 375px;
+    background: rgba(26,18,8,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    transition: opacity 0.25s;
+  }
+  @media (max-width: 699px) { .sheet-overlay { left: 0; width: 100%; } }
+  .sheet-overlay.hidden { display: none; }
+  html.dark .sheet-overlay { background: rgba(0,0,0,0.65); }
+
+  .sheet {
+    width: 100%;
+    background: var(--white);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 0 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    animation: sheetUp 0.3s cubic-bezier(0.32,0.72,0,1) both;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 12px auto 20px;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 220px;
+    width: 375px;
+    padding: 0 16px;
+    z-index: 300;
+    pointer-events: none;
+  }
+  @media (max-width: 699px) { .toast { left: 0; width: 100%; } }
+  .toast-inner {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    animation: toastIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  html.dark .toast-inner { background: var(--cream-mid); color: var(--ink); }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .toast.hidden { display: none; }
+  .toast-undo {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--terra);
+    cursor: pointer;
+    background: none; border: none;
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 0;
+    pointer-events: all;
+  }
+
+  /* ── Search input ── */
+  .search-wrap { padding: 0 20px 12px; position: relative; z-index: 10; }
+  .search-inner { position: relative; }
+  .search-icon {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-soft); pointer-events: none;
+  }
+  .search-icon svg { width: 17px; height: 17px; }
+  .search-input {
+    width: 100%; height: 44px;
+    padding: 0 40px 0 44px;
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    background: var(--white);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+  .search-input::placeholder { color: var(--ink-soft); opacity: 0.7; }
+  .search-input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(201,86,43,0.10); }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed;
+    bottom: 76px;
+    right: calc(100vw - 220px - 375px + 20px);
+    width: 56px; height: 56px;
+    border-radius: 18px;
+    background: var(--terra);
+    color: white;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(201,86,43,0.40), 0 2px 8px rgba(201,86,43,0.25);
+    cursor: pointer;
+    z-index: 50;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    animation: fabIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+  }
+  @media (max-width: 699px) { .fab { right: 20px; } }
+  .fab:hover { background: var(--terra-dark); transform: scale(1.06) translateY(-1px); box-shadow: 0 6px 24px rgba(201,86,43,0.50); }
+  .fab:active { transform: scale(0.95); }
+  .fab svg { width: 24px; height: 24px; }
+  @keyframes fabIn {
+    from { opacity: 0; transform: scale(0.5) rotate(-90deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  /* ── Scroll padding for bottom nav ── */
+  .has-bottom-nav { padding-bottom: 80px !important; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 40px 120px;
+    text-align: center;
+  }
+  .empty-icon-wrap {
+    width: 80px; height: 80px;
+    border-radius: 24px;
+    background: var(--cream-dark);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    font-size: 40px;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+  }
+  html.dark .empty-icon-wrap { background: var(--cream-mid); }
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .empty-desc {
+    font-size: 14px; color: var(--ink-soft);
+    line-height: 1.6; margin-bottom: 32px;
+    max-width: 260px;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .divider span {
+    font-size: 11.5px; color: var(--ink-soft);
+    font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase;
+  }
+
+  /* ── Section card header ── */
+  .section-header {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .section-count {
+    font-size: 11px; font-weight: 600;
+    color: var(--terra);
+    background: var(--badge-sys-bg);
+    padding: 2px 8px; border-radius: 10px;
+  }
+
+  /* ═══════════════════════════════════ AUTH ═══════════════════════════════════ */
+  .auth-brand { padding: 52px 28px 28px; text-align: center; }
+  .auth-brand-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; border-radius: 14px; background: var(--terra);
+    margin-bottom: 16px; box-shadow: 0 4px 14px rgba(201,86,43,0.35);
+  }
+  .auth-brand-mark svg { width: 28px; height: 28px; fill: white; }
+  .auth-brand-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; line-height: 1.1; }
+  .auth-brand-title span { color: var(--terra); }
+  .auth-brand-sub { margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
+  .auth-card {
+    flex: 1; background: var(--white);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 32px 24px 40px;
+    box-shadow: 0 -2px 20px rgba(26,18,8,0.06);
+    transition: background-color 0.3s ease;
+  }
+  html.dark .auth-card { box-shadow: 0 -2px 20px rgba(0,0,0,0.35); }
+  .auth-card-handle { width: 36px; height: 3px; border-radius: 2px; background: var(--border); margin: 0 auto 28px; }
+  .auth-card-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.3px; }
+  .auth-card-desc { font-size: 13px; color: var(--ink-soft); margin-bottom: 28px; line-height: 1.5; }
+  .auth-switch { text-align: center; font-size: 13.5px; color: var(--ink-soft); padding-top: 4px; }
+  .auth-switch a { color: var(--terra); font-weight: 600; text-decoration: none; cursor: pointer; }
+  .auth-switch a:hover { text-decoration: underline; }
+  .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 12px; }
+  .forgot-link { font-size: 12px; color: var(--ink-soft); font-weight: 500; cursor: pointer; text-decoration: none; }
+  .forgot-link:hover { color: var(--terra); }
+  .pw-wrap { position: relative; }
+  .pw-wrap input { padding-right: 48px; }
+  .pw-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 4px; cursor: pointer; color: var(--ink-soft); display: flex; align-items: center; }
+  .pw-toggle:hover { color: var(--terra); }
+  .pw-toggle svg { width: 18px; height: 18px; }
+  .pw-strength { margin-top: 8px; display: none; }
+  .pw-strength.visible { display: block; }
+  .pw-strength-bar { height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; margin-bottom: 4px; }
+  .pw-strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+  .pw-strength-label { font-size: 11px; font-weight: 500; color: var(--ink-soft); }
+  .alert { display: none; align-items: flex-start; gap: 10px; padding: 13px 15px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13.5px; font-weight: 500; line-height: 1.45; }
+  .alert.visible { display: flex; }
+  .alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-error { background: var(--error-bg); color: #8B2A10; border: 1px solid rgba(184,50,50,0.2); }
+  html.dark .alert-error { color: var(--terra); }
+  .proto-states { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .proto-states-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+  .proto-states-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .proto-pill { font-size: 11px; font-family: var(--font-body); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--cream-dark); color: var(--ink-mid); cursor: pointer; transition: all 0.15s; }
+  .proto-pill:hover { border-color: var(--terra); color: var(--terra); }
+
+
+
+  /* ════ COOKING MODE ════ */
+  .cooking-shell { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .cooking-header { height: 54px; flex-shrink: 0; display: flex; align-items: center; padding: 0 14px 0 6px; background: var(--cream); border-bottom: 1px solid var(--border); z-index: 20; gap: 4px; }
+  .cooking-header-back { width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; color: var(--ink-mid); cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+  .cooking-header-back:hover { background: var(--cream-dark); }
+  .cooking-header-back svg { width: 19px; height: 19px; }
+  .cooking-recipe-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cooking-mode-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--terra); margin-top: 1px; }
+  .cooking-mode-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--terra); animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.45; transform:scale(0.65); } }
+
+  .sanity-strip { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 16px; height: 34px; background: var(--terra-xlight); border-bottom: 1px solid rgba(201,86,43,0.18); padding: 0 16px; }
+  html.dark .sanity-strip { background: rgba(212,103,58,0.08); border-bottom-color: rgba(212,103,58,0.15); }
+  .sanity-item { display: flex; align-items: baseline; gap: 3px; }
+  .sanity-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: rgba(168,67,31,0.55); }
+  html.dark .sanity-label { color: var(--ink-soft); }
+  .sanity-value { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--terra-dark); }
+  html.dark .sanity-value { color: var(--terra); }
+  .sanity-unit { font-size: 10.5px; font-weight: 500; color: rgba(168,67,31,0.6); }
+  html.dark .sanity-unit { color: var(--ink-soft); }
+  .sanity-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(201,86,43,0.25); flex-shrink: 0; }
+
+  .cooking-scroll-container { flex: 1; position: relative; min-height: 0; overflow: hidden; }
+  .cooking-scroll-container::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(to bottom, transparent, var(--cream)); pointer-events: none; z-index: 3; }
+  .cooking-ingredient-scroll { height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; }
+  .cooking-ingredient-scroll::-webkit-scrollbar { width: 3px; }
+  .cooking-ingredient-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .scroll-section-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-soft); padding: 6px 18px 3px; }
+
+  .c-ing-row { display: flex; align-items: center; gap: 8px; padding: 7px 14px 7px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .c-ing-row:hover { background: rgba(201,86,43,0.025); }
+  .c-ing-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--cream-dark); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .c-ing-info { flex: 1; min-width: 0; }
+  .c-ing-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; margin-bottom: 1px; }
+  .c-ing-kcal { font-size: 11px; font-weight: 600; color: var(--terra); }
+  .c-amount-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .c-amount-input { width: 64px; height: 44px; font-family: var(--font-body); font-size: 18px; font-weight: 600; text-align: center; color: var(--ink); background: var(--white); border: 1.5px solid var(--border); border-radius: 9px; outline: none; padding: 0 4px; -moz-appearance: textfield; appearance: textfield; transition: border-color 0.15s, box-shadow 0.15s; }
+  .c-amount-input::-webkit-inner-spin-button, .c-amount-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .c-amount-input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(201,86,43,0.10); }
+  .c-ing-unit { font-size: 11.5px; font-weight: 500; color: var(--ink-soft); min-width: 30px; }
+
+  .cooked-weight-callout { margin: 10px 14px 6px; background: linear-gradient(140deg, var(--terra-light) 0%, var(--terra-xlight) 100%); border: 1.5px solid rgba(201,86,43,0.25); border-radius: var(--radius); padding: 14px 16px 12px; }
+  .cw-header { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+  .cw-icon { width: 26px; height: 26px; border-radius: 7px; background: rgba(201,86,43,0.13); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .cw-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--terra-dark); letter-spacing: -0.1px; }
+  html.dark .cw-title { color: var(--terra); }
+  .cw-required { font-size: 9.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--terra); background: rgba(201,86,43,0.10); padding: 2px 7px; border-radius: 10px; margin-left: auto; }
+  .cw-input-row { display: flex; align-items: center; gap: 8px; }
+  .cw-input { flex: 1; min-width: 0; height: 56px; font-family: var(--font-body); font-size: 26px; font-weight: 700; text-align: center; color: var(--terra-dark); background: var(--white); border: 2px solid rgba(201,86,43,0.28); border-radius: var(--radius-sm); outline: none; padding: 0 10px; -moz-appearance: textfield; appearance: textfield; transition: border-color 0.15s, box-shadow 0.15s; }
+  html.dark .cw-input { color: var(--terra); }
+  .cw-input::-webkit-inner-spin-button, .cw-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .cw-input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(201,86,43,0.13); }
+  .cw-unit-label { font-size: 16px; font-weight: 600; color: var(--terra-dark); flex-shrink: 0; }
+  html.dark .cw-unit-label { color: var(--terra); }
+  .cw-hint { font-size: 11px; color: rgba(168,67,31,0.65); margin-top: 8px; font-style: italic; line-height: 1.4; }
+
+  .cooking-bottom-panel { flex-shrink: 0; background: var(--white); border-top: 1px solid var(--border); box-shadow: var(--shadow-up); z-index: 10; }
+  .per100g-strip { display: flex; align-items: flex-start; padding: 10px 16px 9px; gap: 8px; border-bottom: 1px solid var(--border); min-height: 44px; flex-wrap: wrap; }
+  .per100g-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-soft); flex-shrink: 0; margin-right: 2px; padding-top: 2px; }
+  .per100g-values { display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; row-gap: 2px; }
+  .p100-val { font-size: 14px; font-weight: 700; transition: color 0.2s; }
+  .p100-val.v-kcal    { color: var(--terra); }
+  .p100-val.v-protein { color: var(--protein-color); }
+  .p100-val.v-fat     { color: var(--fat-color); }
+  .p100-val.v-carbs   { color: var(--carbs-color); }
+  .p100-lbl { font-size: 11.5px; font-weight: 400; color: var(--ink-soft); margin-right: 6px; }
+  .p100-dot { width: 2px; height: 2px; border-radius: 50%; background: var(--border); margin: 0 5px 3px; flex-shrink: 0; }
+  .per100g-strip.disabled .p100-val { color: var(--ink-soft) !important; opacity: 0.45; }
+
+  .portion-section { padding: 8px 16px 0; }
+  .portion-section-label { font-size: 12.5px; font-weight: 500; color: var(--ink-mid); margin-bottom: 6px; }
+  .portion-mode-toggle { display: flex; gap: 4px; background: var(--cream-dark); border: 1px solid var(--border); border-radius: 10px; padding: 3px; margin-bottom: 9px; }
+  .mode-btn { flex: 1; height: 30px; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--ink-soft); background: transparent; border: none; border-radius: 7px; cursor: pointer; transition: background 0.18s, color 0.18s, box-shadow 0.18s; }
+  .mode-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .mode-btn.active { background: var(--white); color: var(--terra-dark); box-shadow: 0 1px 6px rgba(26,18,8,0.10); }
+  html.dark .mode-btn.active { color: var(--terra); }
+  .portion-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .portion-input { flex: 1; min-width: 0; height: 50px; font-family: var(--font-body); font-size: 24px; font-weight: 700; text-align: center; color: var(--ink); background: var(--cream-dark); border: 1.5px solid var(--border); border-radius: var(--radius-sm); outline: none; padding: 0 8px; -moz-appearance: textfield; appearance: textfield; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+  .portion-input::-webkit-inner-spin-button, .portion-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .portion-input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(201,86,43,0.11); background: var(--white); }
+  .portion-input.has-value { background: var(--white); border-color: rgba(201,86,43,0.3); color: var(--terra-dark); }
+  html.dark .portion-input.has-value { color: var(--terra); }
+  .portion-input-unit { font-size: 16px; font-weight: 600; color: var(--ink-mid); flex-shrink: 0; min-width: 30px; }
+  .portion-derived { font-size: 12px; color: var(--ink-soft); font-style: italic; display: none; text-align: center; margin-top: -6px; margin-bottom: 6px; }
+  .portion-derived.visible { display: block; }
+  .portion-result { display: none; flex-direction: column; gap: 7px; padding: 10px 14px; background: linear-gradient(135deg, var(--terra-xlight) 0%, var(--cream) 100%); border-radius: var(--radius-sm); border: 1.5px solid rgba(201,86,43,0.18); margin-bottom: 7px; }
+  .portion-result.visible { display: flex; }
+  .portion-kcal-row { display: flex; align-items: baseline; gap: 5px; }
+  .portion-kcal-val { font-family: var(--font-display); font-size: 38px; font-weight: 700; line-height: 1; color: var(--terra); }
+  .portion-kcal-unit { font-size: 14px; font-weight: 600; color: var(--terra); opacity: 0.75; padding-bottom: 4px; }
+  .portion-kcal-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(168,67,31,0.5); margin-left: auto; align-self: center; }
+  html.dark .portion-kcal-label { color: var(--ink-soft); }
+  .portion-macros-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .portion-empty-hint { font-size: 11.5px; color: var(--ink-soft); font-style: italic; padding: 2px 2px 8px; }
+  .cta-row { padding: 0 16px 12px; }
+  .btn-log { width: 100%; height: 50px; background: var(--terra); color: white; border: none; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14.5px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 14px rgba(201,86,43,0.32); transition: background 0.15s, transform 0.1s; }
+  .btn-log:hover { background: var(--terra-dark); }
+  .btn-log:active { transform: scale(0.98); }
+  .btn-log:disabled { background: var(--cream-mid); color: var(--ink-soft); box-shadow: none; cursor: not-allowed; }
+
+
+  /* ════ INGREDIENT SEARCH ════ */
+  .search-screen-body { flex:1; display:flex; flex-direction:column; padding:24px 20px; position:relative; z-index:5; }
+  .search-result-dropdown { margin-top:6px; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--white); box-shadow:var(--shadow-drop); overflow:hidden; }
+  .search-dropdown-header { padding:9px 14px; font-size:11px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--border); background:var(--cream-dark); }
+  .search-result-row { display:flex; align-items:center; gap:12px; padding:13px 14px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; min-height:60px; }
+  .search-result-row:last-child { border-bottom:none; }
+  .search-result-row:hover { background:rgba(201,86,43,0.08); }
+  .search-result-row.highlighted { background:rgba(201,86,43,0.08); }
+  .search-result-row.highlighted .search-result-name { color:var(--terra); }
+  .search-result-icon { width:38px; height:38px; border-radius:10px; background:var(--cream-dark); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .search-result-body { flex:1; min-width:0; }
+  .search-result-name { font-size:14px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; transition:color 0.12s; }
+  .search-result-meta { display:flex; align-items:center; gap:6px; }
+  .search-result-kcal { font-size:12px; font-weight:600; color:var(--terra); }
+  .search-result-unit { font-size:11px; color:var(--ink-soft); }
+  .search-chevron { color:var(--border); flex-shrink:0; }
+  .kbd-hint { display:flex; align-items:center; gap:10px; padding:8px 14px; font-size:11px; color:var(--ink-soft); background:var(--cream-dark); border-top:1px solid var(--border); }
+  .kbd { display:inline-flex; align-items:center; justify-content:center; padding:1px 6px; border-radius:4px; border:1px solid var(--border); background:var(--white); font-size:10px; font-weight:600; color:var(--ink-mid); font-family:monospace; line-height:1.6; }
+  .selected-chip { display:flex; align-items:center; gap:8px; padding:0 10px 0 14px; height:52px; border:1.5px solid var(--terra); border-radius:var(--radius); background:var(--terra-light); box-shadow:0 0 0 3px rgba(201,86,43,0.10); }
+  .selected-chip-icon { color:var(--terra); flex-shrink:0; }
+  .selected-chip-text { flex:1; font-size:15px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .selected-chip-clear { width:28px; height:28px; border-radius:50%; border:none; background:rgba(201,86,43,0.15); color:var(--terra); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.15s; flex-shrink:0; }
+  .selected-chip-clear:hover { background:rgba(201,86,43,0.25); }
+  .no-results { display:flex; flex-direction:column; align-items:center; padding:40px 20px 32px; gap:8px; }
+  .no-results-icon { font-size:40px; opacity:0.5; }
+  .no-results-title { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); text-align:center; }
+  .no-results-sub { font-size:13px; color:var(--ink-soft); text-align:center; line-height:1.5; }
+  .no-results-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; padding:11px 20px; background:var(--terra); color:#fff; border-radius:var(--radius-sm); font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 12px rgba(201,86,43,0.28); transition:background 0.15s; border:none; font-family:var(--font-body); }
+  .no-results-cta:hover { background:var(--terra-dark); }
+  /* detail sheet */
+  .detail-sheet { position:fixed; bottom:0; left:220px; width:375px; background:var(--white); border-radius:20px 20px 0 0; box-shadow:0 -8px 48px rgba(26,18,8,0.18); z-index:400; transition:transform 0.35s cubic-bezier(0.32,0.72,0,1); max-height:90vh; overflow-y:auto; transform:translateY(100%); }
+  @media (max-width:699px) { .detail-sheet { left:0; width:100%; } }
+  .detail-sheet.open { transform:translateY(0); }
+  .detail-sheet-backdrop { position:fixed; inset:0; left:220px; width:375px; background:rgba(26,18,8,0.40); z-index:399; opacity:0; pointer-events:none; transition:opacity 0.35s ease; }
+  @media (max-width:699px) { .detail-sheet-backdrop { left:0; width:100%; } }
+  .detail-sheet-backdrop.open { opacity:1; pointer-events:all; }
+  .detail-sheet-handle { display:flex; justify-content:center; padding:12px 0 4px; }
+  .detail-sheet-handle-bar { width:36px; height:4px; border-radius:2px; background:var(--border); }
+  .detail-sheet-header { padding:8px 20px 16px; border-bottom:1px solid var(--border); }
+  .detail-sheet-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--ink); line-height:1.2; }
+  .detail-sheet-meta { display:flex; align-items:center; gap:8px; margin-top:8px; }
+  .detail-sheet-portion { font-size:13px; color:var(--ink-soft); }
+  .nutrition-section { padding:16px 20px 24px; }
+  .nutrition-section-label { font-size:11px; font-weight:600; letter-spacing:0.7px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px; }
+  .nutrition-hero { display:flex; align-items:center; justify-content:center; padding:20px; background:var(--terra-light); border-radius:var(--radius); margin-bottom:16px; }
+  .nutrition-hero-val { font-family:var(--font-display); font-size:44px; font-weight:700; color:var(--terra); line-height:1; }
+  .nutrition-hero-unit { font-size:15px; font-weight:500; color:var(--terra); margin-left:4px; align-self:flex-end; padding-bottom:6px; }
+  .nutrition-hero-label { font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--ink-soft); margin-top:4px; text-align:center; }
+  .macro-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .macro-card { background:var(--cream-dark); border-radius:var(--radius-sm); padding:14px 14px 12px; border:1px solid var(--border); }
+  html.dark .macro-card { background:var(--cream-mid); }
+  .macro-card-label { font-size:11px; font-weight:500; color:var(--ink-soft); margin-bottom:4px; }
+  .macro-card-value { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--ink); line-height:1; }
+  .macro-card-unit { font-size:11px; font-weight:400; color:var(--ink-soft); margin-left:2px; }
+  .macro-bar { height:3px; border-radius:2px; background:var(--border); margin-top:8px; overflow:hidden; }
+  .macro-bar-fill { height:100%; border-radius:2px; background:var(--terra); }
+  .macro-bar-fill.protein { background:#5B9A6E; }
+  .macro-bar-fill.fat     { background:#D4A54A; }
+  .macro-bar-fill.carbs   { background:var(--terra); }
+  .detail-sheet-cta { padding:0 20px 32px; display:flex; gap:10px; }
+  .detail-sheet-cta .btn-primary { height:50px; }
+  .detail-sheet-cta .btn-secondary { height:50px; padding:0 16px; width:auto; }
+
+
+  /* ════ CUSTOM INGREDIENT ════ */
+  .ci-nav-bar { display:flex; align-items:center; padding:6px 20px 12px; background:var(--cream); gap:12px; }
+  .ci-nav-back { width:36px; height:36px; border-radius:50%; border:1.5px solid var(--border); background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-mid); transition:background 0.15s; }
+  .ci-nav-back:hover { background:var(--cream-dark); }
+  .ci-nav-title { font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--ink); flex:1; }
+  .ci-nav-action { font-size:13px; font-weight:600; color:var(--terra); cursor:pointer; background:none; border:none; font-family:var(--font-body); padding:4px 0; }
+  .ci-scroll-body { overflow-y:auto; padding:0 20px 40px; max-height:calc(100vh - 140px); }
+  .ci-scroll-body::-webkit-scrollbar { width:4px; }
+  .ci-scroll-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+  .ci-section-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:10px; }
+  .ci-field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .ci-detail-hero { background:var(--cream-dark); padding:24px 20px 20px; display:flex; align-items:center; gap:16px; }
+  html.dark .ci-detail-hero { background:var(--cream-mid); }
+  .ci-detail-icon { width:64px; height:64px; border-radius:18px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:36px; box-shadow:var(--shadow-sm); flex-shrink:0; }
+  .ci-detail-title { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--ink); line-height:1.2; }
+  .ci-detail-sub { font-size:13px; color:var(--ink-soft); margin-top:4px; }
+  .ci-macros-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px; }
+  .ci-macro-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; }
+  .ci-macro-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); margin-bottom:4px; }
+  .ci-macro-value { font-size:20px; font-weight:700; color:var(--ink); font-family:var(--font-display); }
+  .ci-macro-unit { font-size:12px; font-weight:400; color:var(--ink-soft); }
+  .btn-promote { width:100%; height:48px; background:#5B7FA6; color:white; border:none; border-radius:var(--radius-sm); font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.18s; }
+  .btn-promote:hover { background:#4A6A8E; }
+  .success-banner { background:var(--success-bg); border:1.5px solid rgba(61,122,74,0.3); border-radius:var(--radius-sm); padding:14px 16px; display:flex; gap:12px; align-items:flex-start; margin-bottom:16px; }
+  .success-banner-text { font-size:14px; font-weight:600; color:var(--success); }
+  .success-banner-sub { font-size:13px; color:#2D5C35; line-height:1.5; margin-top:2px; }
+
+
+  /* ════ PANTRY ════ */
+  .pantry-header { background:var(--cream); padding:52px 20px 14px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .pantry-header-title { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--ink); }
+  .pantry-header-meta { display:flex; align-items:center; gap:8px; }
+  .count-badge { font-size:12px; font-weight:600; color:var(--ink-soft); }
+  .warn-badge { font-size:11px; font-weight:600; background:var(--warn-bg); color:var(--warn); border:1px solid var(--warn-border); padding:3px 8px; border-radius:99px; }
+  .pantry-search-bar { padding:0 20px 12px; }
+  .pantry-scroll { overflow-y:auto; flex:1; padding:4px 16px 80px; }
+  .pantry-section-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); padding:8px 4px 6px; margin-top:4px; }
+  .pantry-card { background:var(--white); border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all 0.15s; }
+  .pantry-card:hover { border-color:var(--terra-light); box-shadow:var(--shadow-sm); }
+  .pantry-card.expired { border-color:var(--expired-border); background:var(--expired-bg); }
+  .pantry-card.expiring { border-color:var(--warn-border); background:var(--warn-bg); }
+  .pantry-card.ok { border-color:var(--ok-border); background:var(--ok-bg); }
+  .pantry-card.no-exp { border-color:var(--no-expiry-border); background:var(--no-expiry-bg); opacity:0.85; }
+  .card-icon { width:40px; height:40px; border-radius:10px; background:var(--cream-dark); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .pantry-card.expired .card-icon { background:rgba(184,50,50,0.12); }
+  .pantry-card.expiring .card-icon { background:rgba(184,109,16,0.12); }
+  .pantry-card.ok .card-icon { background:rgba(61,122,74,0.12); }
+  .card-body { flex:1; min-width:0; }
+  .card-name { font-size:15px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-qty { font-size:13px; color:var(--ink-soft); margin-top:2px; }
+  .card-location { font-size:11px; color:var(--ink-soft); margin-top:1px; }
+  .card-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+  .expiry-chip { font-size:11.5px; font-weight:600; padding:3px 8px; border-radius:99px; white-space:nowrap; }
+  .pantry-card.expired .expiry-chip { background:var(--expired); color:white; }
+  .pantry-card.expiring .expiry-chip { background:var(--warn); color:white; }
+  .pantry-card.ok .expiry-chip { background:var(--ok); color:white; }
+  .pantry-card.no-exp .expiry-chip { background:var(--no-expiry-bg); color:var(--no-expiry); border:1px solid var(--no-expiry-border); }
+  /* location filter pills */
+  .location-filter { display:flex; gap:8px; padding:0 20px 12px; overflow-x:auto; scrollbar-width:none; flex-shrink:0; }
+  .location-filter::-webkit-scrollbar { display:none; }
+  .location-pill { padding:6px 14px; border-radius:99px; border:1.5px solid var(--border); background:var(--white); font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--ink-mid); cursor:pointer; white-space:nowrap; transition:all 0.15s; flex-shrink:0; }
+  .location-pill.active { background:var(--terra); border-color:var(--terra); color:white; }
+  .location-pill:hover:not(.active) { border-color:var(--terra); color:var(--terra); }
+  /* nav badge */
+  .nav-badge-pantry { position:absolute; top:2px; right:calc(50% - 18px); min-width:16px; height:16px; background:var(--error); color:white; font-size:9px; font-weight:700; border-radius:8px; padding:0 4px; display:flex; align-items:center; justify-content:center; border:2px solid var(--white); }
+
+  /* ════ PROFILE ════ */
+  .profile-identity { display:flex; align-items:center; gap:14px; padding:16px; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); margin-bottom:24px; }
+  .profile-avatar { width:52px; height:52px; border-radius:50%; background:var(--terra-light); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--terra); flex-shrink:0; }
+  .profile-identity-info { flex:1; }
+  .profile-username { font-weight:600; font-size:15px; color:var(--ink); }
+  .profile-email { font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .profile-targets-summary { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .target-chip { flex:1; min-width:60px; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 10px 8px; text-align:center; }
+  .target-chip-icon { font-size:18px; margin-bottom:3px; }
+  .target-chip-val { font-size:15px; font-weight:600; color:var(--ink); line-height:1.2; }
+  .target-chip-val.unset { color:var(--ink-soft); font-size:13px; font-weight:400; }
+  .target-chip-label { font-size:10px; color:var(--ink-soft); margin-top:2px; }
+  .info-note { display:flex; gap:8px; align-items:flex-start; background:#EEF4FF; border:1.5px solid #C3D7F5; border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:16px; font-size:12px; color:#3A5A8C; line-height:1.5; }
+  .profile-section-title { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--ink); }
+  .profile-section-sub { font-size:12px; color:var(--ink-soft); margin-top:2px; margin-bottom:12px; }
+  .field label .unit-hint { font-size:11px; font-weight:400; color:var(--ink-soft); }
+  .partial-note { background:#FFFBE8; border:1.5px solid #EDD97E; border-radius:var(--radius-sm); padding:10px 12px; display:flex; gap:8px; align-items:flex-start; margin-bottom:14px; font-size:12px; color:#7A6020; line-height:1.5; }
+  .profile-toast { position:absolute; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--ink); color:var(--cream); border-radius:99px; padding:10px 20px; font-size:13px; font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1); z-index:100; }
+  .profile-toast.visible { transform:translateX(-50%) translateY(0); }
+
+
+  /* ════ HISTORY ════ */
+  .month-nav { display:flex; align-items:center; justify-content:space-between; padding:8px 20px 4px; }
+  .month-nav-btn { width:40px; height:40px; border-radius:50%; border:1.5px solid var(--border); background:var(--white); color:var(--ink-mid); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:all 0.15s; }
+  .month-nav-btn:hover { background:var(--terra-light); border-color:var(--terra); color:var(--terra); }
+  .month-label-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--ink); letter-spacing:-0.2px; }
+  .month-label-year { font-size:12px; color:var(--ink-soft); display:block; margin-top:-1px; text-align:center; }
+  .calendar-wrapper { padding:12px 16px 8px; flex:1; }
+  .weekday-headers { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:6px; }
+  .weekday-header { text-align:center; font-size:11px; font-weight:600; color:var(--ink-soft); padding:4px 0; text-transform:uppercase; }
+  .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .day-cell { aspect-ratio:1; min-height:44px; border-radius:var(--radius-sm); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; touch-action:manipulation; transition:background 0.15s; border:none; background:transparent; padding:0; }
+  .day-cell:not(.day-empty):not(.day-future):hover { background:var(--cream-dark); }
+  .day-cell.day-empty,.day-cell.day-future { cursor:default; pointer-events:none; }
+  .day-cell.day-today { background:var(--terra-light); }
+  .day-cell.day-today::before { content:''; position:absolute; inset:2px; border-radius:var(--radius-xs); border:1.5px solid var(--terra); pointer-events:none; }
+  .day-cell { position:relative; }
+  .day-num { font-size:13px; font-weight:500; line-height:1; color:var(--ink); }
+  .day-cell.day-future .day-num { color:var(--status-future-text); }
+  .day-cell.day-today .day-num { color:var(--terra); font-weight:700; }
+  .day-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .dot-on-target { background:var(--status-on-target); }
+  .dot-over       { background:var(--status-over); }
+  .dot-under      { background:var(--status-under); }
+  .dot-no-log     { background:var(--status-no-log); opacity:0.4; }
+  .dot-neutral    { background:var(--status-neutral); }
+  .day-kcal { font-size:9px; font-weight:500; color:var(--ink-soft); line-height:1; }
+  .day-cell.day-future .day-kcal { display:none; }
+  .streak-banner { margin:12px 16px 0; background:linear-gradient(135deg, var(--terra-light) 0%, var(--cream-dark) 100%); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; display:flex; align-items:center; gap:14px; }
+  .streak-icon { font-size:28px; line-height:1; }
+  .streak-label { font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+  .streak-count { font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--terra); line-height:1.1; }
+  .history-legend { display:flex; gap:12px; flex-wrap:wrap; padding:12px 16px 8px; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); font-weight:500; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  /* weekly strip */
+  .weekly-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; margin:0 16px 14px; }
+  .weekly-card-header { padding:14px 16px 0; display:flex; align-items:baseline; justify-content:space-between; }
+  .weekly-card-title { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); }
+  .weekly-card-sub { font-size:12px; color:var(--terra); font-weight:500; }
+  .chart-wrap { padding:14px 16px 0; }
+  .chart-inner { position:relative; height:120px; }
+  .ref-line { position:absolute; left:0; right:0; height:1.5px; background:var(--terra); opacity:0.55; z-index:2; pointer-events:none; }
+  .bars-grid { position:absolute; bottom:0; left:0; right:0; height:100%; display:grid; grid-template-columns:repeat(7,1fr); align-items:flex-end; gap:6px; }
+  .bar-col { display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; gap:3px; }
+  .bar-kcal { font-size:8.5px; font-weight:600; color:var(--ink-soft); line-height:1; text-align:center; min-height:11px; }
+  .bar-rect { width:100%; border-radius:5px 5px 0 0; position:relative; min-height:4px; }
+  .bar-rect.on-target { background:var(--bar-on-target); }
+  .bar-rect.over      { background:var(--bar-over); }
+  .bar-rect.empty     { background:var(--bar-empty); border-radius:5px; min-height:6px; height:6px !important; }
+  .days-row { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; border-top:1px solid var(--border); margin-top:4px; padding:5px 0 10px; }
+  .bar-day { font-size:9.5px; font-weight:500; color:var(--ink-soft); text-align:center; }
+  .bar-day.today { color:var(--terra); font-weight:700; }
+  .avg-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border-top:1px solid var(--border); }
+  .avg-cell { background:var(--white); padding:10px 8px; text-align:center; }
+  .avg-val { font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--ink); }
+  .avg-label { font-size:10px; color:var(--ink-soft); margin-top:2px; }
+  .streak-fire-wrap { width:60px; height:60px; border-radius:16px; background:linear-gradient(135deg,#FF6B35,#E84B1A); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; box-shadow:0 4px 14px rgba(232,75,26,0.35); }
+  .streak-fire-wrap.zero { background:linear-gradient(135deg,#C0B0A0,#9A8070); box-shadow:0 4px 14px rgba(0,0,0,0.10); }
+  .streak-value { font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--streak-fire); line-height:1; margin-bottom:4px; }
+  .streak-value.zero { color:var(--ink-soft); }
+  .streak-encourage { font-size:13px; color:var(--ink-mid); line-height:1.4; }
+
+  /* ═════════════════════════════ RECIPES ═════════════════════════════ */
+  .brand-pill { display: flex; align-items: center; gap: 8px; }
+  .brand-dot { width: 30px; height: 30px; background: var(--terra); border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(201,86,43,0.30); flex-shrink: 0; }
+  .brand-dot svg { width: 16px; height: 16px; fill: white; }
+  .brand-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; }
+  .brand-name span { color: var(--terra); }
+
+  .list-meta-row { padding: 0 20px 14px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
+  .list-count { font-size: 12px; color: var(--ink-soft); font-weight: 500; }
+  .list-sort { font-size: 12px; color: var(--terra); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .list-sort svg { width: 13px; height: 13px; }
+
+  .recipe-list { flex: 1; padding: 0 20px 100px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 10; }
+
+  .recipe-card { background: var(--white); border-radius: var(--radius); padding: 16px 16px 14px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; position: relative; overflow: hidden; }
+  .recipe-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .recipe-card:active { transform: scale(0.985); }
+  .recipe-card-inner { display: flex; align-items: flex-start; gap: 12px; }
+  .recipe-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; line-height: 1; }
+  html.dark .recipe-icon { background: var(--cream-mid); }
+  .recipe-card-body { flex: 1; min-width: 0; }
+  .recipe-card-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recipe-card-meta { display: flex; align-items: center; gap: 10px; margin-top: 5px; flex-wrap: wrap; }
+  .recipe-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; }
+  .recipe-meta-item svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .recipe-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .recipe-meta-never { font-size: 11.5px; color: var(--ink-soft); font-style: italic; opacity: 0.7; }
+  .recipe-card-arrow { flex-shrink: 0; color: var(--border); margin-top: 2px; transition: color 0.15s; }
+  .recipe-card:hover .recipe-card-arrow { color: var(--terra); }
+  .recipe-card-arrow svg { width: 16px; height: 16px; }
+
+  .detail-hero { padding: 0 20px 20px; position: relative; z-index: 10; }
+  .detail-recipe-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+  .detail-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px; }
+  .detail-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 16px; }
+  .detail-meta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .detail-meta-chip { display: flex; align-items: center; gap: 6px; background: var(--cream-dark); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; color: var(--ink-mid); }
+  html.dark .detail-meta-chip { background: var(--cream-mid); }
+  .detail-meta-chip svg { width: 13px; height: 13px; color: var(--terra); }
+
+  .section-card { margin: 0 20px 16px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; position: relative; z-index: 10; }
+  .ingredient-row { display: flex; align-items: center; padding: 12px 16px; gap: 12px; border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  .ingredient-row:last-child { border-bottom: none; }
+  .ingredient-row:hover { background: var(--cream); }
+  html.dark .ingredient-row:hover { background: var(--cream-dark); }
+  .ingredient-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--terra); opacity: 0.5; flex-shrink: 0; }
+  .ingredient-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ingredient-amount { font-size: 13px; font-weight: 600; color: var(--ink-mid); flex-shrink: 0; }
+
+  .cooked-panel { margin: 0 20px 16px; background: var(--terra-light); border: 1px solid rgba(201,86,43,0.20); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 14px; position: relative; z-index: 10; }
+  .cooked-panel-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(201,86,43,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cooked-panel-icon svg { width: 18px; height: 18px; color: var(--terra); }
+  .cooked-panel-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--terra); margin-bottom: 3px; }
+  .cooked-panel-value { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+  .cooked-panel-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+
+  .detail-actions { padding: 0 20px 100px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 10; }
+
+  .form-body { flex: 1; padding: 0 20px 120px; display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10; }
+  .ingredient-form-rows { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .ingredient-form-row { display: flex; align-items: stretch; min-height: 52px; border-bottom: 1px solid var(--border); position: relative; }
+  .ingredient-form-row:last-child { border-bottom: none; }
+  .ingredient-row-handle { width: 32px; display: flex; align-items: center; justify-content: center; color: var(--border); flex-shrink: 0; cursor: grab; }
+  .ingredient-row-handle svg { width: 14px; height: 14px; }
+  .ingredient-search-input { flex: 1; border: none; outline: none; padding: 0 8px; font-family: var(--font-body); font-size: 14px; color: var(--ink); background: transparent; min-width: 0; }
+  .ingredient-search-input::placeholder { color: var(--ink-soft); opacity: 0.6; }
+  .ingredient-right-col { display: flex; align-items: center; align-self: stretch; flex-shrink: 0; border-left: 1px solid var(--border); background: var(--cream); }
+  html.dark .ingredient-right-col { background: var(--cream-dark); }
+  .ingredient-amount-input { width: 68px; border: none; outline: none; padding: 0 8px; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--ink); background: transparent; text-align: right; flex-shrink: 0; height: 100%; }
+  .ingredient-unit-label { padding: 0 6px 0 2px; font-size: 12px; font-weight: 600; color: var(--ink-soft); flex-shrink: 0; min-width: 22px; }
+  .ingredient-remove-btn { width: 36px; height: 100%; display: flex; align-items: center; justify-content: center; border: none; background: transparent; color: var(--border); cursor: pointer; transition: color 0.15s; flex-shrink: 0; }
+  .ingredient-remove-btn:hover { color: var(--danger); }
+  .ingredient-remove-btn svg { width: 16px; height: 16px; }
+  .add-ingredient-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); background: transparent; font-family: var(--font-body); font-size: 13.5px; font-weight: 600; color: var(--terra); cursor: pointer; transition: all 0.18s; margin-top: 8px; }
+  .add-ingredient-btn:hover { border-color: var(--terra); background: var(--terra-light); }
+  .add-ingredient-btn svg { width: 16px; height: 16px; }
+  .danger-zone { margin: 0 0 4px; padding: 16px; background: var(--error-bg); border: 1.5px solid rgba(184,50,50,0.18); border-radius: var(--radius); }
+  .danger-zone-title { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--error); margin-bottom: 10px; }
+  .form-actions { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 10; }
+
+  /* ── Cooked-mode macro chips ── */
+  .pmacro-chip {
+    display: inline-flex; align-items: baseline; gap: 2px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 13px; font-weight: 700;
+  }
+  .pmacro-chip-unit { font-size: 10.5px; font-weight: 500; margin-left: 1px; }
+  .pmacro-chip.c-protein { background: var(--protein-bg); color: var(--protein-color); }
+  .pmacro-chip.c-fat     { background: var(--fat-bg);     color: var(--fat-color); }
+  .pmacro-chip.c-carbs   { background: var(--carbs-bg);   color: var(--carbs-color); }
+
+  
+  /* ════ PANTRY FORM ════ */
+  .location-seg { display:flex; gap:4px; background:var(--cream-dark); border:1px solid var(--border); border-radius:10px; padding:3px; }
+  html.dark .location-seg { background:var(--cream-mid); }
+  .location-seg-btn { flex:1; height:34px; display:flex; align-items:center; justify-content:center; gap:5px; font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--ink-soft); background:transparent; border:none; border-radius:7px; cursor:pointer; transition:background 0.18s, color 0.18s, box-shadow 0.18s; }
+  .location-seg-btn.active { background:var(--white); color:var(--ink); box-shadow:0 1px 6px rgba(26,18,8,0.10); }
+  html.dark .location-seg-btn.active { box-shadow:0 1px 6px rgba(0,0,0,0.30); }
+
+</style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SIDEBAR NAVIGATOR
+  ═══════════════════════════════════════════════════════════════ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">
+        <svg viewBox="0 0 28 28"><path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/><circle cx="14" cy="12" r="3.5"/></svg>
+      </div>
+      <span class="sidebar-logo-name">Calorie<span>Tracker</span></span>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Auth</div>
+      <button class="sidebar-btn active" data-screen="s-auth-login" onclick="showScreen('s-auth-login')"><span class="dot"></span>Login</button>
+      <button class="sidebar-btn" data-screen="s-auth-register" onclick="showScreen('s-auth-register')"><span class="dot"></span>Register</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Recipes</div>
+      <button class="sidebar-btn" data-screen="s-recipe-list" onclick="showScreen('s-recipe-list')"><span class="dot"></span>Recipe List</button>
+      <button class="sidebar-btn" data-screen="s-recipe-list-empty" onclick="showScreen('s-recipe-list-empty')"><span class="dot"></span>List — Empty</button>
+      <button class="sidebar-btn" data-screen="s-recipe-detail" onclick="showScreen('s-recipe-detail')"><span class="dot"></span>Recipe Detail</button>
+      <button class="sidebar-btn" data-screen="s-recipe-create" onclick="showScreen('s-recipe-create')"><span class="dot"></span>Create / Edit</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Cooking Mode</div>
+      <button class="sidebar-btn" data-screen="s-cooking" onclick="showScreen('s-cooking')"><span class="dot"></span>Live Calculator</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Ingredient Search</div>
+      <button class="sidebar-btn" data-screen="s-search-idle" onclick="showScreen('s-search-idle')"><span class="dot"></span>Idle</button>
+      <button class="sidebar-btn" data-screen="s-search-results" onclick="showScreen('s-search-results')"><span class="dot"></span>Results</button>
+      <button class="sidebar-btn" data-screen="s-search-selected" onclick="showScreen('s-search-selected')"><span class="dot"></span>Selected</button>
+      <button class="sidebar-btn" data-screen="s-search-noresults" onclick="showScreen('s-search-noresults')"><span class="dot"></span>No Results</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Custom Ingredient</div>
+      <button class="sidebar-btn" data-screen="s-ci-create" onclick="showScreen('s-ci-create')"><span class="dot"></span>Create Form</button>
+      <button class="sidebar-btn" data-screen="s-ci-edit" onclick="showScreen('s-ci-edit')"><span class="dot"></span>Edit Form</button>
+      <button class="sidebar-btn" data-screen="s-ci-detail" onclick="showScreen('s-ci-detail')"><span class="dot"></span>Detail View</button>
+      <button class="sidebar-btn" data-screen="s-ci-promote" onclick="showScreen('s-ci-promote')"><span class="dot"></span>Promotion</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Pantry</div>
+      <button class="sidebar-btn" data-screen="s-pantry-list" onclick="showScreen('s-pantry-list')"><span class="dot"></span>Pantry List</button>
+      <button class="sidebar-btn" data-screen="s-pantry-empty" onclick="showScreen('s-pantry-empty')"><span class="dot"></span>List — Empty</button>
+      <button class="sidebar-btn" data-screen="s-pantry-enhanced" onclick="showScreen('s-pantry-enhanced')"><span class="dot"></span>Enhancements</button>
+      <button class="sidebar-btn" data-screen="s-pantry-add" onclick="showScreen('s-pantry-add')"><span class="dot"></span>Add item</button>
+      <button class="sidebar-btn" data-screen="s-pantry-edit" onclick="showScreen('s-pantry-edit')"><span class="dot"></span>Edit item</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Profile</div>
+      <button class="sidebar-btn" data-screen="s-profile" onclick="showScreen('s-profile')"><span class="dot"></span>Profile &amp; Targets</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">History</div>
+      <button class="sidebar-btn" data-screen="s-history-cal" onclick="showScreen('s-history-cal')"><span class="dot"></span>Calendar</button>
+      <button class="sidebar-btn" data-screen="s-history-weekly" onclick="showScreen('s-history-weekly')"><span class="dot"></span>Weekly Strip</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-theme-btn" onclick="toggleTheme()" id="theme-btn">
+        <svg id="theme-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>
+        </svg>
+        <span id="theme-label">Dark mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
+  </button>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PHONE VIEWPORT  — all screens render here
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phone-viewport" id="phone-viewport">
+    <div class="bg-layer"></div>
+
+    <!-- AUTH LOGIN -->
+    <section class="screen active" id="s-auth-login">
+      <div class="auth-brand">
+        <div class="auth-brand-mark"><svg viewBox="0 0 28 28"><path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/><circle cx="14" cy="12" r="3.5"/></svg></div>
+        <h1 class="auth-brand-title">Calorie<span>Tracker</span></h1>
+        <p class="auth-brand-sub">Cook smarter. Know what you eat.</p>
+      </div>
+      <div class="auth-card">
+        <div class="auth-card-handle"></div>
+        <h2 class="auth-card-title">Welcome back</h2>
+        <p class="auth-card-desc">Sign in to your kitchen diary.</p>
+        <div class="alert alert-error" id="login-alert">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="8"/><path d="M9 5.5v4M9 12.5h.01" stroke-linecap="round"/></svg>
+          <span id="login-alert-text">Invalid credentials.</span>
+        </div>
+        <form onsubmit="handleLogin(event)">
+          <div class="field">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" placeholder="your_username" autocomplete="username" autocapitalize="off" />
+            <div class="field-error" id="login-username-err"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>Username is required</div>
+          </div>
+          <div class="field">
+            <label for="login-pw">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="login-pw" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" />
+              <button type="button" class="pw-toggle" onclick="togglePw('login-pw',this)" aria-label="Toggle password"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/><circle cx="9" cy="9" r="2.5"/></svg></button>
+            </div>
+            <div class="field-error" id="login-pw-err"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg>Password is required</div>
+          </div>
+          <div class="forgot-row"><a class="forgot-link" href="#">Forgot password?</a></div>
+          <button type="submit" class="btn-primary" id="login-btn"><span class="btn-text">Sign In</span><div class="btn-spinner"></div></button>
+        </form>
+        <div class="divider"><span>or</span></div>
+        <div class="auth-switch">No account yet? <a onclick="showScreen('s-auth-register')">Create one &mdash; it&rsquo;s free</a></div>
+        <div class="proto-states">
+          <div class="proto-states-label">&darr; prototype states</div>
+          <div class="proto-states-row">
+            <button class="proto-pill" onclick="loginState('invalid')">Invalid creds</button>
+            <button class="proto-pill" onclick="loginState('deactivated')">Deactivated</button>
+            <button class="proto-pill" onclick="loginState('clear')">&#x2715; Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- RECIPE LIST -->
+    <section class="screen" id="s-recipe-list">
+      <div class="app-header">
+        <div class="brand-pill">
+          <div class="brand-dot"><svg viewBox="0 0 28 28"><path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/><circle cx="14" cy="12" r="3.5"/></svg></div>
+          <span class="brand-name">Calorie<span>Tracker</span></span>
+        </div>
+        <button class="header-icon-btn" aria-label="Filter"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4h14M5 9h8M8 14h2"/></svg></button>
+      </div>
+      <div class="search-wrap"><div class="search-inner">
+        <span class="search-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><path d="M13 13l2.5 2.5"/></svg></span>
+        <input type="text" class="search-input" placeholder="Search your recipes&hellip;" />
+      </div></div>
+      <div class="list-meta-row">
+        <span class="list-count">5 recipes</span>
+        <span class="list-sort"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h10M4 7h6M6 10h2"/></svg>Recently cooked</span>
+      </div>
+      <div class="recipe-list">
+        <div class="recipe-card" onclick="showScreen('s-recipe-detail')"><div class="recipe-card-inner">
+          <div class="recipe-icon">&#x1F357;</div>
+          <div class="recipe-card-body"><div class="recipe-card-name">Chicken &amp; Rice Bowl</div>
+            <div class="recipe-card-meta"><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5.5"/><path d="M6.5 3.5v3l2 1.5"/></svg>2 days ago</span><span class="recipe-meta-dot"></span><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>6 ingredients</span></div>
+          </div>
+          <span class="recipe-card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+        </div></div>
+        <div class="recipe-card" onclick="showScreen('s-recipe-detail')"><div class="recipe-card-inner">
+          <div class="recipe-icon">&#x1F372;</div>
+          <div class="recipe-card-body"><div class="recipe-card-name">Red Lentil Soup</div>
+            <div class="recipe-card-meta"><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5.5"/><path d="M6.5 3.5v3l2 1.5"/></svg>5 days ago</span><span class="recipe-meta-dot"></span><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>8 ingredients</span></div>
+          </div>
+          <span class="recipe-card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+        </div></div>
+        <div class="recipe-card" onclick="showScreen('s-recipe-detail')"><div class="recipe-card-inner">
+          <div class="recipe-icon">&#x1F957;</div>
+          <div class="recipe-card-body"><div class="recipe-card-name">Greek Salad with Feta</div>
+            <div class="recipe-card-meta"><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5.5"/><path d="M6.5 3.5v3l2 1.5"/></svg>2 weeks ago</span><span class="recipe-meta-dot"></span><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>5 ingredients</span></div>
+          </div>
+          <span class="recipe-card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+        </div></div>
+        <div class="recipe-card" onclick="showScreen('s-recipe-detail')"><div class="recipe-card-inner">
+          <div class="recipe-icon">&#x1F969;</div>
+          <div class="recipe-card-body"><div class="recipe-card-name">Beef Stir-fry</div>
+            <div class="recipe-card-meta"><span class="recipe-meta-never">Never cooked</span><span class="recipe-meta-dot"></span><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>7 ingredients</span></div>
+          </div>
+          <span class="recipe-card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+        </div></div>
+        <div class="recipe-card" onclick="showScreen('s-recipe-detail')"><div class="recipe-card-inner">
+          <div class="recipe-icon">&#x1F35D;</div>
+          <div class="recipe-card-body"><div class="recipe-card-name">Pasta Bolognese</div>
+            <div class="recipe-card-meta"><span class="recipe-meta-never">Never cooked</span><span class="recipe-meta-dot"></span><span class="recipe-meta-item"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>10 ingredients</span></div>
+          </div>
+          <span class="recipe-card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"/></svg></span>
+        </div></div>
+      </div>
+      <button class="fab" onclick="showScreen('s-recipe-create')" aria-label="New Recipe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item active" data-tab="recipes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- RECIPE LIST EMPTY -->
+    <section class="screen" id="s-recipe-list-empty">
+      <div class="app-header">
+        <div class="brand-pill"><div class="brand-dot"><svg viewBox="0 0 28 28"><path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/><circle cx="14" cy="12" r="3.5"/></svg></div><span class="brand-name">Calorie<span>Tracker</span></span></div>
+        <button class="header-icon-btn" aria-label="Filter"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4h14M5 9h8M8 14h2"/></svg></button>
+      </div>
+      <div class="search-wrap"><div class="search-inner"><span class="search-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><path d="M13 13l2.5 2.5"/></svg></span><input type="text" class="search-input" placeholder="Search your recipes&hellip;" /></div></div>
+      <div class="empty-state">
+        <div class="empty-icon-wrap">&#x1F37D;&#xFE0F;</div>
+        <h2 class="empty-title">No recipes yet</h2>
+        <p class="empty-desc">Start building your kitchen blueprint. Add your go-to meals once and cook them with accurate nutrition every time.</p>
+        <button class="btn-primary" style="width:auto;padding:0 24px;" onclick="showScreen('s-recipe-create')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Create your first recipe</button>
+      </div>
+      <button class="fab" onclick="showScreen('s-recipe-create')" aria-label="New Recipe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item active" data-tab="recipes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- RECIPE DETAIL -->
+    <section class="screen" id="s-recipe-detail" style="overflow-y:auto;">
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-recipe-list')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Chicken &amp; Rice Bowl</h1></div>
+        <button class="header-icon-btn" onclick="showScreen('s-recipe-create')" aria-label="Edit"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M13 2l3 3-9 9H4v-3L13 2Z"/></svg></button>
+      </div>
+      <div class="detail-hero">
+        <span class="detail-recipe-icon">&#x1F357;</span>
+        <h2 class="detail-title">Chicken &amp; Rice Bowl</h2>
+        <p class="detail-desc">A balanced meal with lean protein and complex carbs. Great for meal prep.</p>
+        <div class="detail-meta-row">
+          <div class="detail-meta-chip"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5.5"/><path d="M6.5 3.5v3l2 1.5"/></svg>Last cooked 2 days ago</div>
+          <div class="detail-meta-chip"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 11 6.5 2 11 11M3.5 8h6"/></svg>6 ingredients</div>
+        </div>
+      </div>
+      <div class="cooked-panel">
+        <div class="cooked-panel-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="12" height="8" rx="2"/><path d="M9 2v6M6 4l3-2 3 2" stroke-linecap="round"/></svg></div>
+        <div><div class="cooked-panel-label">Last cook</div><div class="cooked-panel-value">640g cooked</div><div class="cooked-panel-sub">Yielded 218 kcal / 100g</div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><span class="section-title">Ingredients</span><span class="section-count">6</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Chicken Breast, raw</span><span class="ingredient-amount">600 g</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Basmati Rice, dry</span><span class="ingredient-amount">200 g</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Olive Oil</span><span class="ingredient-amount">30 g</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Garlic, fresh</span><span class="ingredient-amount">20 g</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Soy Sauce</span><span class="ingredient-amount">30 ml</span></div>
+        <div class="ingredient-row"><div class="ingredient-dot"></div><span class="ingredient-name">Spring Onion</span><span class="ingredient-amount">40 g</span></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-primary" onclick="showScreen('s-cooking')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 2C5.1 2 2 5.1 2 9s3.1 7 7 7 7-3.1 7-7"/><path d="M14 2l4 4-6 6"/></svg>Start Cooking Mode</button>
+        <button class="btn-secondary" onclick="showScreen('s-recipe-create')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M13 2l3 3-9 9H4v-3L13 2Z"/></svg>Edit Recipe</button>
+      </div>
+    </section>
+
+    <!-- RECIPE CREATE/EDIT -->
+    <section class="screen" id="s-recipe-create" style="overflow-y:auto;">
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-recipe-list')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">New Recipe</h1><p class="app-header-sub">Fill in the details below</p></div>
+      </div>
+      <div class="form-body">
+        <div class="field"><label>Recipe name</label><input type="text" placeholder="e.g. Lemon Herb Chicken" /></div>
+        <div class="field"><label>Description <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--ink-soft);">optional</span></label><textarea placeholder="A short description&hellip;"></textarea></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink-mid);">Ingredients</span><span style="font-size:11px;font-weight:600;color:var(--terra);">3 added</span></div>
+          <div class="ingredient-form-rows">
+            <div class="ingredient-form-row"><div class="ingredient-row-handle"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h10M2 10h10" stroke-linecap="round"/></svg></div><input class="ingredient-search-input" value="Chicken Breast, raw" /><div class="ingredient-right-col"><input class="ingredient-amount-input" type="number" value="600" /><span class="ingredient-unit-label">g</span><button class="ingredient-remove-btn" onclick="removeIngredientRow(this)" aria-label="Remove"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div></div>
+            <div class="ingredient-form-row"><div class="ingredient-row-handle"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h10M2 10h10" stroke-linecap="round"/></svg></div><input class="ingredient-search-input" value="Basmati Rice, dry" /><div class="ingredient-right-col"><input class="ingredient-amount-input" type="number" value="200" /><span class="ingredient-unit-label">g</span><button class="ingredient-remove-btn" onclick="removeIngredientRow(this)" aria-label="Remove"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div></div>
+            <div class="ingredient-form-row"><div class="ingredient-row-handle"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h10M2 10h10" stroke-linecap="round"/></svg></div><input class="ingredient-search-input" value="Olive Oil" /><div class="ingredient-right-col"><input class="ingredient-amount-input" type="number" value="30" /><span class="ingredient-unit-label">g</span><button class="ingredient-remove-btn" onclick="removeIngredientRow(this)" aria-label="Remove"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div></div>
+          </div>
+          <button class="add-ingredient-btn" onclick="alert('Opens ingredient search combobox')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add ingredient</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="showScreen('s-recipe-detail')">Save Recipe</button>
+        <button class="btn-secondary" onclick="showScreen('s-recipe-detail')">Cancel</button>
+        <div class="danger-zone"><div class="danger-zone-title">Danger zone</div><button class="btn-danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 13 6"/><path d="M11 6l-.5 8a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1L5 6"/><path d="M6 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg>Delete Recipe</button></div>
+      </div>
+    </section>
+
+    <!-- COOKING MODE -->
+    <div class="screen" id="s-cooking">
+      <div class="cooking-shell">
+        <header class="cooking-header">
+          <button class="cooking-header-back" onclick="showScreen('s-recipe-detail')" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15l-5-5 5-5"/></svg></button>
+          <div style="flex:1;min-width:0;">
+            <div class="cooking-recipe-name">Lemon Herb Chicken</div>
+            <div class="cooking-mode-badge">Cooking Mode</div>
+          </div>
+          <button class="header-icon-btn" aria-label="More"><svg viewBox="0 0 18 18" fill="currentColor"><circle cx="9" cy="4" r="1.2"/><circle cx="9" cy="9" r="1.2"/><circle cx="9" cy="14" r="1.2"/></svg></button>
+        </header>
+
+        <div class="sanity-strip">
+          <div class="sanity-item"><span class="sanity-label">Batch</span><span class="sanity-value" id="banner-kcal">981</span><span class="sanity-unit">kcal</span></div>
+          <div class="sanity-dot"></div>
+          <div class="sanity-item"><span class="sanity-label">Cooked</span><span class="sanity-value" id="banner-weight">450</span><span class="sanity-unit">g</span></div>
+        </div>
+
+        <div class="cooking-scroll-container">
+          <div class="cooking-ingredient-scroll" id="ingredient-scroll">
+            <div class="scroll-section-label">Ingredients</div>
+            <div id="c-ingredient-list"></div>
+            <div class="c-ing-row">
+              <div class="c-ing-icon">&#x1FAD9;</div>
+              <div class="c-ing-info"><div class="c-ing-name">Extra calories</div><div style="font-size:11px;color:var(--ink-soft);">Oil spray, seasoning&hellip;</div></div>
+              <div class="c-amount-group"><input type="number" inputmode="decimal" class="c-amount-input" id="extra-kcal-input" value="0" min="0" oninput="calcCooking()" /><span class="c-ing-unit">kcal</span></div>
+            </div>
+            <div class="cooked-weight-callout">
+              <div class="cw-header"><div class="cw-icon">&#x2696;&#xFE0F;</div><span class="cw-title">Total Cooked Weight</span><span class="cw-required">Key input</span></div>
+              <div class="cw-input-row"><input type="number" inputmode="decimal" class="cw-input" id="cooked-weight-input" value="450" min="0" oninput="calcCooking()" /><span class="cw-unit-label">g</span></div>
+              <p class="cw-hint">Weigh the dish after cooking for accurate per-100g nutrition</p>
+            </div>
+            <div style="height:28px;"></div>
+          </div>
+        </div>
+
+        <div class="cooking-bottom-panel">
+          <div class="per100g-strip" id="per100g-strip">
+            <span class="per100g-label">per 100g</span>
+            <div class="per100g-values" id="per100g-values">
+              <span class="p100-val v-kcal" id="p100-kcal">218</span><span class="p100-lbl"> kcal</span><span class="p100-dot"></span>
+              <span class="p100-val v-protein" id="p100-protein">28.3</span><span class="p100-lbl">g P</span><span class="p100-dot"></span>
+              <span class="p100-val v-fat" id="p100-fat">6.1</span><span class="p100-lbl">g F</span><span class="p100-dot"></span>
+              <span class="p100-val v-carbs" id="p100-carbs">7.4</span><span class="p100-lbl">g C</span>
+            </div>
+          </div>
+          <div class="portion-section">
+            <div class="portion-section-label">How much am I eating?</div>
+            <div class="portion-mode-toggle">
+              <button class="mode-btn active" id="mode-weight" onclick="setPortionMode('weight')"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="11" height="8" rx="1.5"/><path d="M4.5 4V3a2 2 0 0 1 4 0v1"/></svg>by weight</button>
+              <button class="mode-btn" id="mode-kcal" onclick="setPortionMode('kcal')"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 1v11M3 4.5l3.5-3.5L10 4.5M3 8.5l3.5 3.5L10 8.5"/></svg>by kcal</button>
+            </div>
+            <div class="portion-input-row">
+              <input type="number" inputmode="decimal" class="portion-input" id="portion-input" placeholder="0" oninput="calcCooking()" />
+              <span class="portion-input-unit" id="portion-unit">g</span>
+            </div>
+            <div class="portion-derived" id="portion-derived"></div>
+            <div class="portion-empty-hint" id="portion-empty-hint">Enter a weight to see your serving&rsquo;s nutrition</div>
+            <div class="portion-result" id="portion-result">
+              <div class="portion-kcal-row"><span class="portion-kcal-val" id="result-kcal">—</span><span class="portion-kcal-unit">kcal</span><span class="portion-kcal-label" id="result-label">in this serving</span></div>
+              <div class="portion-macros-row">
+                <span class="pmacro-chip c-protein"><span id="result-protein">—</span><span class="pmacro-chip-unit">g protein</span></span>
+                <span class="pmacro-chip c-fat"><span id="result-fat">—</span><span class="pmacro-chip-unit">g fat</span></span>
+                <span class="pmacro-chip c-carbs"><span id="result-carbs">—</span><span class="pmacro-chip-unit">g carbs</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="cta-row"><button class="btn-log" id="btn-log" disabled onclick="alert('Logs portion to diary')">Log this portion</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INGREDIENT SEARCH: IDLE -->
+    <section class="screen" id="s-search-idle">
+      <div class="app-header app-header-compact">
+        <button class="header-icon-btn" onclick="showScreen('s-recipe-create')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Add ingredient</h1></div>
+      </div>
+      <div class="search-screen-body">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px;">State 1 &mdash; Idle</div>
+        <div style="position:relative;">
+          <span class="search-icon" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input type="text" style="width:100%;height:52px;padding:0 44px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--white);font-family:var(--font-body);font-size:15px;color:var(--ink);outline:none;box-shadow:var(--shadow-sm);" placeholder="Search ingredients&hellip;" onclick="showScreen('s-search-results')" readonly />
+        </div>
+        <p style="font-size:12px;color:var(--ink-soft);text-align:center;margin-top:12px;">&#x2191;&#x2193; navigate &nbsp;&middot;&nbsp; <span class="kbd">Enter</span> select &nbsp;&middot;&nbsp; <span class="kbd">Esc</span> close</p>
+      </div>
+    </section>
+
+    <!-- INGREDIENT SEARCH: RESULTS -->
+    <section class="screen" id="s-search-results">
+      <div class="app-header app-header-compact">
+        <button class="header-icon-btn" onclick="showScreen('s-search-idle')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Add ingredient</h1></div>
+      </div>
+      <div class="search-screen-body">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px;">State 2 &mdash; Typing / Results</div>
+        <div style="position:relative;">
+          <span class="search-icon" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input type="text" style="width:100%;height:52px;padding:0 44px;border:1.5px solid var(--terra);border-radius:var(--radius);background:var(--white);font-family:var(--font-body);font-size:15px;color:var(--ink);outline:none;box-shadow:0 0 0 3px rgba(201,86,43,0.12);" value="chick" readonly />
+          <button style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:var(--cream-mid);color:var(--ink-mid);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="showScreen('s-search-idle')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="search-result-dropdown">
+          <div class="search-dropdown-header">5 results for &ldquo;chick&rdquo;</div>
+          <div class="search-result-row" onclick="showScreen('s-search-selected')"><div class="search-result-icon">&#x1F357;</div><div class="search-result-body"><div class="search-result-name">Chicken Breast, raw</div><div class="search-result-meta"><span class="search-result-kcal">110 kcal</span><span class="search-result-unit">per 100g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div><svg class="search-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          <div class="search-result-row highlighted" onclick="showScreen('s-search-selected')"><div class="search-result-icon">&#x1F357;</div><div class="search-result-body"><div class="search-result-name">Chicken Breast, cooked</div><div class="search-result-meta"><span class="search-result-kcal">165 kcal</span><span class="search-result-unit">per 100g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div><svg class="search-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          <div class="search-result-row" onclick="showScreen('s-search-selected')"><div class="search-result-icon">&#x1F357;</div><div class="search-result-body"><div class="search-result-name">Chicken Thigh, skin-on</div><div class="search-result-meta"><span class="search-result-kcal">209 kcal</span><span class="search-result-unit">per 100g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div><svg class="search-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          <div class="search-result-row" onclick="showScreen('s-search-selected')"><div class="search-result-icon">&#x1F357;</div><div class="search-result-body"><div class="search-result-name">Spicy Chicken Marinade</div><div class="search-result-meta"><span class="search-result-kcal">48 kcal</span><span class="search-result-unit">per tbsp</span><span class="badge badge-custom"><span class="badge-dot"></span>Custom</span></div></div><svg class="search-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          <div class="search-result-row" onclick="showScreen('s-search-selected')"><div class="search-result-icon">&#x1F373;</div><div class="search-result-body"><div class="search-result-name">Chickpeas, canned</div><div class="search-result-meta"><span class="search-result-kcal">139 kcal</span><span class="search-result-unit">per 100g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div><svg class="search-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          <div class="kbd-hint"><span class="kbd">&#x2191;</span><span class="kbd">&#x2193;</span> navigate &nbsp;&middot;&nbsp; <span class="kbd">&#x21B5;</span> select &nbsp;&middot;&nbsp; <span class="kbd">Esc</span> close</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INGREDIENT SEARCH: SELECTED -->
+    <section class="screen" id="s-search-selected">
+      <div class="app-header app-header-compact">
+        <button class="header-icon-btn" onclick="showScreen('s-search-results')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Add ingredient</h1></div>
+      </div>
+      <div class="search-screen-body">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px;">State 3 &mdash; Selected</div>
+        <div class="selected-chip">
+          <svg class="selected-chip-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="selected-chip-text">Chicken Breast, cooked</span>
+          <span class="badge badge-system" style="margin-right:4px;"><span class="badge-dot"></span>System</span>
+          <button class="selected-chip-clear" onclick="showScreen('s-search-idle')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button class="btn-primary" onclick="openDetailSheet()">View full nutrition &rarr;</button>
+          <button class="btn-secondary" style="width:auto;padding:0 16px;" onclick="showScreen('s-search-results')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- INGREDIENT SEARCH: NO RESULTS -->
+    <section class="screen" id="s-search-noresults">
+      <div class="app-header app-header-compact">
+        <button class="header-icon-btn" onclick="showScreen('s-search-results')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Add ingredient</h1></div>
+      </div>
+      <div class="search-screen-body">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px;">State 5 &mdash; No Results</div>
+        <div style="position:relative;">
+          <span class="search-icon" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input type="text" style="width:100%;height:52px;padding:0 44px;border:1.5px solid var(--terra);border-radius:var(--radius);background:var(--white);font-family:var(--font-body);font-size:15px;color:var(--ink);outline:none;box-shadow:0 0 0 3px rgba(201,86,43,0.12);" value="xylitolsauce" readonly />
+          <button style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:var(--cream-mid);color:var(--ink-mid);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="showScreen('s-search-idle')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="search-result-dropdown">
+          <div class="no-results">
+            <div class="no-results-icon">&#x1F50D;</div>
+            <p class="no-results-title">No ingredients found</p>
+            <p class="no-results-sub">No results for <strong>&ldquo;xylitolsauce&rdquo;</strong>.<br>You can add it as a custom ingredient.</p>
+            <button class="no-results-cta" onclick="showScreen('s-ci-create')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create custom ingredient</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ingredient detail sheet (shared) -->
+    <div class="detail-sheet-backdrop" id="detailBackdrop" onclick="closeDetailSheet()"></div>
+    <div class="detail-sheet" id="detailSheet" role="dialog" aria-modal="true" aria-label="Chicken Breast, cooked">
+      <div class="detail-sheet-handle"><div class="detail-sheet-handle-bar"></div></div>
+      <div class="detail-sheet-header">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <h2 class="detail-sheet-name">Chicken Breast, cooked</h2>
+          <button onclick="closeDetailSheet()" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--cream-dark);color:var(--ink-mid);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="detail-sheet-meta"><span class="badge badge-system"><span class="badge-dot"></span>System</span><span class="detail-sheet-portion">per 100 g portion</span></div>
+      </div>
+      <div class="nutrition-section">
+        <p class="nutrition-section-label">Nutrition per portion</p>
+        <div class="nutrition-hero"><div style="display:flex;flex-direction:column;align-items:center;">
+          <div style="display:flex;align-items:flex-end;"><span class="nutrition-hero-val">165</span><span class="nutrition-hero-unit">kcal</span></div>
+          <span class="nutrition-hero-label">Calories</span>
+        </div></div>
+        <div class="macro-grid">
+          <div class="macro-card"><div class="macro-card-label">Protein</div><div><span class="macro-card-value">31</span><span class="macro-card-unit">g</span></div><div class="macro-bar"><div class="macro-bar-fill protein" style="width:78%"></div></div></div>
+          <div class="macro-card"><div class="macro-card-label">Fat</div><div><span class="macro-card-value">3.6</span><span class="macro-card-unit">g</span></div><div class="macro-bar"><div class="macro-bar-fill fat" style="width:18%"></div></div></div>
+          <div class="macro-card"><div class="macro-card-label">Carbohydrates</div><div><span class="macro-card-value">0</span><span class="macro-card-unit">g</span></div><div class="macro-bar"><div class="macro-bar-fill carbs" style="width:0%"></div></div></div>
+          <div class="macro-card"><div class="macro-card-label">Fiber</div><div><span class="macro-card-value">0</span><span class="macro-card-unit">g</span></div><div class="macro-bar"><div class="macro-bar-fill" style="width:0%;background:#8AAF7B"></div></div></div>
+          <div class="macro-card" style="grid-column:1/-1;"><div class="macro-card-label">Sodium</div><div><span class="macro-card-value">74</span><span class="macro-card-unit">mg</span></div><div class="macro-bar"><div class="macro-bar-fill" style="width:12%;background:#7B8FAF"></div></div></div>
+        </div>
+      </div>
+      <div class="detail-sheet-cta">
+        <button class="btn-primary" onclick="closeDetailSheet(); showScreen('s-recipe-create')">Add to recipe</button>
+        <button class="btn-secondary" onclick="closeDetailSheet()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- CUSTOM INGREDIENT: CREATE -->
+    <section class="screen" id="s-ci-create" style="overflow-y:auto;">
+      <div style="background:var(--cream);padding-top:52px;">
+        <div class="ci-nav-bar">
+          <button class="ci-nav-back" onclick="showScreen('s-search-noresults')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="ci-nav-title">New ingredient</span>
+          <button class="ci-nav-action" onclick="showScreen('s-ci-detail')">Save</button>
+        </div>
+      </div>
+      <div class="ci-scroll-body">
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Name</div>
+          <div class="field" style="margin-bottom:0;"><input type="text" placeholder="Ingredient name&hellip;" value="Homemade Granola" /></div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Unit &amp; portion</div>
+          <div class="ci-field-row">
+            <div class="field" style="margin-bottom:0;"><label>Unit</label><select><option>g &mdash; grams</option><option>ml &mdash; millilitres</option><option>Tablespoon</option><option>Piece</option></select></div>
+            <div class="field" style="margin-bottom:0;"><label>Portion size</label><input type="number" value="100" /></div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Nutrition per 100 g</div>
+          <div class="field"><label>Calories (kcal) *</label><input type="number" placeholder="0" min="0" value="452" /></div>
+          <div class="ci-field-row">
+            <div class="field"><label>Protein (g)</label><input type="number" placeholder="0" min="0" value="9.8" /></div>
+            <div class="field"><label>Fat (g)</label><input type="number" placeholder="0" min="0" value="18.2" /></div>
+          </div>
+          <div class="ci-field-row">
+            <div class="field"><label>Carbohydrates (g)</label><input type="number" placeholder="0" min="0" value="62.1" /></div>
+            <div class="field"><label>Fibre (g)</label><input type="number" placeholder="0" min="0" value="5.4" /></div>
+          </div>
+          <div class="field"><label>Sodium (mg)</label><input type="number" placeholder="0" min="0" value="38" /></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+          <button class="btn-primary" onclick="showScreen('s-ci-detail')">Save ingredient</button>
+          <button class="btn-secondary" onclick="showScreen('s-search-noresults')">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOM INGREDIENT: EDIT -->
+    <section class="screen" id="s-ci-edit" style="overflow-y:auto;">
+      <div style="background:var(--cream);padding-top:52px;">
+        <div class="ci-nav-bar">
+          <button class="ci-nav-back" onclick="showScreen('s-ci-detail')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="ci-nav-title">Edit ingredient</span>
+          <button class="ci-nav-action">Save</button>
+        </div>
+      </div>
+      <div class="ci-scroll-body">
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Name</div>
+          <div class="field" style="margin-bottom:0;"><input type="text" value="Homemade Granola" /></div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Unit &amp; portion</div>
+          <div class="ci-field-row">
+            <div class="field" style="margin-bottom:0;"><label>Unit</label><select><option selected>g &mdash; grams</option></select></div>
+            <div class="field" style="margin-bottom:0;"><label>Portion size</label><input type="number" value="100" /></div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label">Nutrition per 100 g</div>
+          <div class="field"><label>Calories (kcal) *</label><input type="number" value="452" /></div>
+          <div class="ci-field-row">
+            <div class="field"><label>Protein (g)</label><input type="number" value="9.8" /></div>
+            <div class="field"><label>Fat (g)</label><input type="number" value="18.2" /></div>
+          </div>
+          <div class="ci-field-row">
+            <div class="field"><label>Carbohydrates (g)</label><input type="number" value="62.1" /></div>
+            <div class="field"><label>Fibre (g)</label><input type="number" value="5.4" /></div>
+          </div>
+          <div class="field"><label>Sodium (mg)</label><input type="number" value="38" /></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+          <button class="btn-primary" onclick="showScreen('s-ci-detail')">Save changes</button>
+          <button class="btn-danger"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Delete ingredient</button>
+          <button class="btn-secondary" onclick="showScreen('s-ci-detail')">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOM INGREDIENT: DETAIL -->
+    <section class="screen" id="s-ci-detail">
+      <div style="background:var(--cream);padding-top:52px;">
+        <div class="ci-nav-bar">
+          <button class="ci-nav-back" onclick="showScreen('s-search-noresults')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="ci-nav-title">Ingredient</span>
+          <button class="ci-nav-action" onclick="showScreen('s-ci-edit')">Edit</button>
+        </div>
+      </div>
+      <div class="ci-detail-hero">
+        <div class="ci-detail-icon">&#x1F95E;</div>
+        <div>
+          <div class="ci-detail-title">Homemade Granola</div>
+          <div class="ci-detail-sub">per 100 g &middot; 452 kcal</div>
+          <div style="margin-top:8px;"><span class="badge badge-custom">Your ingredient</span></div>
+        </div>
+      </div>
+      <div class="ci-scroll-body" style="padding-top:20px;">
+        <div class="ci-macros-grid">
+          <div class="ci-macro-card"><div class="ci-macro-label">Protein</div><div class="ci-macro-value">9.8<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Fat</div><div class="ci-macro-value">18.2<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Carbohydrates</div><div class="ci-macro-value">62.1<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Fibre</div><div class="ci-macro-value">5.4<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Sodium</div><div class="ci-macro-value">38<span class="ci-macro-unit"> mg</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Portion</div><div class="ci-macro-value">100<span class="ci-macro-unit"> g</span></div></div>
+        </div>
+        <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label" style="margin-bottom:8px;">Share with community</div>
+          <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:14px;">Think this ingredient belongs in the shared database? Submit it for review.</p>
+          <button class="btn-promote" onclick="showScreen('s-ci-promote')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Submit for review</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn-secondary" onclick="showScreen('s-recipe-create')">Add to recipe</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOM INGREDIENT: PROMOTION SUBMITTED -->
+    <section class="screen" id="s-ci-promote">
+      <div style="background:var(--cream);padding-top:52px;">
+        <div class="ci-nav-bar">
+          <button class="ci-nav-back" onclick="showScreen('s-ci-detail')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="ci-nav-title">Ingredient</span>
+        </div>
+      </div>
+      <div class="ci-detail-hero">
+        <div class="ci-detail-icon">&#x1F95E;</div>
+        <div>
+          <div class="ci-detail-title">Homemade Granola</div>
+          <div class="ci-detail-sub">per 100 g &middot; 452 kcal</div>
+          <div style="margin-top:8px;"><span class="badge badge-custom">Your ingredient</span></div>
+        </div>
+      </div>
+      <div class="ci-scroll-body" style="padding-top:20px;">
+        <div class="ci-macros-grid">
+          <div class="ci-macro-card"><div class="ci-macro-label">Protein</div><div class="ci-macro-value">9.8<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Fat</div><div class="ci-macro-value">18.2<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Carbohydrates</div><div class="ci-macro-value">62.1<span class="ci-macro-unit"> g</span></div></div>
+          <div class="ci-macro-card"><div class="ci-macro-label">Fibre</div><div class="ci-macro-value">5.4<span class="ci-macro-unit"> g</span></div></div>
+        </div>
+        <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+        <div style="margin-bottom:20px;">
+          <div class="ci-section-label" style="margin-bottom:8px;">Share with community</div>
+          <div class="success-banner">
+            <span style="font-size:20px;line-height:1;margin-top:1px;">&#x2705;</span>
+            <div><div class="success-banner-text">Submitted for review</div><div class="success-banner-sub">An admin will review your ingredient and add it to the shared database if approved.</div></div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-soft);">Review pending &middot; Submitted just now</p>
+        </div>
+        <button class="btn-secondary" onclick="showScreen('s-recipe-create')">Add to recipe</button>
+      </div>
+    </section>
+
+    <!-- PANTRY ADD -->
+    <section class="screen" id="s-pantry-add" style="overflow-y:auto;">
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-pantry-list')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Add item</h1><p class="app-header-sub">What are you adding to the pantry?</p></div>
+      </div>
+      <div class="form-body">
+
+        <div class="field">
+          <label>Item name</label>
+          <input type="text" placeholder="e.g. Chicken Breast" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" placeholder="0" min="0" />
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <select>
+              <option>g</option>
+              <option>kg</option>
+              <option>ml</option>
+              <option>L</option>
+              <option>pcs</option>
+              <option>tbsp</option>
+              <option>tsp</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Storage location</label>
+          <div class="location-seg" role="group" aria-label="Storage location">
+            <button class="location-seg-btn active" onclick="segSelect(this)">&#x2744;&#xFE0F; Fridge</button>
+            <button class="location-seg-btn" onclick="segSelect(this)">&#x1F9CA; Freezer</button>
+            <button class="location-seg-btn" onclick="segSelect(this)">&#x1FAC4; Pantry</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Expiry date <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--ink-soft);">optional</span></label>
+          <input type="date" />
+        </div>
+
+        <div class="field">
+          <label>Notes <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--ink-soft);">optional</span></label>
+          <textarea placeholder="e.g. opened, low-fat&hellip;"></textarea>
+        </div>
+
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="showScreen('s-pantry-list')">Add to pantry</button>
+        <button class="btn-secondary" onclick="showScreen('s-pantry-list')">Cancel</button>
+      </div>
+    </section>
+
+    <!-- PANTRY EDIT -->
+    <section class="screen" id="s-pantry-edit" style="overflow-y:auto;">
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-pantry-list')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Edit item</h1><p class="app-header-sub">Update the details below</p></div>
+      </div>
+      <div class="form-body">
+
+        <div class="field">
+          <label>Item name</label>
+          <input type="text" value="Chicken Breast" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" value="500" min="0" />
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <select>
+              <option selected>g</option>
+              <option>kg</option>
+              <option>ml</option>
+              <option>L</option>
+              <option>pcs</option>
+              <option>tbsp</option>
+              <option>tsp</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Storage location</label>
+          <div class="location-seg" role="group">
+            <button class="location-seg-btn active" onclick="segSelect(this)">&#x2744;&#xFE0F; Fridge</button>
+            <button class="location-seg-btn" onclick="segSelect(this)">&#x1F9CA; Freezer</button>
+            <button class="location-seg-btn" onclick="segSelect(this)">&#x1FAC4; Pantry</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Expiry date <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--ink-soft);">optional</span></label>
+          <input type="date" value="2025-01-02" />
+        </div>
+
+        <div class="field">
+          <label>Notes <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--ink-soft);">optional</span></label>
+          <textarea placeholder="e.g. opened, low-fat&hellip;"></textarea>
+        </div>
+
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="showScreen('s-pantry-list')">Save changes</button>
+        <button class="btn-secondary" onclick="showScreen('s-pantry-list')">Cancel</button>
+        <div class="danger-zone">
+          <div class="danger-zone-title">Danger zone</div>
+          <button class="btn-danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 13 6"/><path d="M11 6l-.5 8a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1L5 6"/><path d="M6 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg>Remove from pantry</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTRY LIST -->
+    <section class="screen" id="s-pantry-list">
+      <div class="pantry-header">
+        <div>
+          <div class="pantry-header-title">Pantry</div>
+        </div>
+        <div class="pantry-header-meta">
+          <span class="count-badge">7 items</span>
+          <span class="warn-badge">&#x26A0;&#xFE0F; 2 expiring</span>
+        </div>
+      </div>
+      <div class="pantry-search-bar">
+        <div style="position:relative;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><path d="M13 13l2.5 2.5"/></svg></span><input type="text" style="width:100%;padding:10px 14px 10px 38px;background:var(--white);border:1.5px solid var(--border);border-radius:99px;font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;" placeholder="Search pantry&hellip;" /></div>
+      </div>
+      <div class="pantry-scroll">
+        <div class="pantry-section-label">Expired</div>
+        <div class="pantry-card expired" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F966;</div><div class="card-body"><div class="card-name">Baby Spinach</div><div class="card-qty">150 g</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">Expired</span><span style="font-size:11px;color:var(--ink-soft);">Dec 28</span></div></div>
+
+        <div class="pantry-section-label">Expiring soon</div>
+        <div class="pantry-card expiring" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F356;</div><div class="card-body"><div class="card-name">Chicken Breast</div><div class="card-qty">500 g</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">2 days</span><span style="font-size:11px;color:var(--ink-soft);">Jan 2</span></div></div>
+        <div class="pantry-card expiring" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F95B;</div><div class="card-body"><div class="card-name">Whole Milk</div><div class="card-qty">1 L</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">3 days</span><span style="font-size:11px;color:var(--ink-soft);">Jan 3</span></div></div>
+
+        <div class="pantry-section-label">Good</div>
+        <div class="pantry-card ok" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F345;</div><div class="card-body"><div class="card-name">Cherry Tomatoes</div><div class="card-qty">300 g</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">5 days</span><span style="font-size:11px;color:var(--ink-soft);">Jan 5</span></div></div>
+        <div class="pantry-card ok" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F9C0;</div><div class="card-body"><div class="card-name">Feta Cheese</div><div class="card-qty">200 g</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">12 days</span><span style="font-size:11px;color:var(--ink-soft);">Jan 12</span></div></div>
+        <div class="pantry-card ok" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F955;</div><div class="card-body"><div class="card-name">Carrots</div><div class="card-qty">4 pcs</div><div class="card-location">&#x1F4CD; Fridge</div></div><div class="card-right"><span class="expiry-chip">14 days</span><span style="font-size:11px;color:var(--ink-soft);">Jan 14</span></div></div>
+
+        <div class="pantry-section-label">No expiry date</div>
+        <div class="pantry-card no-exp" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1FAD8;</div><div class="card-body"><div class="card-name">Red Lentils</div><div class="card-qty">500 g</div><div class="card-location">&#x1FAC4; Pantry</div></div><div class="card-right"><span class="expiry-chip">No date</span></div></div>
+      </div>
+      <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- PANTRY EMPTY -->
+    <section class="screen" id="s-pantry-empty">
+      <div class="pantry-header">
+        <div class="pantry-header-title">Pantry</div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon-wrap"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--terra)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/><path d="M8 12h8"/></svg></div>
+        <h2 class="empty-title">Pantry is empty</h2>
+        <p class="empty-desc">Track your fridge and pantry items. Get colour-coded expiry warnings before things go off.</p>
+        <button class="btn-primary" style="width:auto;padding:0 24px;" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add first item</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item active" data-tab="pantry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- PANTRY ENHANCEMENTS (location filter + nav badge) -->
+    <section class="screen" id="s-pantry-enhanced">
+      <div class="pantry-header">
+        <div class="pantry-header-title">Pantry</div>
+        <div class="pantry-header-meta">
+          <span class="warn-badge">2 expiring</span>
+        </div>
+      </div>
+      <div class="location-filter">
+        <button class="location-pill active">All</button>
+        <button class="location-pill" onclick="this.closest('.location-filter').querySelectorAll('.location-pill').forEach(p=>p.classList.remove('active'));this.classList.add('active')">&#x2744;&#xFE0F; Fridge</button>
+        <button class="location-pill" onclick="this.closest('.location-filter').querySelectorAll('.location-pill').forEach(p=>p.classList.remove('active'));this.classList.add('active')">&#x1F9CA; Freezer</button>
+        <button class="location-pill" onclick="this.closest('.location-filter').querySelectorAll('.location-pill').forEach(p=>p.classList.remove('active'));this.classList.add('active')">&#x1FAC4; Pantry</button>
+      </div>
+      <div class="pantry-search-bar">
+        <div style="position:relative;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);"><svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><path d="M13 13l2.5 2.5"/></svg></span><input type="text" style="width:100%;padding:10px 14px 10px 38px;background:var(--white);border:1.5px solid var(--border);border-radius:99px;font-family:var(--font-body);font-size:14px;color:var(--ink);outline:none;" placeholder="Search pantry&hellip;" /></div>
+      </div>
+      <div class="pantry-scroll">
+        <div class="pantry-card expiring" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F356;</div><div class="card-body"><div class="card-name">Chicken Breast</div><div class="card-qty">500 g</div><div class="card-location">&#x2744;&#xFE0F; Fridge</div></div><div class="card-right"><span class="expiry-chip">2 days</span></div></div>
+        <div class="pantry-card ok" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F345;</div><div class="card-body"><div class="card-name">Cherry Tomatoes</div><div class="card-qty">300 g &nbsp;&nbsp;<button onclick="event.stopPropagation()" style="background:var(--cream-dark);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:var(--font-body);color:var(--ink-mid);">&#x2212;</button>&nbsp;<button onclick="event.stopPropagation()" style="background:var(--cream-dark);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:var(--font-body);color:var(--ink-mid);">+</button></div><div class="card-location">&#x2744;&#xFE0F; Fridge</div></div><div class="card-right"><span class="expiry-chip">5 days</span></div></div>
+        <div class="pantry-card ok" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1F9C0;</div><div class="card-body"><div class="card-name">Feta Cheese</div><div class="card-qty">200 g</div><div class="card-location">&#x2744;&#xFE0F; Fridge</div></div><div class="card-right"><span class="expiry-chip">12 days</span></div></div>
+        <div class="pantry-card no-exp" onclick="showScreen('s-pantry-edit')"><div class="card-icon">&#x1FAD8;</div><div class="card-body"><div class="card-name">Red Lentils</div><div class="card-qty">500 g</div><div class="card-location">&#x1FAC4; Pantry</div></div><div class="card-right"><span class="expiry-chip">No date</span></div></div>
+      </div>
+      <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><div class="nav-badge-pantry">2</div><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- PROFILE & MACRO TARGETS -->
+    <section class="screen" id="s-profile" style="overflow-y:auto;position:relative;">
+      <div class="profile-toast" id="profile-toast"><span style="color:#6FCF97;">&#x2713;</span> Targets saved!</div>
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-auth-login')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Profile &amp; Targets</h1></div>
+      </div>
+      <div style="padding:0 20px 100px;">
+        <div class="profile-identity">
+          <div class="profile-avatar">S</div>
+          <div class="profile-identity-info">
+            <div class="profile-username">sarahcooks</div>
+            <div class="profile-email">sarah@homekitchen.io</div>
+          </div>
+          <span style="font-size:10.5px;font-weight:600;padding:3px 8px;background:var(--cream-dark);border-radius:99px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;">Member</span>
+        </div>
+        <div class="profile-targets-summary">
+          <div class="target-chip"><div class="target-chip-icon">&#x1F525;</div><div class="target-chip-val">1850</div><div class="target-chip-label">kcal</div></div>
+          <div class="target-chip"><div class="target-chip-icon">&#x1F969;</div><div class="target-chip-val">140 g</div><div class="target-chip-label">protein</div></div>
+          <div class="target-chip"><div class="target-chip-icon">&#x1F9C8;</div><div class="target-chip-val">60 g</div><div class="target-chip-label">fat</div></div>
+          <div class="target-chip"><div class="target-chip-icon">&#x1F33E;</div><div class="target-chip-val">210 g</div><div class="target-chip-label">carbs</div></div>
+          <div class="target-chip"><div class="target-chip-icon">&#x1F33F;</div><div class="target-chip-val unset">&mdash;</div><div class="target-chip-label">fiber</div></div>
+          <div class="target-chip"><div class="target-chip-icon">&#x1F9C2;</div><div class="target-chip-val unset">&mdash;</div><div class="target-chip-label">sodium</div></div>
+        </div>
+        <div class="profile-section-title">Daily Targets</div>
+        <div class="profile-section-sub">Edit any field and tap Save to update</div>
+        <div class="field"><label style="display:flex;justify-content:space-between;"><span>&#x1F525; Calories</span><span class="unit-hint">kcal &nbsp;&middot;&nbsp; optional</span></label><input type="number" value="1850" min="0" /></div>
+        <div class="field-row">
+          <div class="field"><label>&#x1F969; Protein<span class="unit-hint" style="float:right;">g</span></label><input type="number" value="140" min="0" /></div>
+          <div class="field"><label>&#x1F9C8; Fat<span class="unit-hint" style="float:right;">g</span></label><input type="number" value="60" min="0" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>&#x1F33E; Carbs<span class="unit-hint" style="float:right;">g</span></label><input type="number" value="210" min="0" /></div>
+          <div class="field"><label>&#x1F33F; Fiber<span class="unit-hint" style="float:right;">g</span></label><input type="number" placeholder="e.g. 30" min="0" /></div>
+        </div>
+        <div class="field"><label style="display:flex;justify-content:space-between;"><span>&#x1F9C2; Sodium</span><span class="unit-hint">mg &nbsp;&middot;&nbsp; optional</span></label><input type="number" placeholder="e.g. 2300" min="0" /></div>
+        <div style="height:20px;"></div>
+        <button class="btn-primary" onclick="fireProfileToast()">Save targets</button>
+        <div style="height:12px;"></div>
+        <button class="btn-danger" style="font-size:13px;height:40px;">Clear all targets</button>
+        <div style="height:4px;"></div>
+        <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+        <button class="btn-secondary" onclick="showScreen('s-auth-login')">Sign out</button>
+
+        <div class="proto-states" style="margin-top:24px;">
+          <div class="proto-states-label">&darr; prototype states</div>
+          <div class="proto-states-row">
+            <button class="proto-pill" onclick="showScreen('s-profile')">Pre-filled</button>
+          </div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item active" data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- HISTORY: CALENDAR -->
+    <section class="screen" id="s-history-cal" style="overflow-y:auto;">
+      <div class="app-header">
+        <div class="app-header-titles"><h1 class="app-header-title">History</h1><p class="app-header-sub">Your logging journey</p></div>
+        <button class="header-icon-btn" onclick="showScreen('s-history-weekly')" aria-label="Weekly strip" title="Weekly strip"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="10" width="2" height="6" rx="1"/><rect x="6" y="7" width="2" height="9" rx="1"/><rect x="10" y="4" width="2" height="12" rx="1"/><rect x="14" y="2" width="2" height="14" rx="1"/></svg></button>
+      </div>
+      <div class="month-nav">
+        <button class="month-nav-btn" aria-label="Previous month">&#x2039;</button>
+        <div style="text-align:center;"><span class="month-label-name">January</span><span class="month-label-year">2025</span></div>
+        <button class="month-nav-btn" aria-label="Next month">&#x203A;</button>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="weekday-headers">
+          <div class="weekday-header">Mo</div><div class="weekday-header">Tu</div><div class="weekday-header">We</div>
+          <div class="weekday-header">Th</div><div class="weekday-header">Fr</div><div class="weekday-header">Sa</div><div class="weekday-header">Su</div>
+        </div>
+        <div class="calendar-grid">
+          <div class="day-cell day-empty"></div>
+<div class="day-cell day-empty"></div>
+<div class="day-cell day-empty"></div>
+<div class="day-cell"><span class="day-num">1</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1820</span></div>
+<div class="day-cell"><span class="day-num">2</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1910</span></div>
+<div class="day-cell"><span class="day-num">3</span><span class="day-dot dot-over"></span><span class="day-kcal">2300</span></div>
+<div class="day-cell"><span class="day-num">4</span><span class="day-dot dot-no-log"></span></div>
+<div class="day-cell"><span class="day-num">5</span><span class="day-dot dot-no-log"></span></div>
+<div class="day-cell"><span class="day-num">6</span><span class="day-dot dot-under"></span><span class="day-kcal">1450</span></div>
+<div class="day-cell"><span class="day-num">7</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1870</span></div>
+<div class="day-cell"><span class="day-num">8</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1830</span></div>
+<div class="day-cell"><span class="day-num">9</span><span class="day-dot dot-over"></span><span class="day-kcal">2150</span></div>
+<div class="day-cell"><span class="day-num">10</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1760</span></div>
+<div class="day-cell"><span class="day-num">11</span><span class="day-dot dot-no-log"></span></div>
+<div class="day-cell"><span class="day-num">12</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1920</span></div>
+<div class="day-cell"><span class="day-num">13</span><span class="day-dot dot-under"></span><span class="day-kcal">1380</span></div>
+<div class="day-cell"><span class="day-num">14</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1850</span></div>
+<div class="day-cell"><span class="day-num">15</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1890</span></div>
+<div class="day-cell"><span class="day-num">16</span><span class="day-dot dot-over"></span><span class="day-kcal">2420</span></div>
+<div class="day-cell"><span class="day-num">17</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1810</span></div>
+<div class="day-cell"><span class="day-num">18</span><span class="day-dot dot-no-log"></span></div>
+<div class="day-cell"><span class="day-num">19</span><span class="day-dot dot-no-log"></span></div>
+<div class="day-cell"><span class="day-num">20</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1770</span></div>
+<div class="day-cell day-today"><span class="day-num">21</span><span class="day-dot dot-on-target"></span><span class="day-kcal">1840</span></div>
+<div class="day-cell day-future"><span class="day-num">22</span></div>
+<div class="day-cell day-future"><span class="day-num">23</span></div>
+<div class="day-cell day-future"><span class="day-num">24</span></div>
+<div class="day-cell day-future"><span class="day-num">25</span></div>
+<div class="day-cell day-future"><span class="day-num">26</span></div>
+<div class="day-cell day-future"><span class="day-num">27</span></div>
+<div class="day-cell day-future"><span class="day-num">28</span></div>
+<div class="day-cell day-future"><span class="day-num">29</span></div>
+<div class="day-cell day-future"><span class="day-num">30</span></div>
+<div class="day-cell day-future"><span class="day-num">31</span></div>
+
+        </div>
+      </div>
+      <div class="streak-banner">
+        <span class="streak-icon">&#x1F525;</span>
+        <div>
+          <div class="streak-label">Current streak</div>
+          <div class="streak-count">7 days</div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:11px;color:var(--ink-soft);">Best streak</div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--ink-mid);">14 days</div>
+        </div>
+      </div>
+      <div class="history-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--status-on-target)"></div>On target</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--status-over)"></div>Over</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--status-under)"></div>Under</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--status-no-log);opacity:0.5"></div>No log</div>
+      </div>
+      <div style="height:80px;"></div>
+            <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- HISTORY: WEEKLY STRIP -->
+    <section class="screen" id="s-history-weekly" style="overflow-y:auto;">
+      <div class="app-header">
+        <button class="header-icon-btn" onclick="showScreen('s-history-cal')" aria-label="Back"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg></button>
+        <div class="app-header-titles"><h1 class="app-header-title">Weekly Summary</h1><p class="app-header-sub">Jan 15 &ndash; Jan 21, 2025</p></div>
+      </div>
+      <div style="padding:0 0 100px;">
+        <!-- Streak card -->
+        <div style="padding:0 16px 14px;">
+          <div style="background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px;display:flex;align-items:center;gap:14px;">
+            <div class="streak-fire-wrap">&#x1F525;</div>
+            <div class="streak-info" style="flex:1;">
+              <div class="streak-label">Current streak</div>
+              <div class="streak-value">7 days</div>
+              <div class="streak-encourage">Keep it up &mdash; best streak was <strong>14 days</strong>!</div>
+            </div>
+          </div>
+        </div>
+        <!-- Bar chart card -->
+        <div class="weekly-card">
+          <div class="weekly-card-header"><span class="weekly-card-title">This Week</span><span class="weekly-card-sub">Target: 1,850 kcal</span></div>
+          <div class="chart-wrap">
+            <div class="chart-inner">
+              <div class="ref-line" style="bottom:72%;"></div>
+              <div class="bars-grid">
+                <div class="bar-col"><div class="bar-kcal">1810</div><div class="bar-rect on-target" style="height:70%;"></div></div>
+                <div class="bar-col"><div class="bar-kcal">1840</div><div class="bar-rect on-target" style="height:72%;"></div></div>
+                <div class="bar-col"><div class="bar-kcal">2300</div><div class="bar-rect over" style="height:88%;"></div></div>
+                <div class="bar-col"><div class="bar-kcal"></div><div class="bar-rect empty"></div></div>
+                <div class="bar-col"><div class="bar-kcal">1920</div><div class="bar-rect on-target" style="height:74%;"></div></div>
+                <div class="bar-col"><div class="bar-kcal">1770</div><div class="bar-rect on-target" style="height:68%;"></div></div>
+                <div class="bar-col"><div class="bar-kcal">1840</div><div class="bar-rect on-target" style="height:71%;"></div></div>
+              </div>
+            </div>
+            <div class="days-row">
+              <div class="bar-day">W</div><div class="bar-day">T</div><div class="bar-day">F</div>
+              <div class="bar-day">S</div><div class="bar-day">S</div><div class="bar-day">M</div>
+              <div class="bar-day today">T</div>
+            </div>
+          </div>
+          <div class="avg-row">
+            <div class="avg-cell"><div class="avg-val">1,913</div><div class="avg-label">Avg kcal</div></div>
+            <div class="avg-cell"><div class="avg-val">142 g</div><div class="avg-label">Avg protein</div></div>
+            <div class="avg-cell"><div class="avg-val">6/7</div><div class="avg-label">Days logged</div></div>
+            <div class="avg-cell"><div class="avg-val">+3%</div><div class="avg-label">vs target</div></div>
+          </div>
+        </div>
+      </div>
+            <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+
+    <!-- AUTH REGISTER -->
+    <section class="screen" id="s-auth-register">
+      <div class="auth-brand">
+        <div class="auth-brand-mark"><svg viewBox="0 0 28 28"><path d="M14 3C9.03 3 5 7.03 5 12a9 9 0 0 0 8 8.94V23h-2a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A9 9 0 0 0 23 12c0-4.97-4.03-9-9-9Zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/><circle cx="14" cy="12" r="3.5"/></svg></div>
+        <h1 class="auth-brand-title">Calorie<span>Tracker</span></h1>
+        <p class="auth-brand-sub">Start your journey today.</p>
+      </div>
+      <div class="auth-card">
+        <div class="auth-card-handle"></div>
+        <h2 class="auth-card-title">Create account</h2>
+        <p class="auth-card-desc">Join to start tracking your recipes and nutrition.</p>
+        <div class="alert alert-error" id="reg-alert">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="8"/><path d="M9 5.5v4M9 12.5h.01" stroke-linecap="round"/></svg>
+          <span id="reg-alert-text">Username already registered.</span>
+        </div>
+        <form onsubmit="handleRegister(event)">
+          <div class="field">
+            <label for="reg-username">Username</label>
+            <input type="text" id="reg-username" placeholder="chef_marco" autocomplete="username" autocapitalize="off" />
+            <div class="field-error" id="reg-username-err"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg><span id="reg-username-err-text">Username must be at least 3 characters</span></div>
+          </div>
+          <div class="field">
+            <label for="reg-email">Email address</label>
+            <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" />
+            <div class="field-error" id="reg-email-err"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg><span id="reg-email-err-text">Please enter a valid email</span></div>
+          </div>
+          <div class="field">
+            <label for="reg-pw">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="reg-pw" placeholder="Min. 8 characters" autocomplete="new-password" oninput="onPwInput(this)" />
+              <button type="button" class="pw-toggle" onclick="togglePw('reg-pw',this)" aria-label="Toggle password"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/><circle cx="9" cy="9" r="2.5"/></svg></button>
+            </div>
+            <div class="pw-strength" id="pw-strength"><div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div><span class="pw-strength-label" id="pw-label"></span></div>
+            <div class="field-error" id="reg-pw-err"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 0a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 6.5 0Zm.813 8.938H5.688V7.874h1.625v1.063Zm0-2.125H5.688v-3.25h1.625v3.25Z"/></svg><span id="reg-pw-err-text">Password must be at least 8 characters</span></div>
+          </div>
+          <button type="submit" class="btn-primary" id="reg-btn" style="margin-top:4px;"><span class="btn-text">Create Account</span><div class="btn-spinner"></div></button>
+        </form>
+        <div class="divider"><span>or</span></div>
+        <div class="auth-switch">Already have an account? <a onclick="showScreen('s-auth-login')">Sign in instead</a></div>
+        <div class="proto-states">
+          <div class="proto-states-label">&darr; prototype states</div>
+          <div class="proto-states-row">
+            <button class="proto-pill" onclick="regState('username')">Username taken</button>
+            <button class="proto-pill" onclick="regState('email')">Email taken</button>
+            <button class="proto-pill" onclick="regState('validation')">Validation errors</button>
+            <button class="proto-pill" onclick="regState('clear')">&#x2715; Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /phone-viewport -->
+
+  <script>
+  /* ════════════════════════════════════════════════════════════
+     AUTH
+  ════════════════════════════════════════════════════════════ */
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.querySelector('svg').innerHTML = isHidden
+      ? '<path d="M13.5 6.5C12.3 7.7 10.7 8.5 9 8.5 5.9 8.5 3 6 3 6M3 6s-.7-.8-1-1.5M15 6s.7-.8 1-1.5M6 10.5 4.5 12M12 10.5l1.5 1.5M9 9v2" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="2" x2="16" y2="16" stroke-linecap="round"/>'
+      : '<path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6Z" stroke-linecap="round"/><circle cx="9" cy="9" r="2.5"/>';
+  }
+  function onPwInput(input) {
+    const v = input.value;
+    const wrap = document.getElementById('pw-strength');
+    const fill = document.getElementById('pw-fill');
+    const lbl  = document.getElementById('pw-label');
+    if (!v) { wrap.classList.remove('visible'); return; }
+    wrap.classList.add('visible');
+    let s = 0;
+    if (v.length >= 8)  s++;
+    if (v.length >= 12) s++;
+    if (/[A-Z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const lvls = [{p:'20%',c:'#E05C3A',t:'Too short'},{p:'40%',c:'#E07C3A',t:'Weak'},{p:'60%',c:'#C9962B',t:'Fair'},{p:'80%',c:'#4A9B6B',t:'Good'},{p:'100%',c:'#2B7A4C',t:'Strong'}];
+    const l = lvls[Math.min(s,4)];
+    fill.style.width = l.p; fill.style.background = l.c;
+    lbl.textContent = l.t; lbl.style.color = l.c;
+  }
+  function loginState(type) {
+    const alert = document.getElementById('login-alert');
+    const text  = document.getElementById('login-alert-text');
+    if (type === 'clear') { alert.classList.remove('visible'); return; }
+    text.textContent = type === 'invalid'
+      ? 'Invalid credentials. Please check your username and password.'
+      : 'Your account has been deactivated. Please contact support.';
+    alert.classList.add('visible');
+  }
+  function regState(type) {
+    document.getElementById('reg-alert').classList.remove('visible');
+    ['reg-username','reg-email','reg-pw'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('error-input'); });
+    ['reg-username-err','reg-email-err','reg-pw-err'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('visible'); });
+    if (type === 'clear') return;
+    const alert = document.getElementById('reg-alert');
+    if (type === 'username') {
+      document.getElementById('reg-alert-text').textContent = 'Username already registered.';
+      alert.classList.add('visible');
+      document.getElementById('reg-username').classList.add('error-input');
+    } else if (type === 'email') {
+      document.getElementById('reg-alert-text').textContent = 'Email already registered. Did you mean to sign in?';
+      alert.classList.add('visible');
+      document.getElementById('reg-email').classList.add('error-input');
+    } else if (type === 'validation') {
+      document.getElementById('reg-username').classList.add('error-input');
+      document.getElementById('reg-username-err').classList.add('visible');
+      document.getElementById('reg-email').classList.add('error-input');
+      document.getElementById('reg-email-err').classList.add('visible');
+      document.getElementById('reg-pw').classList.add('error-input');
+      document.getElementById('reg-pw-err').classList.add('visible');
+    }
+  }
+  function simBtn(btnId, ms, onDone) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.classList.add('loading');
+    setTimeout(() => { btn.classList.remove('loading'); if (onDone) onDone(); }, ms);
+  }
+  function handleLogin(e) {
+    e.preventDefault();
+    const u = document.getElementById('login-username').value.trim();
+    const p = document.getElementById('login-pw').value;
+    let err = false;
+    document.getElementById('login-alert').classList.remove('visible');
+    document.getElementById('login-username-err').classList.remove('visible');
+    document.getElementById('login-pw-err').classList.remove('visible');
+    document.getElementById('login-username').classList.remove('error-input');
+    document.getElementById('login-pw').classList.remove('error-input');
+    if (!u) { document.getElementById('login-username').classList.add('error-input'); document.getElementById('login-username-err').classList.add('visible'); err = true; }
+    if (!p) { document.getElementById('login-pw').classList.add('error-input'); document.getElementById('login-pw-err').classList.add('visible'); err = true; }
+    if (err) return;
+    simBtn('login-btn', 900, () => showScreen('s-recipe-list'));
+  }
+  function handleRegister(e) {
+    e.preventDefault();
+    const u = document.getElementById('reg-username').value.trim();
+    const em = document.getElementById('reg-email').value.trim();
+    const p = document.getElementById('reg-pw').value;
+    let err = false;
+    regState('clear');
+    if (u.length < 3) { document.getElementById('reg-username').classList.add('error-input'); document.getElementById('reg-username-err-text').textContent = u ? 'Min. 3 characters' : 'Username is required'; document.getElementById('reg-username-err').classList.add('visible'); err = true; }
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { document.getElementById('reg-email').classList.add('error-input'); document.getElementById('reg-email-err').classList.add('visible'); err = true; }
+    if (p.length < 8) { document.getElementById('reg-pw').classList.add('error-input'); document.getElementById('reg-pw-err').classList.add('visible'); err = true; }
+    if (err) return;
+    simBtn('reg-btn', 900, () => showScreen('s-recipe-list'));
+  }
+
+
+  /* ════ INGREDIENT DETAIL SHEET ════ */
+  function removeIngredientRow(btn) {
+    btn.closest('.ingredient-form-row').remove();
+  }
+  function openDetailSheet() {
+    document.getElementById('detailSheet').classList.add('open');
+    document.getElementById('detailBackdrop').classList.add('open');
+  }
+  function closeDetailSheet() {
+    document.getElementById('detailSheet').classList.remove('open');
+    document.getElementById('detailBackdrop').classList.remove('open');
+  }
+
+  /* ════ COOKING MODE ════ */
+  const INGS = [
+    { icon:'&#x1F357;', name:'Chicken Breast, raw',  unit:'g',  kcal:110,  protein:23.1, fat:1.2,  carbs:0,    fiber:0,   sodium:70,  defaultAmt:600 },
+    { icon:'&#x1FAD2;', name:'Olive Oil',             unit:'g',  kcal:884,  protein:0,    fat:100,  carbs:0,    fiber:0,   sodium:2,   defaultAmt:30  },
+    { icon:'&#x1F9C4;', name:'Garlic, fresh',         unit:'g',  kcal:149,  protein:6.4,  fat:0.5,  carbs:33.1, fiber:2.1, sodium:17,  defaultAmt:20  },
+    { icon:'&#x1F34B;', name:'Lemon Juice',           unit:'ml', kcal:25,   protein:0.4,  fat:0.2,  carbs:6.7,  fiber:0.3, sodium:2,   defaultAmt:50  },
+    { icon:'&#x1F33F;', name:'Mixed Herbs, dried',    unit:'g',  kcal:270,  protein:14,   fat:5.3,  carbs:43.2, fiber:18,  sodium:34,  defaultAmt:5   },
+  ];
+  let portionMode = 'weight';
+
+  function setPortionMode(mode) {
+    portionMode = mode;
+    document.getElementById('mode-weight').classList.toggle('active', mode === 'weight');
+    document.getElementById('mode-kcal').classList.toggle('active', mode === 'kcal');
+    document.getElementById('portion-unit').textContent = mode === 'weight' ? 'g' : 'kcal';
+    const inp = document.getElementById('portion-input');
+    inp.value = ''; inp.classList.remove('has-value');
+    calcCooking();
+  }
+
+  function fmtN(v, d=0) { return v == null ? '—' : parseFloat(v.toFixed(d)).toString(); }
+
+  function renderIngredients() {
+    const list = document.getElementById('c-ingredient-list');
+    if (!list) return;
+    list.innerHTML = '';
+    INGS.forEach((ing, i) => {
+      const row = document.createElement('div');
+      row.className = 'c-ing-row';
+      row.innerHTML = '<div class="c-ing-icon">' + ing.icon + '</div>'
+        + '<div class="c-ing-info"><div class="c-ing-name">' + ing.name + '</div><div class="c-ing-kcal" id="cing-kcal-' + i + '">' + fmtN(ing.kcal * ing.defaultAmt / 100) + ' kcal</div></div>'
+        + '<div class="c-amount-group"><input type="number" inputmode="decimal" class="c-amount-input" id="c-amount-' + i + '" value="' + ing.defaultAmt + '" min="0" oninput="calcCooking()" /><span class="c-ing-unit">' + ing.unit + '</span></div>';
+      list.appendChild(row);
+    });
+  }
+
+  function calcCooking() {
+    const amts = INGS.map((_,i) => Math.max(0, parseFloat(document.getElementById('c-amount-'+i)?.value||'0')||0));
+    const extraKcal = Math.max(0, parseFloat(document.getElementById('extra-kcal-input')?.value||'0')||0);
+    const cw = Math.max(0, parseFloat(document.getElementById('cooked-weight-input')?.value||'0')||0);
+    const pv = Math.max(0, parseFloat(document.getElementById('portion-input')?.value||'0')||0);
+
+    const tot = { kcal:0, protein:0, fat:0, carbs:0, fiber:0, sodium:0 };
+    INGS.forEach((ing,i) => {
+      const r = amts[i] / 100;
+      tot.kcal += ing.kcal * r; tot.protein += ing.protein * r;
+      tot.fat += ing.fat * r; tot.carbs += ing.carbs * r;
+      tot.fiber += ing.fiber * r; tot.sodium += ing.sodium * r;
+      const el = document.getElementById('cing-kcal-'+i);
+      if (el) el.textContent = fmtN(ing.kcal * amts[i] / 100) + ' kcal';
+    });
+    tot.kcal += extraKcal;
+
+    const bk = document.getElementById('banner-kcal'), bw = document.getElementById('banner-weight');
+    if (bk) bk.textContent = fmtN(tot.kcal);
+    if (bw) bw.textContent = cw > 0 ? cw : '—';
+
+    const p100 = cw > 0 ? { kcal: tot.kcal/cw*100, protein: tot.protein/cw*100, fat: tot.fat/cw*100, carbs: tot.carbs/cw*100 } : null;
+    const strip = document.getElementById('per100g-strip');
+    const vals  = document.getElementById('per100g-values');
+    if (p100) {
+      strip?.classList.remove('disabled');
+      if (vals) vals.style.display = '';
+      const sv = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+      sv('p100-kcal', fmtN(p100.kcal)); sv('p100-protein', fmtN(p100.protein,1));
+      sv('p100-fat', fmtN(p100.fat,1)); sv('p100-carbs', fmtN(p100.carbs,1));
+    } else {
+      strip?.classList.add('disabled');
+      ['p100-kcal','p100-protein','p100-fat','p100-carbs'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent='—'; });
+    }
+
+    const pInp = document.getElementById('portion-input');
+    const pRes = document.getElementById('portion-result');
+    const pHint = document.getElementById('portion-empty-hint');
+    const pDer = document.getElementById('portion-derived');
+    const btnLog = document.getElementById('btn-log');
+
+    if (pInp) pInp.classList.toggle('has-value', pv > 0);
+
+    if (p100 && pv > 0) {
+      let pwG = 0, pkc = 0;
+      if (portionMode === 'weight') { pwG = pv; pkc = p100.kcal/100 * pwG; if (pDer) { pDer.textContent=''; pDer.classList.remove('visible'); } }
+      else { pkc = pv; pwG = p100.kcal > 0 ? pv/p100.kcal*100 : 0; pkc = p100.kcal/100*pwG; if (pDer) { pDer.innerHTML='&asymp; <strong>' + fmtN(pwG) + 'g</strong> portion weight'; pDer.classList.add('visible'); } }
+      const set = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+      set('result-kcal', fmtN(pkc)); set('result-protein', fmtN(p100.protein/100*pwG,1));
+      set('result-fat', fmtN(p100.fat/100*pwG,1)); set('result-carbs', fmtN(p100.carbs/100*pwG,1));
+      const lbl = document.getElementById('result-label');
+      if (lbl) lbl.innerHTML = portionMode === 'weight' ? 'in ' + pwG + 'g' : '≈ from ' + fmtN(pwG) + 'g';
+      if (pRes) pRes.classList.add('visible');
+      if (pHint) pHint.style.display = 'none';
+      if (btnLog) btnLog.disabled = false;
+    } else {
+      if (pRes) pRes.classList.remove('visible');
+      if (pDer) { pDer.textContent=''; pDer.classList.remove('visible'); }
+      if (pHint) { pHint.style.display = ''; pHint.textContent = !p100 && pv > 0 ? 'Enter cooked weight above first' : 'Enter a weight to see your serving\'s nutrition'; }
+      if (btnLog) btnLog.disabled = true;
+    }
+  }
+
+  function fireProfileToast() {
+    const t = document.getElementById('profile-toast');
+    if (!t) return;
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3500);
+  }
+
+
+  function segSelect(btn) {
+    btn.closest('.location-seg').querySelectorAll('.location-seg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     NAVIGATION
+  ════════════════════════════════════════════════════════════ */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.screen === id);
+    });
+    // update bottom nav active tab
+    const tabMap = {
+      's-recipe-list': 'recipes', 's-recipe-list-empty': 'recipes',
+      's-recipe-detail': 'recipes', 's-recipe-create': 'recipes',
+      's-cooking': 'recipes',
+      's-pantry-list': 'pantry', 's-pantry-empty': 'pantry', 's-pantry-enhanced': 'pantry',
+      's-profile': 'profile',
+      's-history-cal': 'history', 's-history-weekly': 'history',
+    };
+    const activeTab = tabMap[id] || 'log';
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.tab === activeTab);
+    });
+    if (id === 's-cooking') { renderIngredients(); calcCooking(); }
+    closeSidebar();
+    window.scrollTo(0, 0);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════════════════════════════════ */
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const b = document.getElementById('sidebar-backdrop');
+    const open = s.classList.toggle('open');
+    b.classList.toggle('open', open);
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-backdrop').classList.remove('open');
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     THEME
+  ════════════════════════════════════════════════════════════ */
+  const SUN  = `<circle cx="9" cy="9" r="3.5"/><line x1="9" y1="1.5" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="16.5"/><line x1="1.5" y1="9" x2="3" y2="9"/><line x1="15" y1="9" x2="16.5" y2="9"/><line x1="3.7" y1="3.7" x2="4.76" y2="4.76"/><line x1="13.24" y1="13.24" x2="14.3" y2="14.3"/><line x1="14.3" y1="3.7" x2="13.24" y2="4.76"/><line x1="4.76" y1="13.24" x2="3.7" y2="14.3"/>`;
+  const MOON = `<path d="M15 10.5A6.5 6.5 0 0 1 7.5 3a6.5 6.5 0 1 0 7.5 7.5Z"/>`;
+
+  function applyTheme(dark) {
+    document.documentElement.classList.toggle('dark', dark);
+    document.getElementById('theme-icon').innerHTML = dark ? SUN : MOON;
+    document.getElementById('theme-label').textContent = dark ? 'Light mode' : 'Dark mode';
+  }
+  function toggleTheme() {
+    const next = !document.documentElement.classList.contains('dark');
+    localStorage.setItem('ct-theme', next ? 'dark' : 'light');
+    applyTheme(next);
+  }
+  (function() {
+    const saved = localStorage.getItem('ct-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved === 'dark' || (!saved && prefersDark));
+  })();
+  </script>
+</body>
+</html>
