@@ -24,12 +24,10 @@ htmlcov/
 coverage.xml
 
 # ── Node / pnpm ───────────────────────────────────────────────────────────────
-.pnpm-store/
-core
-frontend/node_modules/
+node_modules/
 frontend/dist/
 frontend/.vite/
-node_modules/
+.pnpm-store/
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 # local override files only — committed compose files are tracked above
