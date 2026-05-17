@@ -1370,6 +1370,164 @@
   .location-seg-btn.active { background:var(--white); color:var(--ink); box-shadow:0 1px 6px rgba(26,18,8,0.10); }
   html.dark .location-seg-btn.active { box-shadow:0 1px 6px rgba(0,0,0,0.30); }
 
+  /* ════ LOG — DAILY LOG HOME ════ */
+  .log-macro-strip {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 12px;
+    flex-shrink: 0;
+  }
+  .log-macro-row { display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+  .log-macro-row:last-child { margin-bottom:0; }
+  .log-macro-label { font-size:11px; font-weight:600; color:var(--ink-soft); width:48px; flex-shrink:0; }
+  .log-macro-track { flex:1; height:6px; background:var(--cream-mid); border-radius:3px; overflow:hidden; }
+  .log-macro-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
+  .log-macro-fill.lm-kcal    { background:var(--terra); }
+  .log-macro-fill.lm-protein { background:var(--protein-color); }
+  .log-macro-fill.lm-fat     { background:var(--fat-color); }
+  .log-macro-fill.lm-carbs   { background:var(--carbs-color); }
+  .log-macro-fill.lm-over    { background:var(--error); }
+  .log-macro-val { font-size:11px; color:var(--ink-mid); font-weight:500; white-space:nowrap; width:80px; text-align:right; flex-shrink:0; }
+  .log-macro-fiber { font-size:11px; color:var(--ink-soft); text-align:right; padding-top:3px; }
+
+  /* Meal sections */
+  .log-scroll { overflow-y:auto; flex:1; }
+  .meal-section { border-bottom:1px solid var(--border); }
+  .meal-section.collapsed .meal-entries { display:none; }
+  .meal-section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 16px; cursor:pointer; user-select:none;
+    background:var(--cream); transition:background 0.12s;
+  }
+  .meal-section-header:hover { background:var(--cream-dark); }
+  html.dark .meal-section-header:hover { background:var(--cream-mid); }
+  .meal-section-header-left { display:flex; align-items:center; gap:8px; }
+  .meal-icon { font-size:16px; line-height:1; }
+  .meal-name { font-size:14px; font-weight:600; color:var(--ink); }
+  .meal-kcal { font-size:12px; color:var(--ink-soft); }
+  .meal-chevron { width:18px; height:18px; color:var(--border); transition:transform 0.2s; flex-shrink:0; }
+  .meal-section.collapsed .meal-chevron { transform:rotate(-90deg); }
+  .meal-entries { background:var(--white); padding:4px 16px 10px; border-top:1px solid var(--border); }
+  html.dark .meal-entries { background:var(--cream-dark); }
+  .meal-entry { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--cream-dark); }
+  .meal-entry:last-child { border-bottom:none; }
+  .meal-entry-info { flex:1; min-width:0; }
+  .meal-entry-name { font-size:13.5px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .meal-entry-meta { font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
+  .meal-entry-kcal { font-size:13px; font-weight:600; color:var(--ink-mid); flex-shrink:0; margin-left:8px; }
+  .meal-add-btn { display:flex; align-items:center; gap:6px; padding:8px 0 4px; font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--terra); cursor:pointer; background:none; border:none; transition:color 0.12s; }
+  .meal-add-btn:hover { color:var(--terra-dark); }
+  .meal-add-btn svg { width:13px; height:13px; flex-shrink:0; }
+
+  /* ════ ADD-TO-LOG SHEET ════ */
+  .atl-sheet-tabs { display:flex; border-bottom:1.5px solid var(--border); padding:0 4px; }
+  .atl-sheet-tab {
+    flex:1; padding:10px 0 11px;
+    font-family:var(--font-body); font-size:13.5px; font-weight:600;
+    color:var(--ink-soft); background:none; border:none;
+    border-bottom:2.5px solid transparent; margin-bottom:-1.5px;
+    cursor:pointer; transition:color 0.15s, border-color 0.15s;
+  }
+  .atl-sheet-tab.active { color:var(--terra); border-bottom-color:var(--terra); }
+  .atl-tab-body { padding:16px 16px 0; }
+
+  /* Recipe list in sheet */
+  .atl-recipe-list { display:flex; flex-direction:column; gap:8px; }
+  .atl-list-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  .atl-recipe-row {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 12px; border:1.5px solid var(--border);
+    border-radius:var(--radius-sm); background:var(--cream);
+    cursor:pointer; transition:border-color 0.15s, background 0.15s;
+  }
+  .atl-recipe-row:hover { border-color:var(--terra-light); background:var(--terra-xlight); }
+  .atl-recipe-row.selected { border-color:var(--terra); background:var(--terra-xlight); }
+  html.dark .atl-recipe-row { background:var(--cream-dark); }
+  html.dark .atl-recipe-row:hover, html.dark .atl-recipe-row.selected { background:var(--cream-mid); }
+  .atl-recipe-icon { font-size:20px; flex-shrink:0; }
+  .atl-recipe-body { flex:1; min-width:0; }
+  .atl-recipe-name { font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .atl-recipe-meta { font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .atl-recipe-check { width:22px; height:22px; border-radius:50%; background:var(--terra); color:white; display:none; align-items:center; justify-content:center; flex-shrink:0; }
+  .atl-recipe-row.selected .atl-recipe-check { display:flex; }
+
+  /* Selected chip in sheet */
+  .atl-chip { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--terra-xlight); border:1.5px solid var(--terra-light); border-radius:var(--radius-sm); margin-bottom:14px; }
+  .atl-chip-icon { font-size:20px; flex-shrink:0; }
+  .atl-chip-body { flex:1; min-width:0; }
+  .atl-chip-name { font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .atl-chip-meta { font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .atl-chip-clear { width:28px; height:28px; border-radius:50%; border:none; background:rgba(201,86,43,0.15); color:var(--terra); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background 0.15s; }
+  .atl-chip-clear svg { width:12px; height:12px; display:block; }
+  .atl-chip-clear:hover { background:rgba(201,86,43,0.25); }
+
+  /* Big amount input in sheet */
+  .atl-amount-label { display:block; font-size:11px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:var(--ink-mid); margin-bottom:6px; }
+  .atl-amount-row { display:flex; align-items:center; margin-bottom:4px; width:100%; }
+  .atl-amount-input {
+    flex:1; min-width:0; box-sizing:border-box; height:56px; font-size:30px; font-weight:700;
+    font-family:var(--font-body); text-align:center;
+    border:1.5px solid var(--border); border-right:none;
+    border-radius:var(--radius-sm) 0 0 var(--radius-sm);
+    background:var(--white); color:var(--ink); outline:none;
+    -moz-appearance:textfield; transition:border-color 0.15s;
+  }
+  .atl-amount-input::-webkit-inner-spin-button, .atl-amount-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+  .atl-amount-input:focus { border-color:var(--terra); box-shadow:0 0 0 3px rgba(201,86,43,0.10); }
+  .atl-amount-unit { height:56px; padding:0 14px; background:var(--cream-dark); border:1.5px solid var(--border); border-left:none; border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:15px; font-weight:600; color:var(--ink-mid); display:flex; align-items:center; flex-shrink:0; }
+  .atl-amount-hint { font-size:11px; color:var(--ink-soft); text-align:center; margin-bottom:14px; font-style:italic; min-height:16px; }
+
+  /* Meal type grid in sheet */
+  .atl-meal-label { display:block; font-size:11px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:var(--ink-mid); margin-bottom:8px; }
+  .atl-meal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:16px; }
+  .atl-meal-btn { display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 4px; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:var(--cream); color:var(--ink-mid); font-family:var(--font-body); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+  .atl-meal-btn .atl-meal-icon { font-size:18px; }
+  .atl-meal-btn:hover { border-color:var(--terra-light); background:var(--terra-xlight); }
+  .atl-meal-btn.active { border-color:var(--terra); background:var(--terra-xlight); color:var(--terra); }
+  html.dark .atl-meal-btn { background:var(--cream-dark); }
+  html.dark .atl-meal-btn:hover, html.dark .atl-meal-btn.active { background:var(--cream-mid); }
+
+  /* Log CTA in sheet */
+  .atl-sheet-cta { padding:0 16px 16px; }
+  .atl-log-btn { width:100%; height:52px; background:var(--terra); color:white; border:none; border-radius:var(--radius-sm); font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 12px rgba(201,86,43,0.30); transition:background 0.15s, transform 0.1s; position:relative; overflow:hidden; }
+  .atl-log-btn:hover { background:var(--terra-dark); }
+  .atl-log-btn:active { transform:scale(0.98); }
+  .atl-log-btn:disabled { background:var(--cream-mid); color:var(--ink-soft); box-shadow:none; cursor:not-allowed; }
+  .atl-log-btn .atl-btn-text { }
+  .atl-log-btn .atl-btn-spinner { display:none; width:20px; height:20px; border:2.5px solid rgba(255,255,255,0.35); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; position:absolute; }
+  .atl-log-btn.loading { pointer-events:none; }
+  .atl-log-btn.loading .atl-btn-text { opacity:0; }
+  .atl-log-btn.loading .atl-btn-spinner { display:block; }
+  .atl-log-note { font-size:11px; color:var(--ink-soft); text-align:center; margin-top:6px; }
+
+  /* Ingredient search in sheet */
+  .atl-search-wrap { position:relative; margin-bottom:12px; }
+  .atl-search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-soft); pointer-events:none; }
+  .atl-search-input { width:100%; height:44px; padding:0 40px 0 40px; border:1.5px solid var(--border); border-radius:22px; background:var(--white); font-family:var(--font-body); font-size:14px; color:var(--ink); outline:none; transition:border-color 0.15s, box-shadow 0.15s; }
+  .atl-search-input::placeholder { color:var(--ink-soft); opacity:0.7; }
+  .atl-search-input:focus { border-color:var(--terra); box-shadow:0 0 0 3px rgba(201,86,43,0.10); }
+  .atl-search-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); width:26px; height:26px; border-radius:50%; border:none; background:var(--cream-mid); color:var(--ink-mid); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+  /* Search results in sheet */
+  .atl-results { display:flex; flex-direction:column; margin-bottom:8px; }
+  .atl-result-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--cream-dark); cursor:pointer; transition:background 0.12s; }
+  .atl-result-row:last-child { border-bottom:none; }
+  .atl-result-row:hover .atl-result-name { color:var(--terra); }
+  .atl-result-icon { font-size:20px; flex-shrink:0; }
+  .atl-result-body { flex:1; min-width:0; }
+  .atl-result-name { font-size:14px; font-weight:500; color:var(--ink); transition:color 0.12s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .atl-result-meta { display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .atl-result-kcal { font-size:12px; font-weight:600; color:var(--terra); }
+  .atl-result-unit { font-size:11px; color:var(--ink-soft); }
+
+  /* Cooked weight warning banner in sheet */
+  .atl-cooked-warn { background:var(--warn-bg); border:1.5px solid var(--warn-border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:14px; display:flex; gap:10px; align-items:flex-start; }
+  .atl-cooked-warn-title { font-size:13px; font-weight:600; color:var(--warn); margin-bottom:3px; display:flex; align-items:center; gap:5px; }
+  .atl-cooked-warn-desc { font-size:12px; color:var(--ink-soft); line-height:1.5; }
+
+  /* Divider inside sheet */
+  .atl-divider { height:1px; background:var(--border); margin:4px -16px 14px; }
+
 </style>
 </head>
 <body>
@@ -1432,6 +1590,17 @@
     <div class="sidebar-group">
       <div class="sidebar-group-label">Profile</div>
       <button class="sidebar-btn" data-screen="s-profile" onclick="showScreen('s-profile')"><span class="dot"></span>Profile &amp; Targets</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Log</div>
+      <button class="sidebar-btn" data-screen="s-log-home" onclick="showLogScreen('home')"><span class="dot"></span>Log Home</button>
+      <button class="sidebar-btn" id="sb-log-recipe-idle" onclick="showLogScreen('recipe-idle')"><span class="dot"></span>Sheet &middot; Recipe list</button>
+      <button class="sidebar-btn" id="sb-log-recipe-selected" onclick="showLogScreen('recipe-selected')"><span class="dot"></span>Sheet &middot; Recipe selected</button>
+      <button class="sidebar-btn" id="sb-log-recipe-cooked" onclick="showLogScreen('recipe-cooked')"><span class="dot"></span>Sheet &middot; Cooked weight</button>
+      <button class="sidebar-btn" id="sb-log-ing-idle" onclick="showLogScreen('ing-idle')"><span class="dot"></span>Sheet &middot; Ingredient search</button>
+      <button class="sidebar-btn" id="sb-log-ing-selected" onclick="showLogScreen('ing-selected')"><span class="dot"></span>Sheet &middot; Ingredient selected</button>
+      <button class="sidebar-btn" id="sb-log-submitting" onclick="showLogScreen('submitting')"><span class="dot"></span>Sheet &middot; Submitting</button>
     </div>
 
     <div class="sidebar-group">
@@ -1563,7 +1732,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-recipe-create')" aria-label="New Recipe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item active" data-tab="recipes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2169,7 +2338,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2222,7 +2391,7 @@
       </div>
       <button class="fab" onclick="showScreen('s-pantry-add')" aria-label="Add item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item active" data-tab="pantry" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><div class="nav-badge-pantry">2</div><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2282,7 +2451,7 @@
         </div>
       </div>
       <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2363,7 +2532,7 @@
       </div>
       <div style="height:80px;"></div>
             <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2420,7 +2589,7 @@
         </div>
       </div>
             <nav class="bottom-nav" aria-label="Main navigation">
-        <button class="nav-item" data-tab="log" onclick="showScreen('s-auth-login')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="log" onclick="showScreen('s-log-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
         <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
         <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
         <button class="nav-item active" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
@@ -2479,6 +2648,357 @@
         </div>
       </div>
     </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         DAILY LOG HOME
+    ════════════════════════════════════════════════════════════ -->
+    <section class="screen" id="s-log-home">
+
+      <!-- Date navigation header -->
+      <div class="app-header" style="padding-top:52px;justify-content:space-between;">
+        <button class="header-icon-btn" aria-label="Previous day">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4l-5 5 5 5"/></svg>
+        </button>
+        <div style="text-align:center;flex:1;">
+          <h1 class="app-header-title" style="font-size:18px;">Sunday, 17 May</h1>
+          <p class="app-header-sub" style="color:var(--terra);font-weight:600;margin-top:0;">Today</p>
+        </div>
+        <button class="header-icon-btn" aria-label="Next day">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 4l5 5-5 5"/></svg>
+        </button>
+      </div>
+
+      <!-- Macro progress strip -->
+      <div class="log-macro-strip">
+        <div class="log-macro-row">
+          <span class="log-macro-label">Kcal</span>
+          <div class="log-macro-track"><div class="log-macro-fill lm-kcal" style="width:62%"></div></div>
+          <span class="log-macro-val">1&thinsp;240 / 2&thinsp;000</span>
+        </div>
+        <div class="log-macro-row">
+          <span class="log-macro-label">Protein</span>
+          <div class="log-macro-track"><div class="log-macro-fill lm-protein" style="width:55%"></div></div>
+          <span class="log-macro-val">88 / 160 g</span>
+        </div>
+        <div class="log-macro-row">
+          <span class="log-macro-label">Fat</span>
+          <div class="log-macro-track"><div class="log-macro-fill lm-fat" style="width:70%"></div></div>
+          <span class="log-macro-val">49 / 70 g</span>
+        </div>
+        <div class="log-macro-row">
+          <span class="log-macro-label">Carbs</span>
+          <div class="log-macro-track"><div class="log-macro-fill lm-carbs" style="width:45%"></div></div>
+          <span class="log-macro-val">112 / 250 g</span>
+        </div>
+        <p class="log-macro-fiber">Fiber: 14 / 30 g</p>
+      </div>
+
+      <!-- Meal sections -->
+      <div class="log-scroll has-bottom-nav">
+
+        <!-- Breakfast -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <div class="meal-section-header-left">
+              <span class="meal-icon">&#x1F305;</span>
+              <span class="meal-name">Breakfast</span>
+              <span class="meal-kcal">420 kcal</span>
+            </div>
+            <svg class="meal-chevron" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l5 5 5-5"/></svg>
+          </div>
+          <div class="meal-entries">
+            <div class="meal-entry">
+              <div class="meal-entry-info"><div class="meal-entry-name">Greek Yoghurt, full fat</div><div class="meal-entry-meta">150 g</div></div>
+              <span class="meal-entry-kcal">147 kcal</span>
+            </div>
+            <div class="meal-entry">
+              <div class="meal-entry-info"><div class="meal-entry-name">Oats, rolled</div><div class="meal-entry-meta">60 g</div></div>
+              <span class="meal-entry-kcal">228 kcal</span>
+            </div>
+            <div class="meal-entry">
+              <div class="meal-entry-info"><div class="meal-entry-name">Blueberries</div><div class="meal-entry-meta">40 g</div></div>
+              <span class="meal-entry-kcal">23 kcal</span>
+            </div>
+            <button class="meal-add-btn" onclick="openLogSheet('recipe-idle','Breakfast')">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add to Breakfast
+            </button>
+          </div>
+        </div>
+
+        <!-- Lunch -->
+        <div class="meal-section">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <div class="meal-section-header-left">
+              <span class="meal-icon">&#x2600;&#xFE0F;</span>
+              <span class="meal-name">Lunch</span>
+              <span class="meal-kcal">820 kcal</span>
+            </div>
+            <svg class="meal-chevron" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l5 5 5-5"/></svg>
+          </div>
+          <div class="meal-entries">
+            <div class="meal-entry">
+              <div class="meal-entry-info"><div class="meal-entry-name">Chicken Rice Bowl</div><div class="meal-entry-meta">Recipe &middot; 320 g portion</div></div>
+              <span class="meal-entry-kcal">540 kcal</span>
+            </div>
+            <div class="meal-entry">
+              <div class="meal-entry-info"><div class="meal-entry-name">Olive Oil</div><div class="meal-entry-meta">15 g</div></div>
+              <span class="meal-entry-kcal">133 kcal</span>
+            </div>
+            <button class="meal-add-btn" onclick="openLogSheet('recipe-idle','Lunch')">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add to Lunch
+            </button>
+          </div>
+        </div>
+
+        <!-- Dinner (collapsed, empty) -->
+        <div class="meal-section collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <div class="meal-section-header-left">
+              <span class="meal-icon">&#x1F319;</span>
+              <span class="meal-name" style="color:var(--ink-soft);">Dinner</span>
+              <span class="meal-kcal" style="opacity:0.5;">&mdash; kcal</span>
+            </div>
+            <svg class="meal-chevron" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l5 5 5-5"/></svg>
+          </div>
+          <div class="meal-entries">
+            <button class="meal-add-btn" onclick="openLogSheet('recipe-idle','Dinner')">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add to Dinner
+            </button>
+          </div>
+        </div>
+
+        <!-- Snacks (collapsed, empty) -->
+        <div class="meal-section collapsed">
+          <div class="meal-section-header" onclick="toggleMealSection(this)">
+            <div class="meal-section-header-left">
+              <span class="meal-icon">&#x1F34E;</span>
+              <span class="meal-name" style="color:var(--ink-soft);">Snacks</span>
+              <span class="meal-kcal" style="opacity:0.5;">&mdash; kcal</span>
+            </div>
+            <svg class="meal-chevron" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l5 5 5-5"/></svg>
+          </div>
+          <div class="meal-entries">
+            <button class="meal-add-btn" onclick="openLogSheet('recipe-idle','Snack')">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3v12M3 9h12"/></svg>Add snack
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /log-scroll -->
+
+      <button class="fab" onclick="openLogSheet('recipe-idle','Lunch')" aria-label="Add to log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-tab="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 11h8M8 15h5"/></svg><span class="nav-label">Log</span></button>
+        <button class="nav-item" data-tab="recipes" onclick="showScreen('s-recipe-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Recipes</span></button>
+        <button class="nav-item" data-tab="pantry" onclick="showScreen('s-pantry-list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5 8v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/></svg><span class="nav-label">Pantry</span></button>
+        <button class="nav-item" data-tab="history" onclick="showScreen('s-history-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">History</span></button>
+        <button class="nav-item" data-tab="profile" onclick="showScreen('s-profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-label">Profile</span></button>
+      </nav>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ADD-TO-LOG SHEET (global overlay)
+    ════════════════════════════════════════════════════════════ -->
+    <div class="sheet-overlay hidden" id="atl-overlay" onclick="closeLogSheet()">
+      <div class="sheet" id="atl-sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px;">
+          <h2 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-0.2px;">Add to Log</h2>
+          <button class="header-icon-btn" onclick="closeLogSheet()" aria-label="Close">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="atl-sheet-tabs">
+          <button class="atl-sheet-tab active" id="atl-tab-recipe" onclick="switchLogTab('recipe')">&#x1F37D; Recipe</button>
+          <button class="atl-sheet-tab" id="atl-tab-ingredient" onclick="switchLogTab('ingredient')">&#x1F966; Ingredient</button>
+        </div>
+
+        <!-- ── Recipe tab ─────────────────────────────────────────── -->
+        <div id="atl-recipe-tab">
+
+          <!-- State: recipe-idle -->
+          <div id="atl-state-recipe-idle" class="atl-tab-body">
+            <p class="atl-list-label">Recent recipes</p>
+            <div class="atl-recipe-list">
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
+                <span class="atl-recipe-icon">&#x1F357;</span>
+                <div class="atl-recipe-body"><div class="atl-recipe-name">Chicken Rice Bowl</div><div class="atl-recipe-meta">Last cooked 3 days ago &middot; 850 g</div></div>
+                <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
+              </div>
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-cooked')">
+                <span class="atl-recipe-icon">&#x1F35D;</span>
+                <div class="atl-recipe-body"><div class="atl-recipe-name">Pasta Bolognese</div><div class="atl-recipe-meta">Last cooked 3 weeks ago &middot; needs update</div></div>
+                <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
+              </div>
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
+                <span class="atl-recipe-icon">&#x1F957;</span>
+                <div class="atl-recipe-body"><div class="atl-recipe-name">Quinoa Salad</div><div class="atl-recipe-meta">Last cooked yesterday &middot; 620 g</div></div>
+                <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
+              </div>
+              <div class="atl-recipe-row" onclick="selectRecipeRow(this,'recipe-selected')">
+                <span class="atl-recipe-icon">&#x1F95E;</span>
+                <div class="atl-recipe-body"><div class="atl-recipe-name">Protein Pancakes</div><div class="atl-recipe-meta">Last cooked 5 days ago &middot; 340 g</div></div>
+                <div class="atl-recipe-check"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg></div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--ink-soft);text-align:center;padding:10px 0 6px;">Tap a recipe to select it</p>
+          </div>
+
+          <!-- State: recipe-selected -->
+          <div id="atl-state-recipe-selected" class="atl-tab-body" style="display:none;">
+            <div class="atl-chip">
+              <span class="atl-chip-icon">&#x1F357;</span>
+              <div class="atl-chip-body"><div class="atl-chip-name">Chicken Rice Bowl</div></div>
+              <button class="atl-chip-clear" onclick="showLogState('recipe-idle')" aria-label="Clear"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+            </div>
+            <label class="atl-amount-label">Portion weight</label>
+            <div class="atl-amount-row">
+              <input class="atl-amount-input" type="number" id="atl-recipe-amount" value="320" min="1" oninput="updateRecipeHint()" />
+              <span class="atl-amount-unit">g</span>
+            </div>
+            <p class="atl-amount-hint" id="atl-recipe-hint">&asymp;&thinsp;540 kcal &middot; 42 g protein &middot; 18 g fat &middot; 55 g carbs</p>
+            <label class="atl-meal-label">Meal</label>
+            <div class="atl-meal-grid" id="atl-recipe-meal-grid">
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F305;</span>Breakfast</button>
+              <button class="atl-meal-btn active" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x2600;&#xFE0F;</span>Lunch</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F319;</span>Dinner</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F34E;</span>Snack</button>
+            </div>
+            <div class="atl-sheet-cta">
+              <button class="atl-log-btn" id="atl-recipe-log-btn" onclick="showLogState('submitting')">
+                <span class="atl-btn-text">Log to Lunch</span><div class="atl-btn-spinner"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- State: recipe-cooked (stale cooked weight) -->
+          <div id="atl-state-recipe-cooked" class="atl-tab-body" style="display:none;">
+            <div class="atl-chip">
+              <span class="atl-chip-icon">&#x1F35D;</span>
+              <div class="atl-chip-body"><div class="atl-chip-name">Pasta Bolognese</div></div>
+              <button class="atl-chip-clear" onclick="showLogState('recipe-idle')" aria-label="Clear"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+            </div>
+            <div class="atl-cooked-warn">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;color:var(--warn);" width="17" height="17"><path d="M9 2L1 16h16L9 2z"/><path d="M9 7v4M9 13.5h.01"/></svg>
+              <div>
+                <div class="atl-cooked-warn-title">Cooked weight needed</div>
+                <p class="atl-cooked-warn-desc">This recipe was last cooked 3 weeks ago. Enter the total cooked weight so your portion nutrition stays accurate.</p>
+              </div>
+            </div>
+            <label class="atl-amount-label">Total cooked weight (whole batch)</label>
+            <div class="atl-amount-row">
+              <input class="atl-amount-input" type="number" id="atl-cooked-total" placeholder="0" min="1" oninput="updateCookedHint()" />
+              <span class="atl-amount-unit">g</span>
+            </div>
+            <p class="atl-amount-hint" style="font-style:normal;">Weigh the dish before portioning</p>
+            <div class="atl-divider"></div>
+            <label class="atl-amount-label">Your portion</label>
+            <div class="atl-amount-row">
+              <input class="atl-amount-input" type="number" id="atl-cooked-portion" value="350" min="1" oninput="updateCookedHint()" />
+              <span class="atl-amount-unit">g</span>
+            </div>
+            <p class="atl-amount-hint" id="atl-cooked-kcal-hint">Enter total weight above to calculate</p>
+            <label class="atl-meal-label">Meal</label>
+            <div class="atl-meal-grid">
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F305;</span>Breakfast</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x2600;&#xFE0F;</span>Lunch</button>
+              <button class="atl-meal-btn active" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F319;</span>Dinner</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F34E;</span>Snack</button>
+            </div>
+            <div class="atl-sheet-cta">
+              <button class="atl-log-btn" id="atl-cooked-log-btn" disabled onclick="showLogState('submitting')">
+                <span class="atl-btn-text">Log to Dinner</span><div class="atl-btn-spinner"></div>
+              </button>
+              <p class="atl-log-note" id="atl-cooked-note">Enter total cooked weight to enable logging</p>
+            </div>
+          </div>
+
+        </div><!-- /atl-recipe-tab -->
+
+        <!-- ── Ingredient tab ─────────────────────────────────────── -->
+        <div id="atl-ingredient-tab" style="display:none;">
+
+          <!-- State: ing-idle -->
+          <div id="atl-state-ing-idle" class="atl-tab-body">
+            <div class="atl-search-wrap">
+              <span class="atl-search-icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.5"/><path d="M13 13l2.5 2.5"/></svg></span>
+              <input class="atl-search-input" type="text" id="atl-ing-search" placeholder="Search ingredients&hellip;" value="chicken" />
+              <button class="atl-search-clear" onclick="document.getElementById('atl-ing-search').value=''" aria-label="Clear"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+            </div>
+            <div class="atl-results">
+              <div class="atl-result-row" onclick="showLogState('ing-selected')">
+                <span class="atl-result-icon">&#x1F357;</span>
+                <div class="atl-result-body"><div class="atl-result-name">Chicken Breast, raw</div><div class="atl-result-meta"><span class="atl-result-kcal">110 kcal</span><span class="atl-result-unit">per 100 g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--border);flex-shrink:0;" width="14" height="14"><path d="M6 4l4 4-4 4"/></svg>
+              </div>
+              <div class="atl-result-row" onclick="showLogState('ing-selected')">
+                <span class="atl-result-icon">&#x1F357;</span>
+                <div class="atl-result-body"><div class="atl-result-name">Chicken Breast, cooked</div><div class="atl-result-meta"><span class="atl-result-kcal">165 kcal</span><span class="atl-result-unit">per 100 g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--border);flex-shrink:0;" width="14" height="14"><path d="M6 4l4 4-4 4"/></svg>
+              </div>
+              <div class="atl-result-row" onclick="showLogState('ing-selected')">
+                <span class="atl-result-icon">&#x1F373;</span>
+                <div class="atl-result-body"><div class="atl-result-name">Chicken Egg, whole raw</div><div class="atl-result-meta"><span class="atl-result-kcal">143 kcal</span><span class="atl-result-unit">per 100 g</span><span class="badge badge-system"><span class="badge-dot"></span>System</span></div></div>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--border);flex-shrink:0;" width="14" height="14"><path d="M6 4l4 4-4 4"/></svg>
+              </div>
+              <div class="atl-result-row" onclick="showLogState('ing-selected')">
+                <span class="atl-result-icon">&#x1F357;</span>
+                <div class="atl-result-body"><div class="atl-result-name">Chicken Thigh, skin-on</div><div class="atl-result-meta"><span class="atl-result-kcal">209 kcal</span><span class="atl-result-unit">per 100 g</span><span class="badge badge-custom"><span class="badge-dot"></span>Custom</span></div></div>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--border);flex-shrink:0;" width="14" height="14"><path d="M6 4l4 4-4 4"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- State: ing-selected -->
+          <div id="atl-state-ing-selected" class="atl-tab-body" style="display:none;">
+            <div class="atl-chip">
+              <span class="atl-chip-icon">&#x1F357;</span>
+              <div class="atl-chip-body">
+                <div class="atl-chip-name">Chicken Breast, raw</div>
+                <div class="atl-chip-meta">110 kcal &middot; per 100 g &middot; <span class="badge badge-system" style="vertical-align:middle"><span class="badge-dot"></span>System</span></div>
+              </div>
+              <button class="atl-chip-clear" onclick="showLogState('ing-idle')" aria-label="Clear"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+            </div>
+            <label class="atl-amount-label">Amount</label>
+            <div class="atl-amount-row">
+              <input class="atl-amount-input" type="number" id="atl-ing-amount" value="150" min="1" oninput="updateIngHint()" />
+              <span class="atl-amount-unit">g</span>
+            </div>
+            <p class="atl-amount-hint" id="atl-ing-hint">&asymp;&thinsp;165 kcal &middot; 35 g protein &middot; 1.8 g fat &middot; 0 g carbs</p>
+            <label class="atl-meal-label">Meal</label>
+            <div class="atl-meal-grid">
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F305;</span>Breakfast</button>
+              <button class="atl-meal-btn active" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x2600;&#xFE0F;</span>Lunch</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F319;</span>Dinner</button>
+              <button class="atl-meal-btn" onclick="selectLogMeal(this)"><span class="atl-meal-icon">&#x1F34E;</span>Snack</button>
+            </div>
+            <div class="atl-sheet-cta">
+              <button class="atl-log-btn" id="atl-ing-log-btn" onclick="showLogState('submitting')">
+                <span class="atl-btn-text">Log to Lunch</span><div class="atl-btn-spinner"></div>
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /atl-ingredient-tab -->
+
+      </div><!-- /atl-sheet -->
+    </div><!-- /atl-overlay -->
+
+    <!-- LOG SUCCESS TOAST -->
+    <div class="toast hidden" id="log-toast">
+      <div class="toast-inner">
+        <svg style="color:var(--success);flex-shrink:0;" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 9l4.5 4.5 9-9"/></svg>
+        <span id="log-toast-msg">Logged to <strong>Lunch</strong></span>
+        <button class="toast-undo" onclick="document.getElementById('log-toast').classList.add('hidden')">Done</button>
+      </div>
+    </div>
 
   </div><!-- /phone-viewport -->
 
@@ -2758,6 +3278,7 @@
     });
     // update bottom nav active tab
     const tabMap = {
+      's-log-home': 'log',
       's-recipe-list': 'recipes', 's-recipe-list-empty': 'recipes',
       's-recipe-detail': 'recipes', 's-recipe-create': 'recipes',
       's-cooking': 'recipes',
@@ -2770,6 +3291,13 @@
       n.classList.toggle('active', n.dataset.tab === activeTab);
     });
     if (id === 's-cooking') { renderIngredients(); calcCooking(); }
+    // Close add-to-log sheet when navigating away from log screen
+    if (id !== 's-log-home') {
+      const atlOverlay = document.getElementById('atl-overlay');
+      if (atlOverlay) atlOverlay.classList.add('hidden');
+      const logToast = document.getElementById('log-toast');
+      if (logToast) logToast.classList.add('hidden');
+    }
     closeSidebar();
     window.scrollTo(0, 0);
   }
@@ -2809,6 +3337,219 @@
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     applyTheme(saved === 'dark' || (!saved && prefersDark));
   })();
+  /* ════════════════════════════════════════════════════════
+     LOG — DAILY LOG & ADD-TO-LOG SHEET
+  ═══════════════════════════════════════════════════════ */
+  const LOG_STATES = {
+    'home':            { sheet:false, tab:null, rs:null,             is:null },
+    'recipe-idle':     { sheet:true,  tab:'r',  rs:'recipe-idle',    is:null },
+    'recipe-selected': { sheet:true,  tab:'r',  rs:'recipe-selected',is:null },
+    'recipe-cooked':   { sheet:true,  tab:'r',  rs:'recipe-cooked',  is:null },
+    'ing-idle':        { sheet:true,  tab:'i',  rs:null,             is:'ing-idle' },
+    'ing-selected':    { sheet:true,  tab:'i',  rs:null,             is:'ing-selected' },
+    'submitting':      { sheet:true,  tab:null, rs:null,             is:null, submitting:true },
+    'success':         { sheet:false, tab:null, rs:null,             is:null, toast:true },
+  };
+
+  // Entry point from sidebar (navigates to log screen first)
+  function showLogScreen(state) {
+    showScreen('s-log-home');
+    _applyLogState(state || 'home');
+    _updateLogSidebar(state || 'home');
+  }
+
+  // Entry point from FAB / meal add buttons
+  function openLogSheet(state, defaultMeal) {
+    const overlay = document.getElementById('atl-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    _applyLogState(state || 'recipe-idle');
+    if (defaultMeal) _preselectMeal(defaultMeal);
+    _updateLogSidebar(state || 'recipe-idle');
+  }
+
+  function closeLogSheet() {
+    _applyLogState('home');
+    _updateLogSidebar('home');
+  }
+
+  // Used by sheet sub-state transitions (recipe rows, chip clears, submitting)
+  function selectRecipeRow(el, state) {
+    // Mark the tapped row as selected so the CSS checkmark is revealed
+    document.querySelectorAll('.atl-recipe-row').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    showLogState(state);
+  }
+
+  function showLogState(key) {
+    _applyLogState(key);
+    _updateLogSidebar(key);
+  }
+
+  function _applyLogState(key) {
+    const s = LOG_STATES[key];
+    if (!s) return;
+
+    const overlay = document.getElementById('atl-overlay');
+    const sheet   = document.getElementById('atl-sheet');
+    const toast   = document.getElementById('log-toast');
+
+    if (toast) toast.classList.toggle('hidden', !s.toast);
+
+    if (s.sheet) {
+      if (overlay) overlay.classList.remove('hidden');
+    } else {
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    if (s.submitting) {
+      if (sheet) { sheet.style.opacity = '0.82'; sheet.style.pointerEvents = 'none'; }
+      document.querySelectorAll('.atl-log-btn').forEach(b => { b.classList.add('loading'); b.disabled = false; });
+      // Capture the active meal name now so the success toast reflects the chosen meal
+      const activeMealBtn = document.querySelector('.atl-meal-btn.active');
+      if (activeMealBtn) {
+        const mealName = activeMealBtn.querySelector('.atl-meal-icon').nextSibling.textContent.trim();
+        const msgEl = document.getElementById('log-toast-msg');
+        if (msgEl) msgEl.innerHTML = 'Logged to <strong>' + mealName + '</strong>';
+      }
+      setTimeout(() => { _applyLogState('success'); _updateLogSidebar('success'); }, 1300);
+      return;
+    }
+
+    // Reset from submitting state
+    if (sheet) { sheet.style.opacity = ''; sheet.style.pointerEvents = ''; }
+    document.querySelectorAll('.atl-log-btn').forEach(b => b.classList.remove('loading'));
+
+    if (s.tab) _switchLogTabInternal(s.tab === 'r' ? 'recipe' : 'ingredient');
+
+    ['recipe-idle','recipe-selected','recipe-cooked'].forEach(id => {
+      const el = document.getElementById('atl-state-' + id);
+      if (el) el.style.display = (s.rs === id) ? '' : 'none';
+    });
+    ['ing-idle','ing-selected'].forEach(id => {
+      const el = document.getElementById('atl-state-' + id);
+      if (el) el.style.display = (s.is === id) ? '' : 'none';
+    });
+  }
+
+  function switchLogTab(tab) {
+    _switchLogTabInternal(tab);
+    _applyLogState(tab === 'recipe' ? 'recipe-idle' : 'ing-idle');
+    _updateLogSidebar(tab === 'recipe' ? 'recipe-idle' : 'ing-idle');
+  }
+
+  function _switchLogTabInternal(tab) {
+    const rTab = document.getElementById('atl-tab-recipe');
+    const iTab = document.getElementById('atl-tab-ingredient');
+    const rPanel = document.getElementById('atl-recipe-tab');
+    const iPanel = document.getElementById('atl-ingredient-tab');
+    if (rTab) rTab.classList.toggle('active', tab === 'recipe');
+    if (iTab) iTab.classList.toggle('active', tab === 'ingredient');
+    if (rPanel) rPanel.style.display = tab === 'recipe' ? '' : 'none';
+    if (iPanel) iPanel.style.display = tab === 'ingredient' ? '' : 'none';
+  }
+
+  function selectLogMeal(btn) {
+    const grid = btn.closest('.atl-meal-grid');
+    grid.querySelectorAll('.atl-meal-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mealName = btn.querySelector('.atl-meal-icon').nextSibling.textContent.trim();
+    const stateDiv = btn.closest('[id^="atl-state-"]');
+    if (stateDiv) {
+      const textEl = stateDiv.querySelector('.atl-btn-text');
+      if (textEl) textEl.textContent = 'Log to ' + mealName;
+    }
+  }
+
+  function _preselectMeal(mealName) {
+    document.querySelectorAll('.atl-meal-grid').forEach(grid => {
+      grid.querySelectorAll('.atl-meal-btn').forEach(btn => {
+        const name = btn.querySelector('.atl-meal-icon').nextSibling.textContent.trim();
+        const match = name === mealName || (mealName === 'Snack' && name === 'Snack');
+        btn.classList.toggle('active', match);
+      });
+    });
+    document.querySelectorAll('.atl-btn-text').forEach(el => {
+      el.textContent = 'Log to ' + mealName;
+    });
+  }
+
+  function toggleMealSection(header) {
+    const section = header.closest('.meal-section');
+    section.classList.toggle('collapsed');
+    const chevron = header.querySelector('.meal-chevron');
+    if (chevron) chevron.style.transform = section.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
+  }
+
+  function _updateLogSidebar(key) {
+    const idMap = {
+      'home':            null,
+      'recipe-idle':     'sb-log-recipe-idle',
+      'recipe-selected': 'sb-log-recipe-selected',
+      'recipe-cooked':   'sb-log-recipe-cooked',
+      'ing-idle':        'sb-log-ing-idle',
+      'ing-selected':    'sb-log-ing-selected',
+      'submitting':      'sb-log-submitting',
+      'success':         null,
+    };
+    // Clear all log sub-state buttons
+    Object.values(idMap).forEach(id => {
+      if (id) { const el = document.getElementById(id); if (el) el.classList.remove('active'); }
+    });
+    // The s-log-home sidebar button is handled by showScreen's data-screen logic
+    if (key !== 'home' && key !== 'success' && idMap[key]) {
+      const el = document.getElementById(idMap[key]);
+      if (el) el.classList.add('active');
+    }
+  }
+
+  /* ─ Hint updaters ──────────────────────────────────────────────────── */
+  function updateRecipeHint() {
+    const g = parseFloat(document.getElementById('atl-recipe-amount')?.value) || 0;
+    const hint = document.getElementById('atl-recipe-hint');
+    if (!hint) return;
+    if (!g) { hint.textContent = ''; return; }
+    // TODO (issue #02-09): these figures (850 g batch, 1437 kcal, 110.5 g protein, 47.6 g fat,
+    // 144.5 g carbs) are hardcoded for Chicken Rice Bowl only. The real implementation must
+    // look up per-100 g macros and last-cooked batch weight from the selected recipe.
+    const ratio = g / 850;
+    hint.textContent = '\u2248\u2009' + Math.round(1437 * ratio) + ' kcal \u00b7 '
+      + Math.round(110.5 * ratio) + ' g protein \u00b7 '
+      + Math.round(47.6 * ratio) + ' g fat \u00b7 '
+      + Math.round(144.5 * ratio) + ' g carbs';
+  }
+
+  function updateCookedHint() {
+    const total   = parseFloat(document.getElementById('atl-cooked-total')?.value) || 0;
+    const portion = parseFloat(document.getElementById('atl-cooked-portion')?.value) || 0;
+    const logBtn  = document.getElementById('atl-cooked-log-btn');
+    const note    = document.getElementById('atl-cooked-note');
+    const hint    = document.getElementById('atl-cooked-kcal-hint');
+    if (total > 0) {
+      if (logBtn) logBtn.disabled = false;
+      if (note)   note.style.display = 'none';
+      const r = portion / total;
+      if (hint) hint.textContent = '\u2248\u2009' + Math.round(1800 * r) + ' kcal \u00b7 '
+        + Math.round(90 * r) + ' g protein \u00b7 '
+        + Math.round(50 * r) + ' g fat \u00b7 '
+        + Math.round(200 * r) + ' g carbs';
+    } else {
+      if (logBtn) logBtn.disabled = true;
+      if (note)   note.style.display = '';
+      if (hint)   hint.textContent = 'Enter total weight above to calculate';
+    }
+  }
+
+  function updateIngHint() {
+    const g = parseFloat(document.getElementById('atl-ing-amount')?.value) || 0;
+    const hint = document.getElementById('atl-ing-hint');
+    if (!hint) return;
+    if (!g) { hint.textContent = ''; return; }
+    const r = g / 100;
+    hint.textContent = '\u2248\u2009' + Math.round(110 * r) + ' kcal \u00b7 '
+      + Math.round(23 * r) + ' g protein \u00b7 '
+      + parseFloat((1.2 * r).toFixed(1)) + ' g fat \u00b7 0 g carbs';
+  }
+
   </script>
 </body>
 </html>
